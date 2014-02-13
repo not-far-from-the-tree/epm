@@ -9,4 +9,20 @@
 
 # Make sure your secret_key_base is kept private
 # if you're sharing your code publicly.
-Epm::Application.config.secret_key_base = 'ab09188f6de78b04dcc2f8f13c11a31b4d9ff738d3d456f31058b25d8f700d208ecd9fc1a35f87204b4cdddbea2c1e6eb52c2fc3a6385a50d375f846a87afe58'
+
+require 'securerandom'
+
+def secure_token
+  token_file = Rails.root.join('.secret')
+  if File.exist?(token_file)
+    # Use the existing token.
+    File.read(token_file).chomp
+  else
+    # Generate a new token and store it in token_file.
+    token = SecureRandom.hex(64)
+    File.write(token_file, token)
+    token
+  end
+end
+
+Epm::Application.config.secret_key_base = secure_token
