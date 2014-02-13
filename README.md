@@ -1,2 +1,2 @@
-epm
+Event-Participant Manager
 ===
