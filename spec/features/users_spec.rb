@@ -13,8 +13,10 @@ describe "Users" do
       click_button 'Sign up'
     end
 
+    it "sends a confirmation email"
+
     it "creates a new user" do
-      expect{ sign_up }.to change(User, :count).by 1
+      expect{ sign_up }.to change{User.count}.by 1
     end
 
     it "logs them in" do
@@ -27,6 +29,29 @@ describe "Users" do
       visit root_path
       sign_up
       expect(current_path).to eq root_path
+    end
+
+  end
+
+  describe "Fails to sign up an invalid user" do
+
+    def bad_sign_up
+      visit new_user_registration_path
+      click_button 'Sign up'
+    end
+
+    it "does not create a new user" do
+      expect{ bad_sign_up }.not_to change{User.count}
+    end
+
+    it "returns them to the sign up page" do
+      bad_sign_up
+      expect(current_path).to eq user_registration_path
+    end
+
+    it "displays an error message" do
+      bad_sign_up
+      expect(page).to have_content 'error'
     end
 
   end
