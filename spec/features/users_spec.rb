@@ -2,7 +2,6 @@ require 'spec_helper'
 
 describe "Users" do
 
-
   describe "signs up a new user" do
     # consider merging some of these to improve speed as each hits the DB
 
@@ -38,7 +37,6 @@ describe "Users" do
 
   end
 
-
   describe "fails to sign up an invalid user" do
 
     def bad_sign_up
@@ -62,7 +60,6 @@ describe "Users" do
 
   end
 
-
   it "logs in a user" do
     pass = Faker::Internet.password
     u = FactoryGirl.create(:user, password: pass)
@@ -72,7 +69,6 @@ describe "Users" do
     click_button 'Sign in'
     expect(page).to have_content 'Log out'      
   end
-
 
   describe "logs out a user" do
     include Warden::Test::Helpers
@@ -86,5 +82,40 @@ describe "Users" do
     end
   end
 
+  it "sends a password reset email" do
+    user = create(:user)
+    visit new_user_session_path
+    click_link 'Forgot your password?'
+    fill_in 'Email', with: user.email
+    expect { click_button 'Send' }.to change{ActionMailer::Base.deliveries.size}.by 1
+    expect(ActionMailer::Base.deliveries.last.to).to eq [user.email]
+    expect(page).to have_content 'You will receive'
+  end
+
+  it "does not send a password reset email to non-users" do
+    visit new_user_session_path
+    click_link 'Forgot your password?'
+    fill_in 'Email', with: Faker::Internet.email
+    expect { click_button 'Send' }.not_to change{ActionMailer::Base.deliveries.size}
+    expect(page).to have_content 'error'
+  end
+
+  it "resends a confirmation email upon request" do
+    user = create(:user)
+    visit new_user_session_path
+    click_link "Didn't receive confirmation instructions?"
+    fill_in 'Email', with: user.email
+    expect { click_button 'Resend' }.to change{ActionMailer::Base.deliveries.size}.by 1
+    expect(ActionMailer::Base.deliveries.last.to).to eq [user.email]
+    expect(page).to have_content 'You will receive'
+  end
+
+  it "does not resends a confirmation email to non-users" do
+    visit new_user_session_path
+    click_link "Didn't receive confirmation instructions?"
+    fill_in 'Email', with: Faker::Internet.email
+    expect { click_button 'Resend' }.not_to change{ActionMailer::Base.deliveries.size}
+    expect(page).to have_content 'error'
+  end
 
 end
