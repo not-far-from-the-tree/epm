@@ -32,6 +32,7 @@ end
 group :test do
   gem "letter_opener"
   gem 'faker'
+  gem 'capybara'
 end
 
 group :doc do
