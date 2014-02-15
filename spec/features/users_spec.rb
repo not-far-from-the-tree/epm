@@ -13,10 +13,13 @@ describe "Users" do
       click_button 'Sign up'
     end
 
-    it "sends a confirmation email"
-
     it "creates a new user" do
       expect{ sign_up }.to change{User.count}.by 1
+    end
+
+    it "sends a confirmation email" do
+      expect{ sign_up }.to change{ActionMailer::Base.deliveries.size}.by 1
+      expect(ActionMailer::Base.deliveries.last.to).to eq [User.last.email]
     end
 
     it "logs them in" do
