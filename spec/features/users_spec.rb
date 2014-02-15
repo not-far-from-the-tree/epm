@@ -2,7 +2,9 @@ require 'spec_helper'
 
 describe "Users" do
 
-  describe "Signs up a new user" do
+
+  describe "signs up a new user" do
+    # consider merging some of these to improve speed as each hits the DB
 
     def sign_up
       visit new_user_registration_path
@@ -25,7 +27,7 @@ describe "Users" do
     it "logs them in" do
       sign_up
       expect(page).to have_content 'signed up successfully'
-      expect(page).to have_content 'Log out'      
+      expect(page).to have_content 'Log out'
     end
 
     it "returns them to the page they started from" do
@@ -36,7 +38,8 @@ describe "Users" do
 
   end
 
-  describe "Fails to sign up an invalid user" do
+
+  describe "fails to sign up an invalid user" do
 
     def bad_sign_up
       visit new_user_registration_path
@@ -58,5 +61,30 @@ describe "Users" do
     end
 
   end
+
+
+  it "logs in a user" do
+    pass = Faker::Internet.password
+    u = FactoryGirl.create(:user, password: pass)
+    visit new_user_session_path
+    fill_in 'Email', with: u.email
+    fill_in 'Password', with: pass
+    click_button 'Sign in'
+    expect(page).to have_content 'Log out'      
+  end
+
+
+  describe "logs out a user" do
+    include Warden::Test::Helpers
+    # Warden.test_mode! # this is supposedly required with above line but doesn't affect test results
+    it "clicks log out link" do
+      user = create(:user)
+      login_as user # supposedly we also need scope: :user but this doesn't affect test results
+      visit root_path
+      click_link 'Log out'
+      expect(page).to have_content 'Sign in'
+    end
+  end
+
 
 end
