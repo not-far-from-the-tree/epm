@@ -79,6 +79,7 @@ describe "Users" do
       visit root_path
       click_link 'Log out'
       expect(page).to have_content 'Sign in'
+      Warden.test_reset! # this will be needed if/when using the warden test helpers in multiple tests
     end
   end
 
