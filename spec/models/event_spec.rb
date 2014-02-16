@@ -10,6 +10,10 @@ describe Event do
     expect(create(:event)).to respond_to :finish
   end
 
+  it "has participants" do
+    expect(create(:event)).to respond_to :participants
+  end
+
   it "is invalid without a start" do
     expect(build(:event, start: nil)).not_to be_valid
   end

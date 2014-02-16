@@ -6,6 +6,10 @@ describe User do
     expect(create(:user)).to respond_to :email
   end
 
+  it "has events" do
+    expect(create(:user)).to respond_to :events
+  end
+
   it "has a valid factory" do
     expect(create(:user)).to be_valid
   end
