@@ -18,10 +18,10 @@ group :development, :test do
   gem 'sqlite3'
   gem 'rspec-rails'
   gem 'factory_girl_rails'
+  gem 'faker'
+  gem "letter_opener"
 end
 
 group :test do
-  gem "letter_opener"
-  gem 'faker'
   gem 'capybara'
 end
