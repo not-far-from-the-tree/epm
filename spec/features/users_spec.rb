@@ -1,3 +1,5 @@
+# consider rewriting some of these tests to improve speed
+
 require 'spec_helper'
 
 describe "Users" do
@@ -60,63 +62,76 @@ describe "Users" do
 
   end
 
-  it "logs in a user" do
-    pass = Faker::Internet.password
-    u = FactoryGirl.create(:user, password: pass)
-    visit new_user_session_path
-    fill_in 'Email', with: u.email
-    fill_in 'Password', with: pass
-    click_button 'Sign in'
-    expect(page).to have_content 'Log out'      
-  end
+  describe "authentication" do
 
-  describe "logs out a user" do
-    include Warden::Test::Helpers
-    # Warden.test_mode! # this is supposedly required with above line but doesn't affect test results
-    it "clicks log out link" do
-      user = create(:user)
-      login_as user # supposedly we also need scope: :user but this doesn't affect test results
-      visit root_path
-      click_link 'Log out'
-      expect(page).to have_content 'Sign in'
-      Warden.test_reset! # this will be needed if/when using the warden test helpers in multiple tests
+    it "logs in a user" do
+      pass = Faker::Internet.password
+      u = FactoryGirl.create(:user, password: pass)
+      visit new_user_session_path
+      fill_in 'Email', with: u.email
+      fill_in 'Password', with: pass
+      click_button 'Sign in'
+      expect(page).to have_content 'Log out'
     end
-  end
 
-  it "sends a password reset email" do
-    user = create(:user)
-    visit new_user_session_path
-    click_link 'Forgot your password?'
-    fill_in 'Email', with: user.email
-    expect { click_button 'Send' }.to change{ActionMailer::Base.deliveries.size}.by 1
-    expect(ActionMailer::Base.deliveries.last.to).to eq [user.email]
-    expect(page).to have_content 'You will receive'
-  end
+    it "fails to log in a user with bad credentials" do
+      u = FactoryGirl.create :user
+      visit new_user_session_path
+      fill_in 'Email', with: u.email
+      fill_in 'Password', with: Faker::Internet.password
+      click_button 'Sign in'
+      expect(page).to have_content 'Invalid'
+    end
 
-  it "does not send a password reset email to non-users" do
-    visit new_user_session_path
-    click_link 'Forgot your password?'
-    fill_in 'Email', with: Faker::Internet.email
-    expect { click_button 'Send' }.not_to change{ActionMailer::Base.deliveries.size}
-    expect(page).to have_content 'error'
-  end
+    describe "logs out a user" do
+      include Warden::Test::Helpers
+      # Warden.test_mode! # this is supposedly required with above line but doesn't affect test results
+      it "clicks log out link" do
+        user = create :user
+        login_as user # supposedly we also need scope: :user but this doesn't affect test results
+        visit root_path
+        click_link 'Log out'
+        expect(page).to have_content 'Sign in'
+        Warden.test_reset! # this will be needed if/when using the warden test helpers in multiple tests
+      end
+    end
 
-  it "resends a confirmation email upon request" do
-    user = create(:user)
-    visit new_user_session_path
-    click_link "Didn't receive confirmation instructions?"
-    fill_in 'Email', with: user.email
-    expect { click_button 'Resend' }.to change{ActionMailer::Base.deliveries.size}.by 1
-    expect(ActionMailer::Base.deliveries.last.to).to eq [user.email]
-    expect(page).to have_content 'You will receive'
-  end
+    it "sends a password reset email" do
+      user = create(:user)
+      visit new_user_session_path
+      click_link 'Forgot your password?'
+      fill_in 'Email', with: user.email
+      expect { click_button 'Send' }.to change{ActionMailer::Base.deliveries.size}.by 1
+      expect(ActionMailer::Base.deliveries.last.to).to eq [user.email]
+      expect(page).to have_content 'You will receive'
+    end
 
-  it "does not resends a confirmation email to non-users" do
-    visit new_user_session_path
-    click_link "Didn't receive confirmation instructions?"
-    fill_in 'Email', with: Faker::Internet.email
-    expect { click_button 'Resend' }.not_to change{ActionMailer::Base.deliveries.size}
-    expect(page).to have_content 'error'
+    it "does not send a password reset email to non-users" do
+      visit new_user_session_path
+      click_link 'Forgot your password?'
+      fill_in 'Email', with: Faker::Internet.email
+      expect { click_button 'Send' }.not_to change{ActionMailer::Base.deliveries.size}
+      expect(page).to have_content 'error'
+    end
+
+    it "resends a confirmation email upon request" do
+      user = create(:user)
+      visit new_user_session_path
+      click_link "Didn't receive confirmation instructions?"
+      fill_in 'Email', with: user.email
+      expect { click_button 'Resend' }.to change{ActionMailer::Base.deliveries.size}.by 1
+      expect(ActionMailer::Base.deliveries.last.to).to eq [user.email]
+      expect(page).to have_content 'You will receive'
+    end
+
+    it "does not resends a confirmation email to non-users" do
+      visit new_user_session_path
+      click_link "Didn't receive confirmation instructions?"
+      fill_in 'Email', with: Faker::Internet.email
+      expect { click_button 'Resend' }.not_to change{ActionMailer::Base.deliveries.size}
+      expect(page).to have_content 'error'
+    end
+
   end
 
 end
