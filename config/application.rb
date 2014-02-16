@@ -25,5 +25,15 @@ module Epm
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
     config.i18n.enforce_available_locales = true # http://stackoverflow.com/a/20381730/715538
+
+    config.generators do |g|
+      g.test_framework :rspec,
+        :view_specs    => false,
+        :integration_specs => false,
+        :controller_specs => false,
+        :helper_specs => false,
+        :routing_specs => false
+    end
+
   end
 end
