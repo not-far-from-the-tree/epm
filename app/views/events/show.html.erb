@@ -8,6 +8,19 @@
   <%= @event.finish %>
 </p>
 
+<section>
+  Participants
+  <% if @event.participants.any? %>
+    <ul>
+      <% @event.participants.each do |user| %>
+        <li><%= user.email %></li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>None yet.</p>
+  <% end %>
+</section>
+
 <%= link_to 'Edit', edit_event_path(@event) %>
 |
 <%= link_to 'Delete', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
