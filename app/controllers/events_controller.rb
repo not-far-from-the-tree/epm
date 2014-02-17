@@ -40,11 +40,12 @@ class EventsController < ApplicationController
   end
 
   def attend
-    @event.event_users.create user: current_user
+    @event.event_users.create user: current_user # this will fail if already attending but that's fine
     redirect_to @event, notice: 'You are now attending this event.'
   end
 
   def unattend
+    # if user is already not attending this event, it does nothing and shows the same message which is fine
     @event.event_users.where(user: current_user).destroy_all
     redirect_to @event, notice: 'You are no longer attending this event.'
   end

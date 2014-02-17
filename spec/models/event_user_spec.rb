@@ -18,4 +18,9 @@ describe EventUser do
     expect(build(:event_user, user: nil)).not_to be_valid
   end
 
+  it "does not allow attending the same event more than once" do
+    event1 = create :event_user
+    expect(build(:event_user, user: event1.user, event: event1.event)).not_to be_valid
+  end
+
 end
