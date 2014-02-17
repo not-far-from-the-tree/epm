@@ -14,47 +14,64 @@ describe "Events" do
     Warden.test_reset!
   end
 
-  it "creates an event" do
-    visit root_path
-    click_link 'New Event'
-    expect{
-      # leave default datetimes (for now...)
-      click_button 'Create Event'
-    }.to change{Event.count}.by 1
-    expect(current_path).to eq event_path(Event.last)
-  end
+  describe "CRUD" do
 
-  it "views an event" do
-    e = create :event
-    visit root_path
-    # will need to replace the below with a selector that is more specific as to the event
-    within 'ol' do
-      all(:css, 'a').last.click
+    it "creates an event" do
+      visit root_path
+      click_link 'New Event'
+      expect{
+        # leave default datetimes (for now...)
+        click_button 'Create Event'
+      }.to change{Event.count}.by 1
+      expect(current_path).to eq event_path(Event.last)
     end
-    expect(current_path).to eq event_path(e)
+
+    it "views an event" do
+      e = create :event
+      visit root_path
+      # will need to replace the below with a selector that is more specific as to the event
+      within 'ol' do
+        all(:css, 'a').last.click
+      end
+      expect(current_path).to eq event_path(e)
+    end
+
+    it "updates an event" do
+      e = create :event
+      visit event_path(e)
+      click_link 'Edit'
+      next_year = DateTime.now.year + 1
+      select next_year, from: 'event[start(1i)]'
+      select next_year, from: 'event[finish(1i)]'
+      click_button 'Update Event'
+      expect(current_path).to eq event_path(e)
+      expect(page).to have_content 'updated'
+      expect(page).to have_content next_year
+    end
+
+    it "deletes an event" do
+      e = create :event
+      visit event_path(e)
+      expect{ click_link 'Delete' }.to change{Event.count}.by -1
+      expect(current_path).to eq events_path
+      expect(page).to have_content 'deleted'
+    end
+
   end
 
-  it "updates an event" do
-    e = create :event
-    visit event_path(e)
-    click_link 'Edit'
-    next_year = DateTime.now.year + 1
-    select next_year, from: 'event[start(1i)]'
-    select next_year, from: 'event[finish(1i)]'
-    click_button 'Update Event'
-    expect(current_path).to eq event_path(e)
-    expect(page).to have_content 'updated'
-    expect(page).to have_content next_year
+  describe "attendance" do
+
+    it "joins an event" do
+      e = create :event
+      visit root_path
+      within 'ol' do
+        first('a').click
+      end
+      expect { click_link 'Join' }.to change{e.participants.count}.by 1
+      expect(current_path).to eq event_path(e)
+      expect(page).to have_content @user.email
+    end
+
   end
 
-  it "deletes an event" do
-    e = create :event
-    visit event_path(e)
-    expect{
-      click_link 'Delete'
-    }.to change{Event.count}.by -1
-    expect(current_path).to eq events_path
-    expect(page).to have_content 'deleted'
-  end
-  
 end

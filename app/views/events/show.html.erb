@@ -9,7 +9,10 @@
 </p>
 
 <section>
-  Participants
+  <h2>Participants</h2>
+  <% unless @event.participants.include? current_user %>
+    <%= link_to 'Join', attend_event_path(@event), method: :patch %>
+  <% end %>
   <% if @event.participants.any? %>
     <ul>
       <% @event.participants.each do |user| %>
