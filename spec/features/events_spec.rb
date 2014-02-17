@@ -63,13 +63,19 @@ describe "Events" do
 
     it "joins an event" do
       e = create :event
-      visit root_path
-      within 'ol' do
-        first('a').click
-      end
+      visit event_path(e)
       expect { click_link 'Join' }.to change{e.participants.count}.by 1
       expect(current_path).to eq event_path(e)
       expect(page).to have_content @user.email
+    end
+
+    it "cancels attending an event" do
+      e = create :event
+      e.event_users.create user: @user
+      visit event_path(e)
+      expect { click_link 'Cancel' }.to change{e.participants.count}.by -1
+      expect(current_path).to eq event_path(e)
+      expect(page).not_to have_content @user.email
     end
 
   end

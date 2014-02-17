@@ -10,7 +10,9 @@
 
 <section>
   <h2>Participants</h2>
-  <% unless @event.participants.include? current_user %>
+  <% if @event.participants.include? current_user %>
+    <%= link_to 'Cancel', unattend_event_path(@event), method: :patch %>
+  <% else %>
     <%= link_to 'Join', attend_event_path(@event), method: :patch %>
   <% end %>
   <% if @event.participants.any? %>

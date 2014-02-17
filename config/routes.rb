@@ -5,7 +5,10 @@ Epm::Application.routes.draw do
   root 'events#index'
 
   resources :events do
-    patch 'attend', on: :member
+    member do
+      patch 'attend'
+      patch 'unattend'
+    end
   end
 
 end

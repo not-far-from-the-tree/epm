@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
  
-  before_action :set_event, only: [:show, :edit, :update, :destroy, :attend]
+  before_action :set_event, only: [:show, :edit, :update, :destroy, :attend, :unattend]
 
   def index
     @events = Event.all
@@ -42,6 +42,11 @@ class EventsController < ApplicationController
   def attend
     @event.event_users.create user: current_user
     redirect_to @event, notice: 'You are now attending this event.'
+  end
+
+  def unattend
+    @event.event_users.where(user: current_user).destroy_all
+    redirect_to @event, notice: 'You are no longer attending this event.'
   end
 
   private
