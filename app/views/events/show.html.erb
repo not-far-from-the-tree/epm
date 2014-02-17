@@ -1,20 +1,23 @@
-<p>
-  <strong>Start:</strong>
-  <%= @event.start %>
-</p>
+<h1>Event</h1>
 
-<p>
-  <strong>Finish:</strong>
-  <%= @event.finish %>
-</p>
+<%= link_to 'Edit', edit_event_path(@event) %>
+|
+<%= link_to 'Delete', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
+
+<dl>
+  <dt>When</dt>
+  <dd><%= @event.start %> to <%= @event.finish %></dd>
+</dl>
 
 <section>
   <h2>Participants</h2>
-  <% if @event.participants.include? current_user %>
-    <%= link_to 'Cancel', unattend_event_path(@event), method: :patch %>
-  <% else %>
-    <%= link_to 'Join', attend_event_path(@event), method: :patch %>
-  <% end %>
+  <strong>
+    <% if @event.participants.include? current_user %>
+      <%= link_to 'Cancel', unattend_event_path(@event), method: :patch %>
+    <% else %>
+      <%= link_to 'Join', attend_event_path(@event), method: :patch %>
+    <% end %>
+  </strong>
   <% if @event.participants.any? %>
     <ul>
       <% @event.participants.each do |user| %>
@@ -25,9 +28,3 @@
     <p>None yet.</p>
   <% end %>
 </section>
-
-<%= link_to 'Edit', edit_event_path(@event) %>
-|
-<%= link_to 'Delete', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
-|
-<%= link_to 'Back', events_path %>

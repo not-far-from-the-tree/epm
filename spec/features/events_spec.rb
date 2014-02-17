@@ -18,7 +18,7 @@ describe "Events" do
 
     it "creates an event" do
       visit root_path
-      click_link 'New Event'
+      click_link 'Add New Event'
       expect{
         # leave default datetimes (for now...)
         click_button 'Create Event'

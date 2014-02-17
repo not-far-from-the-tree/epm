@@ -1,29 +1,51 @@
 html {
   font-family: Helvetica, sans-serif;
-  background-color: #fff;
+  background-color: white;
 }
 body {
   margin: 0;
+  font-size: 1.1em;
 }
 a img {
   border: 0;
 }
 
-h1 {
+h1, h2 {
   margin: 0;
+  font-size: 1.3em;
 }
-
-.clearfix:before,
-.clearfix:after {
-    content: " ";
-    display: table;
+header {
+  background-color: black;
+  color: white;
+  position: relative;
+  padding: 0.3em;
+  margin-bottom: 1em;
+  a {
+    color: white;
+  }
+  h1 {
+    font-size: 1em;
+    font-weight: normal;
+    a {
+      text-decoration: none;
+    }
+  }
 }
-.clearfix:after {
-    clear: both;
-}
-
 #account {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 0.3em;
+  right: 0.3em;
+  font-size: 0.8em;
+}
+
+#main {
+  margin: 0.3em;
+  h1, h2 {
+    margin-bottom: 0.3em;
+  }
+}
+
+
+dt {
+  font-weight: bold;
 }
