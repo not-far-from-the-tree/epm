@@ -4,6 +4,7 @@ html {
 }
 body {
   margin: 0;
+  padding-bottom: 2em;
   font-size: 1.1em;
 }
 a img {
@@ -45,7 +46,12 @@ header {
   }
 }
 
-
+h2 {
+  margin-top: 0.6em;
+}
 dt {
   font-weight: bold;
+}
+ol {
+  margin: 0;
 }

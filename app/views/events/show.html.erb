@@ -4,6 +4,14 @@
 |
 <%= link_to 'Delete', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
 
+<p><strong>
+  <% if @event.participants.include? current_user %>
+    <%= link_to 'Cancel', unattend_event_path(@event), method: :patch %>
+  <% else %>
+    <%= link_to 'Join', attend_event_path(@event), method: :patch %>
+  <% end %>
+</strong></p>
+
 <dl>
   <dt>When</dt>
   <dd><%= @event.start %> to <%= @event.finish %></dd>
@@ -11,13 +19,6 @@
 
 <section>
   <h2>Participants</h2>
-  <strong>
-    <% if @event.participants.include? current_user %>
-      <%= link_to 'Cancel', unattend_event_path(@event), method: :patch %>
-    <% else %>
-      <%= link_to 'Join', attend_event_path(@event), method: :patch %>
-    <% end %>
-  </strong>
   <% if @event.participants.any? %>
     <ul>
       <% @event.participants.each do |user| %>

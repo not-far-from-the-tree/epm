@@ -29,8 +29,7 @@ describe "Events" do
     it "views an event" do
       e = create :event
       visit root_path
-      # will need to replace the below with a selector that is more specific as to the event
-      within 'ol' do
+      within '#upcoming ol' do
         all(:css, 'a').last.click
       end
       expect(current_path).to eq event_path(e)

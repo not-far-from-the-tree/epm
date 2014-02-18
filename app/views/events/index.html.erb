@@ -1,11 +1,34 @@
-<h1>Events</h1>
-
-<ol>
-  <% @events.each do |event| %>
-    <li>
-      <%= link_to "#{event.start} &ndash; #{event.finish}".html_safe, event %>
-    </li>
-  <% end %>
-</ol>
-
 <strong><%= link_to 'Add New Event', new_event_path %></strong>
+
+<div>
+  <h2>My Upcoming Events</h2>
+  <ol>
+    <% current_user.events.not_past.each do |event| %>
+      <li>
+        <%= link_to "#{event.start} &ndash; #{event.finish}".html_safe, event %>
+      </li>
+    <% end %>
+  </ol>
+</div>
+
+<div id="upcoming">
+  <h2>Other Upcoming Events</h2>
+  <ol>
+    <% @events.not_past.not_attended_by(current_user).each do |event| %>
+      <li>
+        <%= link_to "#{event.start} &ndash; #{event.finish}".html_safe, event %>
+      </li>
+    <% end %>
+  </ol>
+</div>
+
+<div>
+  <h2>Past Events</h2>
+  <ol>
+    <% @events.past.each do |event| %>
+      <li>
+        <%= link_to "#{event.start} &ndash; #{event.finish}".html_safe, event %>
+      </li>
+    <% end %>
+  </ol>
+</div>
