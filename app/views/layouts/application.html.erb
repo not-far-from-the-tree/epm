@@ -21,7 +21,7 @@ site_name = 'Event-Participant Manager'
   </header>
 
   <% flash.each do |name, msg| -%>
-    <%= content_tag :div, msg, class: name %>
+    <%= content_tag :div, msg, class: name, id: 'flash' %>
   <% end -%>
 
   <div id="main"><%= yield %></div>

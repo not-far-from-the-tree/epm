@@ -39,8 +39,13 @@ header {
   font-size: 0.8em;
 }
 
-#main {
+#main, #flash {
   margin: 0.3em;
+}
+#flash {
+  font-style: italic;
+}
+#main {
   h1, h2 {
     margin-bottom: 0.3em;
   }
