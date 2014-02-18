@@ -6,7 +6,7 @@
 
 <p><strong>
   <% if @event.participants.include? current_user %>
-    <%= link_to 'Cancel', unattend_event_path(@event), method: :patch %>
+    <%= link_to 'Cancel RSVP', unattend_event_path(@event), method: :patch %>
   <% else %>
     <%= link_to 'Join', attend_event_path(@event), method: :patch %>
   <% end %>
@@ -29,3 +29,5 @@
     <p>None yet.</p>
   <% end %>
 </section>
+
+<%= link_to 'All Events', root_path %>
