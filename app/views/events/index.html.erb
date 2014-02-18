@@ -5,7 +5,7 @@
   <ol>
     <% current_user.events.not_past.each do |event| %>
       <li>
-        <%= link_to "#{event.start} &ndash; #{event.finish}".html_safe, event %>
+        <%= link_to "#{date event.start} &ndash; #{date event.finish}".html_safe, event %>
       </li>
     <% end %>
   </ol>
@@ -16,7 +16,7 @@
   <ol>
     <% @events.not_past.not_attended_by(current_user).each do |event| %>
       <li>
-        <%= link_to "#{event.start} &ndash; #{event.finish}".html_safe, event %>
+        <%= link_to "#{date event.start} &ndash; #{date event.finish}".html_safe, event %>
       </li>
     <% end %>
   </ol>
@@ -27,7 +27,7 @@
   <ol>
     <% @events.past.each do |event| %>
       <li>
-        <%= link_to "#{event.start} &ndash; #{event.finish}".html_safe, event %>
+        <%= link_to "#{date event.start} &ndash; #{date event.finish}".html_safe, event %>
       </li>
     <% end %>
   </ol>
