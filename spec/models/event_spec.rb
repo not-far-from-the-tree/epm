@@ -22,6 +22,12 @@ describe Event do
     expect(build(:event, finish: nil)).not_to be_valid
   end
 
+  it "is invalid without a finish later than the start" do
+    event = build :event
+    event.finish = event.start - 1.day
+    expect(event).not_to be_valid
+  end
+
   it "orders by date" do
     event1 = create :event
     event2 = create :past_event

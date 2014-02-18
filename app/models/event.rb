@@ -2,6 +2,13 @@ class Event < ActiveRecord::Base
 
   validates :start, :finish, presence: true
 
+  validate :must_start_before_finish
+  def must_start_before_finish
+    if start.present? && finish.present? && start > finish
+      errors.add(:finish, "must be after the start")
+    end
+  end
+
   has_many :event_users
   has_many :participants, through: :event_users, source: :user
 
