@@ -28,6 +28,11 @@ describe Event do
     expect(event).not_to be_valid
   end
 
+  it "responds properly to past? method" do
+    expect(create(:event).past?).to eq false
+    expect(create(:past_event).past?).to eq true
+  end
+
   it "orders by date" do
     event1 = create :event
     event2 = create :past_event

@@ -17,4 +17,8 @@ class Event < ActiveRecord::Base
   scope :not_past, -> { where 'finish > ?', Time.zone.now }
   scope :not_attended_by, ->(user) { joins('LEFT JOIN event_users ON events.id = event_users.event_id').where("events.id NOT IN (SELECT event_id FROM event_users WHERE user_id = #{user.id})").group('events.id') }
 
+  def past?
+    @is_past ||= finish < Time.zone.now
+  end
+
 end

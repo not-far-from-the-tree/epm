@@ -4,13 +4,15 @@
 |
 <%= link_to 'Delete', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
 
-<p><strong>
-  <% if @event.participants.include? current_user %>
-    <%= link_to 'Cancel RSVP', unattend_event_path(@event), method: :patch %>
-  <% else %>
-    <%= link_to 'Join', attend_event_path(@event), method: :patch %>
-  <% end %>
-</strong></p>
+<% unless @event.past? %>
+  <p><strong>
+    <% if @event.participants.include? current_user %>
+      <%= link_to 'Cancel RSVP', unattend_event_path(@event), method: :patch %>
+    <% else %>
+      <%= link_to 'Join', attend_event_path(@event), method: :patch %>
+    <% end %>
+  </strong></p>
+<% end %>
 
 <dl>
   <dt>When</dt>

@@ -77,6 +77,19 @@ describe "Events" do
       expect(page).not_to have_content @user.email
     end
 
+    it "prevents joining a past event" do
+      e = create :past_event
+      visit event_path(e)
+      expect(page).not_to have_content 'Join'
+    end
+
+    it "prevents cancelling attendance on a past event" do
+      e = create :past_event
+      e.event_users.create user: @user
+      visit event_path(e)
+      expect(page).not_to have_content 'Cancel'
+    end
+
   end
 
 end
