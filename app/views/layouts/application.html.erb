@@ -16,7 +16,10 @@ site_name = 'Event-Participant Manager'
   <header>
     <h1><%= link_to site_name, root_path %></h1>
     <% if user_signed_in? -%>
-      <div id="account"><%= link_to 'Log out', destroy_user_session_path %></div>
+      <div id="account">
+        <%= link_to 'My Events', current_user %> |
+        <%= link_to 'Log out', destroy_user_session_path %>
+      </div>
     <% end -%>
   </header>
 

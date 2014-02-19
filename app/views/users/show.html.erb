@@ -1,0 +1,11 @@
+<h1><%= @user.email %></h1>
+
+<div>
+  <h2>Upcoming Events</h2>
+  <%= render 'events/events', events: current_user.events.not_past %>
+</div>
+
+<div>
+  <h2>Past Events</h2>
+  <%= render 'events/events', events: current_user.events.past %>
+</div>

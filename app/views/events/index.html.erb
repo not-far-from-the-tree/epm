@@ -2,33 +2,15 @@
 
 <div>
   <h2>My Upcoming Events</h2>
-  <ol>
-    <% current_user.events.not_past.each do |event| %>
-      <li>
-        <%= link_to "#{date event.start} &ndash; #{date event.finish}".html_safe, event %>
-      </li>
-    <% end %>
-  </ol>
+  <%= render 'events', events: current_user.events.not_past %>
 </div>
 
 <div id="upcoming">
   <h2>Other Upcoming Events</h2>
-  <ol>
-    <% @events.not_past.not_attended_by(current_user).each do |event| %>
-      <li>
-        <%= link_to "#{date event.start} &ndash; #{date event.finish}".html_safe, event %>
-      </li>
-    <% end %>
-  </ol>
+  <%= render 'events', events: Event.not_past.not_attended_by(current_user) %>
 </div>
 
 <div>
   <h2>Past Events</h2>
-  <ol>
-    <% @events.past.each do |event| %>
-      <li>
-        <%= link_to "#{date event.start} &ndash; #{date event.finish}".html_safe, event %>
-      </li>
-    <% end %>
-  </ol>
+  <%= render 'events', events: Event.past %>
 </div>

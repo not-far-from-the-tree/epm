@@ -134,4 +134,26 @@ describe "Users" do
 
   end
 
+  describe "profile" do
+
+    # this is duplicated from events_spec.rb. todo: abstract out
+    include Warden::Test::Helpers
+    before :all do
+      @user = create :user
+    end
+    before :each do
+      login_as @user
+    end
+    after :each do
+      Warden.test_reset!
+    end
+
+    it "has a profile page" do
+      visit root_path
+      click_link 'My Events'
+      expect(current_path).to eq user_path(@user)
+    end
+
+  end
+
 end

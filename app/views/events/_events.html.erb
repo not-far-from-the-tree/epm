@@ -1,0 +1,7 @@
+<ol class="events">
+  <% events.each do |event| %>
+    <li>
+      <%= link_to "#{date event.start} &ndash; #{date event.finish}".html_safe, event %>
+    </li>
+  <% end %>
+</ol>

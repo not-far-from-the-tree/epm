@@ -4,6 +4,7 @@ Epm::Application.routes.draw do
 
   root 'events#index'
 
+  resources :users, only: :show
   resources :events do
     member do
       patch 'attend'

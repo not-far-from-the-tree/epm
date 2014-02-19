@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe "Events" do
 
+  # this is duplicated on events_spec.rb
   include Warden::Test::Helpers # see users_spec.rb for comments on this and related code
-
   before :all do
     @user = create :user
   end
