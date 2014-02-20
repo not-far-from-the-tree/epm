@@ -2,12 +2,14 @@ require 'spec_helper'
 
 describe User do
 
-  it "has a name" do
-    expect(create(:user)).to respond_to :email
+  [:email, :name, :description, :phone, :events].each do |field|
+    it "has #{field}" do
+      expect(create(:user)).to respond_to field
+    end
   end
 
-  it "has events" do
-    expect(create(:user)).to respond_to :events
+  it "has a display name" do
+    expect(create(:user).display_name).not_to be_blank
   end
 
   it "has a valid factory" do

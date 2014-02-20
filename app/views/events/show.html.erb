@@ -24,7 +24,7 @@
   <% if @event.participants.any? %>
     <ul>
       <% @event.participants.each do |user| %>
-        <li><%= user.email %></li>
+        <li><%= user.display_name %></li>
       <% end %>
     </ul>
   <% else %>

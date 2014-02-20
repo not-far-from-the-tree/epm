@@ -6,7 +6,7 @@ describe EventUser do
     expect(create(:event_user)).to respond_to :event
   end
 
-  it "has an event" do
+  it "has a user" do
     expect(create(:event_user)).to respond_to :user
   end
 

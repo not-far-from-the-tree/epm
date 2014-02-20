@@ -150,8 +150,20 @@ describe "Users" do
 
     it "has a profile page" do
       visit root_path
-      click_link 'My Events'
-      expect(current_path).to eq user_path(@user)
+      click_link 'My Profile'
+      expect(current_path).to eq user_path @user
+      expect(page).to have_content @user.email
+    end
+
+    it "edits a profile" do
+      visit user_path(@user)
+      click_link 'Edit'
+      expect(current_path).to eq edit_user_path @user
+      new_name = 'John Smith'
+      fill_in 'Name', with: new_name
+      click_button 'Save'
+      expect(current_path).to eq user_path @user
+      expect(page).to have_content new_name
     end
 
   end

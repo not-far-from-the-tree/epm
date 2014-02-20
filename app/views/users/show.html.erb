@@ -1,4 +1,20 @@
-<h1><%= @user.email %></h1>
+<h1><%= @user.display_name %></h1>
+
+<%= link_to 'Edit', edit_user_path(@user) %>
+
+<dl>
+  <dt>Name</dt>
+  <dd><%= @user.name %></dd>
+
+  <dt>Email</dt>
+  <dd><%= @user.email %></dd>
+
+  <dt>Phone</dt>
+  <dd><%= @user.phone %></dd>
+
+  <dt>Description</dt>
+  <dd><%= @user.description %></dd>
+</dl>
 
 <div>
   <h2>Upcoming Events</h2>
