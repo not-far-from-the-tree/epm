@@ -5,7 +5,7 @@ site_name = 'Event-Participant Manager'
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title><%= site_name %></title>
+  <title><%= site_name %><%= ": #{yield :title}" if content_for :title %></title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
@@ -27,7 +27,10 @@ site_name = 'Event-Participant Manager'
     <%= content_tag :div, msg, class: name, id: 'flash' %>
   <% end -%>
 
-  <div id="main"><%= yield %></div>
+  <div id="main">
+    <%= content_tag(:h1, yield(:title)) if content_for :title %>
+    <%= yield %>
+  </div>
 
 </body>
 </html>
