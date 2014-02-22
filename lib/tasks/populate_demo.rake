@@ -2,6 +2,7 @@ namespace :db do
   task :populate_demo => :environment do
 
     # users
+    # first user is automatically an admin, others are participants
     40.times do
       u = FactoryGirl.build :user
       u.skip_confirmation! # don't send emails

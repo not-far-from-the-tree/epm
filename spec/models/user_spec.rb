@@ -2,7 +2,11 @@ require 'spec_helper'
 
 describe User do
 
-  [:email, :name, :description, :phone, :events].each do |field|
+  it "has a valid factory" do
+    expect(create(:user)).to be_valid
+  end
+
+  [:email, :description, :phone, :events].each do |field|
     it "has #{field}" do
       expect(create(:user)).to respond_to field
     end
@@ -12,8 +16,10 @@ describe User do
     expect(create(:user).display_name).not_to be_blank
   end
 
-  it "has a valid factory" do
-    expect(create(:user)).to be_valid
+  it "ensures the first user is an admin but others are participants" do
+    User.destroy_all # ensures there are no existing users
+    expect(create(:user).roles.where(name: Role.names[:admin]).count).to eq 1
+    expect(create(:user).roles.where(name: Role.names[:participant]).count).to eq 1
   end
 
   it "is invalid without an email" do
