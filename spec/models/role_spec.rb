@@ -14,4 +14,11 @@ describe Role do
     expect(build(:participant_role, name: nil)).not_to be_valid
   end
 
+  # commented out due to this https://github.com/rails/rails/issues/14172
+  # it "does not allow duplicates" do
+  #   u = create :user, no_roles: true
+  #   u.roles.create name: :participant
+  #   expect(u.roles.build(name: :participant)).not_to be_valid
+  # end
+
 end

@@ -6,4 +6,6 @@ class Role < ActiveRecord::Base
 
   enum name: [:admin, :coordinator, :participant]
 
+  # validates :name, uniqueness: { scope: :user_id } # broken? https://github.com/rails/rails/issues/14172
+
 end

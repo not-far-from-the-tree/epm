@@ -2,16 +2,21 @@ class User < ActiveRecord::Base
 
   devise :database_authenticatable, :registerable, :confirmable, :recoverable, :rememberable, :trackable, :validatable
 
-  has_many :event_users
+  has_many :event_users, dependent: :destroy
   has_many :events, through: :event_users
 
-  has_many :roles
-  after_create do |user|
-   if user.class.count == 1
-      user.roles.create name: Role.names[:admin]
+  has_many :roles, dependent: :destroy
+  attr_accessor :no_roles
+  after_create :set_default_role, unless: :no_roles
+  def set_default_role
+   if self.class.count == 1
+      self.roles.create name: :admin
     else
-      user.roles.create name: Role.names[:participant]
+      self.roles.create name: :participant
     end
+  end
+  def has_role?(role_name)
+    !self.roles.find{|r| r.send "#{role_name}?" }.nil?
   end
 
   def display_name

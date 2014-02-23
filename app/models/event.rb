@@ -9,7 +9,7 @@ class Event < ActiveRecord::Base
     end
   end
 
-  has_many :event_users
+  has_many :event_users, dependent: :destroy
   has_many :participants, through: :event_users, source: :user
 
   default_scope { order :start }

@@ -16,12 +16,6 @@ describe User do
     expect(create(:user).display_name).not_to be_blank
   end
 
-  it "ensures the first user is an admin but others are participants" do
-    User.destroy_all # ensures there are no existing users
-    expect(create(:user).roles.where(name: Role.names[:admin]).count).to eq 1
-    expect(create(:user).roles.where(name: Role.names[:participant]).count).to eq 1
-  end
-
   it "is invalid without an email" do
     expect(build(:user, email: nil)).not_to be_valid
   end
@@ -43,6 +37,20 @@ describe User do
     user1.email = user1.email.upcase
     user1.save
     expect(build(:user, email: user1.email.downcase)).not_to be_valid
+  end
+
+  context "roles" do
+
+    it "ensures the first user is an admin but others are participants" do
+      User.destroy_all # ensures there are no existing users
+      expect(create(:user).roles.where(name: Role.names[:admin]).count).to eq 1
+      expect(create(:user).roles.where(name: Role.names[:participant]).count).to eq 1
+    end
+
+    it "creates a user without roles" do
+      expect(create(:user, no_roles: true).roles.count).to eq 0
+    end
+
   end
 
 end
