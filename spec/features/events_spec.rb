@@ -129,4 +129,13 @@ describe "Events" do
 
   end
 
+  it "lets people with permission see attendees' profiles" do
+    login_as @admin
+    e = create :event
+    e.event_users.create user: @participant
+    visit event_path(e)
+    click_link @participant.display_name
+    expect(current_path).to eq user_path(@participant)
+  end
+
 end
