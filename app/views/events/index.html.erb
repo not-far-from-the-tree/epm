@@ -1,9 +1,11 @@
 <strong><%= link_to 'Add New Event', new_event_path %></strong>
 
-<div>
-  <h2>My Upcoming Events</h2>
-  <%= render 'events', events: current_user.events.not_past %>
-</div>
+<% if current_user.has_role? :participant %>
+  <div>
+    <h2>My Upcoming Events</h2>
+    <%= render 'events', events: current_user.events.not_past %>
+  </div>
+<% end %>
 
 <div id="upcoming">
   <h2>Other Upcoming Events</h2>

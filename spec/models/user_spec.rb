@@ -47,8 +47,9 @@ describe User do
       expect(create(:user).roles.where(name: Role.names[:participant]).count).to eq 1
     end
 
-    it "creates a user without roles" do
-      expect(create(:user, no_roles: true).roles.count).to eq 0
+    it "creates a user with the specified role" do
+      role_name = :coordinator
+      expect(create(:user, roles_attributes: [name: role_name]).roles.where(name: Role.names[role_name]).count).to eq 1
     end
 
   end

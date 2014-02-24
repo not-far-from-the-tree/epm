@@ -23,18 +23,22 @@
   </dl>
 </div>
 
-<div>
-  <h2>Upcoming Events</h2>
-  <% if @upcoming.any? %>
-   <%= render 'events/events', events: @upcoming %>
-  <% else %>
-    None.
-  <% end %>
-</div>
+<% if @user.has_role? :participant %>
 
-<% if @past.any? %>
   <div>
-    <h2>Past Events</h2>
-    <%= render 'events/events', events: @past %>
+    <h2>Upcoming Events</h2>
+    <% if @upcoming.any? %>
+     <%= render 'events/events', events: @upcoming %>
+    <% else %>
+      None.
+    <% end %>
   </div>
+
+  <% if @past.any? %>
+    <div>
+      <h2>Past Events</h2>
+      <%= render 'events/events', events: @past %>
+    </div>
+  <% end %>
+
 <% end %>

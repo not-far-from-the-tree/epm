@@ -3,8 +3,10 @@ class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update]
 
   def show
-    @upcoming = @user.events.not_past
-    @past = @user.events.past
+    if @user.has_role? :participant
+      @upcoming = @user.events.not_past
+      @past = @user.events.past
+    end
   end
 
   def edit

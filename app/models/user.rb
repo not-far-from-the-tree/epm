@@ -6,8 +6,8 @@ class User < ActiveRecord::Base
   has_many :events, through: :event_users
 
   has_many :roles, dependent: :destroy
-  attr_accessor :no_roles
-  after_create :set_default_role, unless: :no_roles
+  accepts_nested_attributes_for :roles
+  after_create :set_default_role, if: "roles.empty?"
   def set_default_role
    if self.class.count == 1
       self.roles.create name: :admin
