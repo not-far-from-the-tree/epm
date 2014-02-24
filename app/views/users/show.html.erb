@@ -1,7 +1,11 @@
 <% title @user.display_name %>
 
-<%= link_to 'Edit', edit_user_path(@user) %>
-<%= link_to 'Change my password', edit_user_registration_path %>
+<% if can? :update, @user %>
+  <%= link_to 'Edit', edit_user_path(@user) %>
+<% end %>
+<% if @user.id == current_user.id %>
+  <%= link_to 'Change my password', edit_user_registration_path %>
+<% end %>
 
 <% if @user.description.present? %>
   <p><%= @user.description %></p>

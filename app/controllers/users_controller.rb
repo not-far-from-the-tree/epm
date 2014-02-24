@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
 
-  before_action :set_user, only: [:show, :edit, :update]
+  load_and_authorize_resource :user
 
   def show
     if @user.has_role? :participant
@@ -19,11 +19,5 @@ class UsersController < ApplicationController
       render action: 'edit'
     end
   end
-
-  private
-
-    def set_user
-      @user = User.find(params[:id])
-    end
 
 end

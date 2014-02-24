@@ -1,4 +1,6 @@
-<strong><%= link_to 'Add New Event', new_event_path %></strong>
+<% if can? :create, Event %>
+  <strong><%= link_to 'Add New Event', new_event_path %></strong>
+<% end %>
 
 <% if current_user.has_role? :participant %>
   <div>

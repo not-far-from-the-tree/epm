@@ -25,6 +25,14 @@ describe "Events" do
       expect(current_path).to eq event_path(Event.last)
     end
 
+    it "prevents creating an event without permission" do
+      login_as @participant
+      visit root_path
+      expect(page).not_to have_content 'Add New Event'
+      visit new_event_path
+      expect(page).to have_content 'Sorry'
+    end
+
     it "views an event" do
       login_as @admin
       e = create :event
@@ -49,6 +57,15 @@ describe "Events" do
       expect(page).to have_content next_year
     end
 
+    it "prevents updating an event without permission" do
+      login_as @participant
+      e = create :event
+      visit event_path(e)
+      expect(page).not_to have_content 'Edit'
+      visit edit_event_path(e)
+      expect(page).to have_content 'Sorry'
+    end
+
     it "deletes an event" do
       login_as @admin
       e = create :event
@@ -56,6 +73,13 @@ describe "Events" do
       expect{ click_link 'Delete' }.to change{Event.count}.by -1
       expect(current_path).to eq events_path
       expect(page).to have_content 'deleted'
+    end
+
+    it "prevents deleting an event without permission" do
+      login_as @participant
+      e = create :event
+      visit event_path(e)
+      expect(page).not_to have_content 'Delete'
     end
 
   end

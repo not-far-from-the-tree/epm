@@ -176,7 +176,7 @@ describe "Users" do
         expect(page).to have_content @user.email
       end
 
-      it "edits a profile" do
+      it "edits own profile" do
         visit user_path(@user)
         click_link 'Edit'
         expect(current_path).to eq edit_user_path @user
@@ -185,6 +185,15 @@ describe "Users" do
         click_button 'Save'
         expect(current_path).to eq user_path @user
         expect(page).to have_content new_name
+      end
+
+      it "prevents editing another's profile" do
+        other_user = create :user
+        visit user_path(other_user)
+        expect(page).not_to have_content 'Edit'
+        visit edit_user_path(other_user)
+        expect(current_path).to eq root_path
+        expect(page).to have_content 'Sorry'
       end
 
     end

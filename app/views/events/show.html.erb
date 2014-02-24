@@ -1,8 +1,11 @@
 <% title 'Event' %>
 
-<%= link_to 'Edit', edit_event_path(@event) %>
-|
-<%= link_to 'Delete', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
+<% if can? :update, @event %>
+  <%= link_to 'Edit', edit_event_path(@event) %>
+<% end %>
+<% if can? :destroy, @event %>
+  <%= link_to 'Delete', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
+<% end %>
 
 <% if current_user.has_role?(:participant) && !@event.past? %>
   <p><strong>

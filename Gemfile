@@ -8,6 +8,7 @@ gem 'jquery-rails'
 gem 'turbolinks'
 
 gem 'devise'
+gem 'cancancan'
 
 group :production do
   gem 'pg'
