@@ -8,8 +8,21 @@ describe User do
 
   [:email, :description, :phone, :events].each do |field|
     it "has #{field}" do
-      expect(create(:user)).to respond_to field
+      expect(create :user).to respond_to field
     end
+  end
+
+  # all fields should be stripped, this just tests two (excessive to check them all)
+  context "normalizing attributes" do
+
+    it "strips the name" do
+      expect(create(:user, name: "  Joe\n").name).to eq 'Joe'
+    end
+
+    it "nullifies empty description" do
+      expect(create(:user, description: " \n").description).to be_nil
+    end
+
   end
 
   it "has a display name" do

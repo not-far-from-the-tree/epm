@@ -2,6 +2,8 @@ class User < ActiveRecord::Base
 
   devise :database_authenticatable, :registerable, :confirmable, :recoverable, :rememberable, :trackable, :validatable
 
+  strip_attributes
+
   has_many :event_users, dependent: :destroy
   has_many :events, through: :event_users
 

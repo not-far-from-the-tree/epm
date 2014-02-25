@@ -1,5 +1,7 @@
 class Event < ActiveRecord::Base
 
+  strip_attributes
+
   validates :start, :finish, presence: true
 
   validate :must_start_before_finish

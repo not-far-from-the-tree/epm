@@ -10,6 +10,8 @@ gem 'turbolinks'
 gem 'devise'
 gem 'cancancan'
 
+gem 'strip_attributes'
+
 group :production do
   gem 'pg'
   gem 'rails_12factor'
