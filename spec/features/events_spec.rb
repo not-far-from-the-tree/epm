@@ -18,11 +18,11 @@ describe "Events" do
       login_as @admin
       visit root_path
       click_link 'Add New Event'
-      expect{
-        # leave default datetimes (for now...)
-        click_button 'Create Event'
-      }.to change{Event.count}.by 1
+      event_name = 'Some event name'
+      fill_in 'Name', with: event_name
+      expect{ click_button 'Create Event' }.to change{Event.count}.by 1
       expect(current_path).to eq event_path(Event.last)
+      expect(page).to have_content(event_name)
     end
 
     it "prevents creating an event without permission" do
@@ -37,24 +37,21 @@ describe "Events" do
       login_as @admin
       e = create :event
       visit root_path
-      within '#upcoming ol' do
-        all(:css, 'a').last.click
-      end
+      click_link e.display_name
       expect(current_path).to eq event_path(e)
     end
 
     it "updates an event" do
       login_as @admin
-      e = create :event
+      e = create :event, name: 'original event name'
       visit event_path(e)
       click_link 'Edit'
-      next_year = DateTime.now.year + 1
-      select next_year, from: 'event[start(1i)]'
-      select next_year, from: 'event[finish(1i)]'
+      new_event_name = 'new event name'
+      fill_in 'Name', with: new_event_name
       click_button 'Update Event'
       expect(current_path).to eq event_path(e)
       expect(page).to have_content 'updated'
-      expect(page).to have_content next_year
+      expect(page).to have_content new_event_name
     end
 
     it "prevents updating an event without permission" do

@@ -32,7 +32,7 @@ class Event < ActiveRecord::Base
   end
 
   def when
-    "#{start.strftime '%B %d %Y, %l:%M %p'} to #{finish.strftime '%B %d %Y, %l:%M %p'}"
+    "#{start.strftime '%B %d %Y, %l:%M %p'} to #{finish.strftime '%B %d %Y, %l:%M %p'}".gsub('  ', ' ')
   end
 
 end
