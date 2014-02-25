@@ -14,6 +14,11 @@ FactoryGirl.define do
       roles_attributes [name: :participant]
     end
 
+    factory :full_user do
+      name { Faker::Name.name }
+      description { Faker::Lorem.sentences(rand 1..5).join('. ') }
+    end
+
   end
 
 end

@@ -26,7 +26,7 @@ class Event < ActiveRecord::Base
   include ActionView::Helpers::TextHelper
   def display_name
     return name if name.present?
-    return truncate(description, length: 30, separator: ' ') if description.present?
+    return truncate(description, length: 50, separator: ' ') if description.present?
     return self.when if start.present? && finish.present?
     return '(untitled event)'
   end
