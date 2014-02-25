@@ -1,4 +1,4 @@
-<% title 'Event' %>
+<% title @event.display_name %>
 
 <% if can? :update, @event %>
   <%= link_to 'Edit', edit_event_path(@event) %>
@@ -17,10 +17,11 @@
   </strong></p>
 <% end %>
 
-<dl>
-  <dt>When</dt>
-  <dd><%= date @event.start %> to <%= date @event.finish %></dd>
-</dl>
+<% if @event.description.present? %>
+  <p><%= @event.description %></p>
+<% end %>
+
+<p><%= @event.when %></p>
 
 <section>
   <h2>Participants</h2>

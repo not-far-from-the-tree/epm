@@ -2,16 +2,14 @@ require 'spec_helper'
 
 describe Event do
 
-  it "has a start" do
-    expect(create(:event)).to respond_to :start
+  [:name, :description, :start, :finish, :participants].each do |field|
+    it "has #{field}" do
+      expect(create(:event)).to respond_to field
+    end
   end
 
-  it "has a finish" do
-    expect(create(:event)).to respond_to :finish
-  end
-
-  it "has participants" do
-    expect(create(:event)).to respond_to :participants
+  it "has a display name" do
+    expect(create(:event).display_name).not_to be_blank
   end
 
   it "is invalid without a start" do

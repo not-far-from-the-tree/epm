@@ -21,4 +21,16 @@ class Event < ActiveRecord::Base
     @is_past ||= finish < Time.zone.now
   end
 
+  include ActionView::Helpers::TextHelper
+  def display_name
+    return name if name.present?
+    return truncate(description, length: 30, separator: ' ') if description.present?
+    return self.when if start.present? && finish.present?
+    return '(untitled event)'
+  end
+
+  def when
+    "#{start.strftime '%B %d %Y, %l:%M %p'} to #{finish.strftime '%B %d %Y, %l:%M %p'}"
+  end
+
 end
