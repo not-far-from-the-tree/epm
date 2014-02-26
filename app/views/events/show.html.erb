@@ -7,7 +7,7 @@
   <%= link_to 'Delete', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
 <% end %>
 
-<% if current_user.has_role?(:participant) && !@event.past? %>
+<% if current_user.has_role?(:participant) && !@event.past? && @event.coordinator != current_user %>
   <p><strong>
     <% if @event.participants.include? current_user %>
       <%= link_to 'Cancel RSVP', unattend_event_path(@event), method: :patch %>
@@ -24,6 +24,12 @@
 <p><%= @event.when %></p>
 
 <section>
+  <h2>Coordinator</h2>
+  <% if @event.coordinator %>
+    <%= link_to_if can?(:read, @event.coordinator), @event.coordinator.display_name, @event.coordinator %>
+  <% else %>
+    None set.
+  <% end %>
   <h2>Participants</h2>
   <% if @event.participants.any? %>
     <ul>

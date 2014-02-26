@@ -5,7 +5,11 @@ class User < ActiveRecord::Base
   strip_attributes
 
   has_many :event_users, dependent: :destroy
-  has_many :events, through: :event_users
+  has_many :participating_events, through: :event_users, source: :event
+  has_many :coordinating_events, class_name: 'Event', foreign_key: 'coordinator_id'
+  def events # events where the user is a participant or the coordinator
+    Event.joins("LEFT JOIN event_users ON events.id = event_users.event_id").where("events.coordinator_id = ? OR event_users.user_id = ?", id, id).distinct
+  end
 
   has_many :roles, dependent: :destroy
   accepts_nested_attributes_for :roles
