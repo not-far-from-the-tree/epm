@@ -9,7 +9,7 @@ class Ability
       can [:read, :update], User, :id => user.id
       if user.has_role? :admin
         can [:create, :update, :destroy], Event
-        can :read, User
+        can [:read, :add_role], User
       end
       if user.has_role? :participant
         can [:attend, :unattend], Event

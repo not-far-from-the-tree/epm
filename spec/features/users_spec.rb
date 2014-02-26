@@ -1,8 +1,8 @@
-# consider rewriting some of these tests to improve speed
-
 require 'spec_helper'
 
 describe "Users" do
+
+  include Warden::Test::Helpers # see users_spec.rb for comments on this and related code
 
   context "when logged out" do
 
@@ -123,7 +123,6 @@ describe "Users" do
 
   context "when logged in" do
     # this is duplicated on events_spec.rb
-    include Warden::Test::Helpers # see users_spec.rb for comments on this and related code
     # Warden.test_mode! # this is supposedly required with above line but doesn't affect test results
     before :all do
       @original_password = 'some_password'
@@ -145,7 +144,7 @@ describe "Users" do
     end
 
     it "changes a password" do
-      visit user_path(@user)
+      visit user_path @user
       click_link 'Change my password'
       new_password = 'new_password'
       fill_in 'Password', with: new_password
@@ -196,6 +195,30 @@ describe "Users" do
         expect(page).to have_content 'Sorry'
       end
 
+    end
+
+  end
+
+  context "roles" do
+
+    after :each do
+      Warden.test_reset!
+    end
+
+    it "makes a user a coordinator" do
+      login_as create :admin
+      user = create :user
+      visit user_path user
+      expect{click_button 'Make coordinator'}.to change{user.roles.where(name: Role.names[:coordinator]).count}.by 1
+      expect(current_path).to eq user_path user
+      expect(page).to have_content 'is now a coordinator'
+    end
+
+    it "prevent non-admins from making a user a coordinator" do
+      user = create :user
+      login_as user
+      visit user_path user
+      expect(page).not_to have_content 'Make coordinator'
     end
 
   end

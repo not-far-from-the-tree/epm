@@ -20,4 +20,14 @@ class UsersController < ApplicationController
     end
   end
 
+  def add_role
+    if @user.update params.require(:user).permit(roles_attributes: [:name])
+      article = %w(a e i o u).include?(@user.roles.last.name[0]) ? 'an' : 'a'
+      flash[:notice] = "#{@user.display_name} is now #{article} #{@user.roles.last.name}."
+    else
+      flash[:alert] = 'Problem adding role.'
+    end
+    redirect_to @user    
+  end
+
 end

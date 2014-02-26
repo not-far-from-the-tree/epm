@@ -6,6 +6,14 @@
 <% if @user.id == current_user.id %>
   <%= link_to 'Change my password', edit_user_registration_path %>
 <% end %>
+<% if can?(:add_role, @user) && !@user.has_role?(:coordinator) %>
+  <%= form_for @user, url: { action: :add_role}, method: :patch do |f| %>
+    <%= f.fields_for :roles do |rf| %>
+      <%= rf.hidden_field :name, value: :coordinator %>
+    <% end %>
+    <%= f.submit 'Make coordinator' %>
+  <% end %>
+<% end %>
 
 <% if @user.description.present? %>
   <p><%= @user.description %></p>
