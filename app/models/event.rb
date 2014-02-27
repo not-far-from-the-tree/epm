@@ -30,11 +30,17 @@ class Event < ActiveRecord::Base
     return name if name.present?
     return truncate(description, length: 50, separator: ' ') if description.present?
     return self.when if start.present? && finish.present?
-    return '(untitled event)'
+    '(untitled event)'
   end
 
   def when
     "#{start.strftime '%B %e %Y, %l:%M %p'} to #{finish.strftime '%B %e %Y, %l:%M %p'}".gsub('  ', ' ')
+  end
+
+  def attendable_by?(user)
+    return false if past?
+    return false if user == coordinator
+    user.has_role? :participant
   end
 
 end

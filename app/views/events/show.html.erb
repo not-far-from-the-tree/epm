@@ -7,7 +7,7 @@
   <%= link_to 'Delete', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
 <% end %>
 
-<% if current_user.has_role?(:participant) && !@event.past? && @event.coordinator != current_user %>
+<% if @event.attendable_by? current_user %>
   <p><strong>
     <% if @event.participants.include? current_user %>
       <%= link_to 'Cancel RSVP', unattend_event_path(@event), method: :patch %>

@@ -40,8 +40,37 @@ describe Event do
   end
 
   it "responds properly to past? method" do
-    expect(create(:event).past?).to eq false
-    expect(create(:past_event).past?).to eq true
+    expect(create(:event).past?).to be_false
+    expect(create(:past_event).past?).to be_true
+  end
+
+  context "attendable_by?" do
+
+    it "can join an event if there is nothing preventing it" do
+      u = create :participant
+      e = create :event
+      expect(e.attendable_by? u).to be_true
+    end
+
+    it "cannot be joined if in the past" do
+      u = create :participant
+      e = create :past_event
+      expect(e.attendable_by? u).to be_false
+    end
+
+    it "cannot be joined by non-participants" do
+      u = create :coordinator
+      e = create :event
+      expect(e.attendable_by? u).to be_false
+    end
+
+    it "cannot be joined by someone who is already coordinating it" do
+      u = create :coordinator
+      u.roles.create name: :participant
+      e = create :event, coordinator: u
+      expect(e.attendable_by? u).to be_false
+    end
+
   end
 
   context "multiple events" do
