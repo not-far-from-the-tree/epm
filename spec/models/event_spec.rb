@@ -40,8 +40,8 @@ describe Event do
   end
 
   it "responds properly to past? method" do
-    expect(create(:event).past?).to be_false
-    expect(create(:past_event).past?).to be_true
+    expect(build(:event).past?).to be_false
+    expect(build(:past_event).past?).to be_true
   end
 
   context "attendable_by?" do

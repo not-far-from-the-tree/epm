@@ -22,7 +22,7 @@ class Event < ActiveRecord::Base
   scope :not_attended_by, ->(user) { joins('LEFT JOIN event_users ON events.id = event_users.event_id').where("events.id NOT IN (SELECT event_id FROM event_users WHERE user_id = ?) AND (coordinator_id IS NULL OR coordinator_id != ?)", user.id, user.id).distinct }
 
   def past?
-    @is_past ||= finish < Time.zone.now
+    finish < Time.zone.now
   end
 
   include ActionView::Helpers::TextHelper # needed for truncate()
