@@ -4,6 +4,10 @@ class User < ActiveRecord::Base
 
   strip_attributes
 
+  # todo: consider refactoring these to automatically have a scope for every role
+  scope :participants, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:participant]}").distinct }
+  scope :coordinators, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:coordinator]}").distinct }
+
   has_many :event_users, dependent: :destroy
   has_many :participating_events, through: :event_users, source: :event
   has_many :coordinating_events, class_name: 'Event', foreign_key: 'coordinator_id'

@@ -3,10 +3,8 @@ class UsersController < ApplicationController
   load_and_authorize_resource :user
 
   def show
-    if @user.has_role? :participant
-      @upcoming = @user.events.not_past
-      @past = @user.events.past
-    end
+    @upcoming = @user.events.not_past
+    @past = @user.events.past
   end
 
   def edit

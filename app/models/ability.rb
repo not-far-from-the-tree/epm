@@ -12,7 +12,8 @@ class Ability
         can [:read, :add_role], User
       end
       if user.has_role? :coordinator
-        can :manage, Event, :coordinator_id => user.id
+        can [:update, :destroy], Event, :coordinator_id => user.id
+        can :update, Event, :coordinator_id => nil
       end
       if user.has_role? :participant
         can [:attend, :unattend], Event

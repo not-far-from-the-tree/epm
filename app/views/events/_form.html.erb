@@ -11,6 +11,11 @@
     </div>
   <% end %>
 
+  <% coordinators = current_user.has_role?(:admin) ? User.coordinators : User.coordinators.where(id: current_user.id) %>
+  <div class="field">
+    <%= f.label :coordinator_id %><br>
+    <%= f.collection_select :coordinator_id, coordinators, :id, :display_name, include_blank: true %>
+  </div>
 
   <div class="field">
     <%= f.label :name %><br>

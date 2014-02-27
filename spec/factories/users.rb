@@ -10,6 +10,10 @@ FactoryGirl.define do
       roles_attributes [name: :admin]
     end
 
+    factory :coordinator do
+      roles_attributes [name: :coordinator]
+    end
+
     factory :participant do
       roles_attributes [name: :participant]
     end
@@ -17,6 +21,7 @@ FactoryGirl.define do
     factory :full_user do
       name { Faker::Name.name }
       description { Faker::Lorem.sentences(rand 1..5).join('. ') }
+      phone { Faker::PhoneNumber.phone_number }
     end
 
   end
