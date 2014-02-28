@@ -39,6 +39,18 @@ describe "Users" do
       expect(page).to have_content 'Sorry'
     end
 
+    it "shows user search results" do
+      create :user, name: 'Joe', email: 'joe@example.com'
+      create :user, name: 'Jack', email: 'jack@example.com'
+      login_as @admin
+      visit users_path
+      fill_in 'q', with: 'joe'
+      click_button 'Search'
+      expect(current_path).to eq users_path
+      expect(page).to have_content 'Joe'
+      expect(page).not_to have_content 'Jack'
+    end
+
   end
 
   context "profile" do

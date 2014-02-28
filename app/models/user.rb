@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
 
   strip_attributes
 
+  scope :search, ->(q) { where("users.email LIKE ? OR users.name LIKE ?", "%#{q}%", "%#{q}%") }
   # todo: consider refactoring these to automatically have a scope for every role
   scope :participants, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:participant]}").distinct }
   scope :coordinators, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:coordinator]}").distinct }

@@ -3,7 +3,9 @@ class UsersController < ApplicationController
   load_and_authorize_resource :user
 
   def index
+    @q = params['q'] ? params['q'].strip : nil
     @users = User.all
+    @users = @users.search(@q) if @q.present?
   end
 
   def show

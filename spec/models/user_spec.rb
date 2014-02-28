@@ -96,6 +96,21 @@ describe User do
       expect(coordinators).to include p1
     end
 
+    it "searches for users" do
+      User.destroy_all # make sure we're starting from a blank slate
+      u1 = create :user, name: 'Joe Smith', email: 'joe_smith@example.com'
+      u2 = create :user, name: 'Sally', email: 'sally_smith@example.com'
+      u3 = create :user, name: 'Bob Dole', email: 'blabla@example.com'
+      smiths = User.search 'smith' # checks that it looks in both name and email fields
+      expect(smiths.length).to eq 2
+      expect(smiths).to include u1
+      expect(smiths).to include u2
+      bobs = User.search 'bob' # checks for case sensitivity
+      expect(bobs.length).to eq 1
+      expect(bobs.first).to eq u3
+      expect(User.search('Jack').length).to eq 0
+    end
+
   end
 
   context "events" do

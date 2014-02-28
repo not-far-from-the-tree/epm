@@ -1,7 +1,17 @@
 <% title 'Users' %>
 
-<ul>
-  <% @users.each do |user| %>
-    <%= render 'user', user: user, tag: 'li' %>
-  <% end %>
-</ul>
+<%= form_tag users_path, method: :get do %>
+  <h2>Find Users by Name or Email</h2>
+  <%= text_field_tag :q, @q %>
+  <%= submit_tag 'Search' %>
+<% end %>
+
+<% if @users.any? %>
+  <ul>
+    <% @users.each do |user| %>
+      <%= render 'user', user: user, tag: 'li' %>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No users found.</p>
+<% end %>
