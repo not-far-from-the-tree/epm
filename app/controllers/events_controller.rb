@@ -6,6 +6,10 @@ class EventsController < ApplicationController
     @joinable = Event.participatable.not_past.not_attended_by(current_user)
   end
 
+  def past
+    @events = Event.past
+  end
+
   def show
   end
 

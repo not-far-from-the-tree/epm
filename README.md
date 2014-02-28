@@ -1,7 +1,7 @@
 # Event-Participant Manager
 
 
-## For users
+## For Users
 
 
 ## For Developers

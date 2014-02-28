@@ -225,6 +225,29 @@ describe "Events" do
 
   end
 
+  context "listing events" do
+
+    it "does not show non-participatable events to participants" do
+      e = create :event, coordinator: nil
+      login_as @participant
+      visit root_path
+      expect(page).not_to have_content 'with no Coordinator'
+    end
+
+    it "shows current events on the index page and past events on the past page" do
+      current = create :participatable_event
+      past = create :participatable_past_event
+      login_as @admin
+      visit root_path
+      expect(page).to have_content current.display_name
+      expect(page).not_to have_content past.display_name
+      click_link 'Past Events'
+      expect(page).to have_content past.display_name
+      expect(page).not_to have_content current.display_name
+    end
+
+  end
+
   it "lets people with permission see attendees' profiles" do
     login_as @admin
     e = create :participatable_event
@@ -232,13 +255,6 @@ describe "Events" do
     visit event_path(e)
     click_link @participant.display_name
     expect(current_path).to eq user_path(@participant)
-  end
-
-  it "does not show non-participatable events to participants" do
-    e = create :event, coordinator: nil
-    login_as @participant
-    visit root_path
-    expect(page).not_to have_content 'with no Coordinator'
   end
 
 end

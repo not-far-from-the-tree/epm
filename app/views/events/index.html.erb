@@ -27,10 +27,7 @@
   </div>
 <% end %>
 
-<%# todo: link to a separate page which lists the past events %>
-<% if Event.past.any? %>
-  <div>
-    <h2>Past Events</h2>
-    <%= render 'events', events: Event.past %>
-  </div>
+
+<% if current_user.has_role?(:admin) && Event.past.any? %>
+  <p><%= link_to 'Past Events', past_events_path %></p>
 <% end %>

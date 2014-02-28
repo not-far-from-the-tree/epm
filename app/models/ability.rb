@@ -8,6 +8,7 @@ class Ability
     if user.persisted?
 
       can :read, Event, can_have_participants?: true
+      can :past, Event
       can [:read, :update], User, id: user.id
 
       if user.has_role? :admin

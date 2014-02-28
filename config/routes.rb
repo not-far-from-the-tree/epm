@@ -8,6 +8,7 @@ Epm::Application.routes.draw do
   end
 
   resources :events do
+    get 'past', on: :collection
     member do
       patch 'attend'
       patch 'unattend'
