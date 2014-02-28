@@ -4,7 +4,7 @@
 
 <% if (current_user.has_role?(:admin) || current_user.has_role?(:coordinator)) && Event.coordinatorless.any? %>
   <div id="coordinatorless">
-    <h2>Events with no Coordinator</h2>
+    <h2>Events with No Coordinator</h2>
       <%= render 'events', events: Event.coordinatorless %>
   </div>
 <% end %>
@@ -26,7 +26,6 @@
     <%= render 'events', events: @joinable %>
   </div>
 <% end %>
-
 
 <% if current_user.has_role?(:admin) && Event.past.any? %>
   <p><%= link_to 'Past Events', past_events_path %></p>

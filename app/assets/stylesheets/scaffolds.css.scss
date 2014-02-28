@@ -19,22 +19,37 @@ header {
   background-color: black;
   color: white;
   position: relative;
-  padding: 0.3em;
+  padding: 0 0.3em;
   margin-bottom: 1em;
+  h1, li, #account {
+    padding: 0.3em 0;
+  }
   a {
     color: white;
+    padding-right: 0.4em;
+    padding-left: 0.4em;
+    text-decoration: none;
   }
   h1 {
     font-size: 1em;
     font-weight: normal;
-    a {
-      text-decoration: none;
-    }
+    float: left;
+  }
+  ul {
+    margin: 0 0 0 2em;
+    list-style-type: none;
+  }
+  li {
+    float: left;
+    margin: 0 0.3em;
+  }
+  li.active {
+    background-color: #6B6B6B;
   }
 }
 #account {
   position: absolute;
-  top: 0.3em;
+  top: 0;
   right: 0.3em;
 }
 
@@ -48,6 +63,15 @@ header {
   h1, h2 {
     margin-bottom: 0.3em;
   }
+}
+
+.clearfix:before,
+.clearfix:after {
+    content: " ";
+    display: table;
+}
+.clearfix:after {
+    clear: both;
 }
 
 h2 {

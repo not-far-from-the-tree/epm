@@ -4,4 +4,8 @@ module ApplicationHelper
     content_for :title, str
   end
 
+  def clear
+    content_tag 'div', nil, class: 'clearfix'
+  end
+
 end

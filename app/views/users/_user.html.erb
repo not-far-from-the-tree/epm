@@ -1,0 +1,4 @@
+<% tag ||= 'div' %>
+<%= content_tag tag do %>
+  <%= link_to_if can?(:show, user), user.display_name, user %>
+<% end %>

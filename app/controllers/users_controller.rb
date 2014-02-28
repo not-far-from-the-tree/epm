@@ -2,6 +2,10 @@ class UsersController < ApplicationController
 
   load_and_authorize_resource :user
 
+  def index
+    @users = User.all
+  end
+
   def show
     @upcoming = @user.events.not_past
     @past = @user.events.past

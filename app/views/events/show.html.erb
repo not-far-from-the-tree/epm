@@ -27,7 +27,7 @@
 
   <h2>Coordinator</h2>
   <% if @event.coordinator %>
-    <%= link_to_if can?(:read, @event.coordinator), @event.coordinator.display_name, @event.coordinator %>
+    <%= render 'users/user', user: @event.coordinator %>
   <% else %>
     None set.
   <% end %>
@@ -37,7 +37,7 @@
     <% if @event.participants.any? %>
       <ul>
         <% @event.participants.each do |user| %>
-          <li><%= link_to_if can?(:read, user), user.display_name, user %></li>
+          <%= render 'users/user', user: user, tag: 'li' %>
         <% end %>
       </ul>
     <% else %>
@@ -46,5 +46,3 @@
   <% end %>
 
 </section>
-
-<%= link_to 'All Events', root_path %>

@@ -3,7 +3,7 @@ Epm::Application.routes.draw do
   root 'events#index'
 
   devise_for :users
-  resources :users, only: [:show, :edit, :update] do
+  resources :users, only: [:index, :show, :edit, :update] do
     patch 'add_role', on: :member
   end
 

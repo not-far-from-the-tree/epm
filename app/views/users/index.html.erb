@@ -1,0 +1,7 @@
+<% title 'Users' %>
+
+<ul>
+  <% @users.each do |user| %>
+    <%= render 'user', user: user, tag: 'li' %>
+  <% end %>
+</ul>

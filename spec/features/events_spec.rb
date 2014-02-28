@@ -2,8 +2,7 @@ require 'spec_helper'
 
 describe "Events" do
 
-  # this is duplicated on events_spec.rb
-  include Warden::Test::Helpers # see users_spec.rb for comments on this and related code
+  include Warden::Test::Helpers
   before :all do
     @admin = create :admin
     @participant = create :participant
@@ -231,7 +230,7 @@ describe "Events" do
       e = create :event, coordinator: nil
       login_as @participant
       visit root_path
-      expect(page).not_to have_content 'with no Coordinator'
+      expect(page).not_to have_content 'with No Coordinator'
     end
 
     it "shows current events on the index page and past events on the past page" do
