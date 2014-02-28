@@ -44,31 +44,37 @@ describe Event do
     expect(build(:past_event).past?).to be_true
   end
 
-  context "attendable_by?" do
+  context "participatable_by?" do
 
     it "can join an event if there is nothing preventing it" do
       u = create :participant
-      e = create :event
-      expect(e.attendable_by? u).to be_true
+      e = create :participatable_event
+      expect(e.participatable_by? u).to be_true
     end
 
     it "cannot be joined if in the past" do
       u = create :participant
-      e = create :past_event
-      expect(e.attendable_by? u).to be_false
+      e = create :participatable_past_event
+      expect(e.participatable_by? u).to be_false
     end
 
     it "cannot be joined by non-participants" do
       u = create :coordinator
-      e = create :event
-      expect(e.attendable_by? u).to be_false
+      e = create :participatable_event
+      expect(e.participatable_by? u).to be_false
     end
 
     it "cannot be joined by someone who is already coordinating it" do
       u = create :coordinator
       u.roles.create name: :participant
       e = create :event, coordinator: u
-      expect(e.attendable_by? u).to be_false
+      expect(e.participatable_by? u).to be_false
+    end
+
+    it "cannot be joined if there is no coordinator" do
+      u = create :participant
+      e = create :participatable_event, coordinator: nil
+      expect(e.participatable_by? u).to be_false
     end
 
   end
@@ -103,13 +109,30 @@ describe Event do
     end
 
     it "lists only events not attended by a user" do
-      event1 = create :event
-      event2 = create :event
+      event1 = create :participatable_event
+      event2 = create :participatable_event
       user = create :user
       event2.event_users.create user: user
       events = Event.not_attended_by user
       expect(events.length).to eq 1
       expect(events.first).to eq event1
+    end
+
+    it "lists events without a coordinator" do
+      c = create :coordinator
+      create :event, coordinator: c
+      event2 = create :event, coordinator: nil
+      events = Event.coordinatorless
+      expect(events.length).to eq 1
+      expect(events.first).to eq event2
+    end
+
+    it "list events that can have participants" do
+      e = create :participatable_event
+      create :event, coordinator: nil
+      events = Event.participatable
+      expect(events.length).to eq 1
+      expect(events.first).to eq e
     end
 
   end

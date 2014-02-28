@@ -20,6 +20,8 @@ class Event < ActiveRecord::Base
   scope :not_past, -> { where 'finish > ?', Time.zone.now }
   # for not_attended_by, not sure why coordinator_id needs a separate null check. is this just a sqlite thing?
   scope :not_attended_by, ->(user) { joins('LEFT JOIN event_users ON events.id = event_users.event_id').where("events.id NOT IN (SELECT event_id FROM event_users WHERE user_id = ?) AND (coordinator_id IS NULL OR coordinator_id != ?)", user.id, user.id).distinct }
+  scope :coordinatorless, -> { where(coordinator: nil) }
+  scope :participatable, -> { where("start IS NOT NULL").where("coordinator_id IS NOT NULL") }
 
   def past?
     finish < Time.zone.now
@@ -37,10 +39,12 @@ class Event < ActiveRecord::Base
     "#{start.strftime '%B %e %Y, %l:%M %p'} to #{finish.strftime '%B %e %Y, %l:%M %p'}".gsub('  ', ' ')
   end
 
-  def attendable_by?(user)
-    return false if past?
-    return false if user == coordinator
-    user.has_role? :participant
+  def participatable_by?(user)
+    can_have_participants? && !past? && (user != coordinator) && user.has_role?(:participant)
+  end
+
+  def can_have_participants?
+    start.present? && coordinator.present?
   end
 
 end
