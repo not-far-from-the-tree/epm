@@ -2,19 +2,35 @@
   <strong><%= link_to 'Add New Event', new_event_path %></strong>
 <% end %>
 
-<% if current_user.has_role? :participant %>
-  <div>
-    <h2>My Upcoming Events</h2>
-    <%= render 'events', events: current_user.events.not_past %>
+<% if (current_user.has_role?(:admin) || current_user.has_role?(:coordinator)) && Event.coordinatorless.any? %>
+  <div id="coordinatorless">
+    <h2>Events with no Coordinator</h2>
+      <%= render 'events', events: Event.coordinatorless %>
   </div>
 <% end %>
 
-<div id="upcoming">
-  <h2>Other Upcoming Events</h2>
-  <%= render 'events', events: Event.not_past.not_attended_by(current_user) %>
-</div>
+<% if current_user.has_role?(:participant) || current_user.has_role?(:coordinator) %>
+  <div>
+    <h2>My Upcoming Events</h2>
+    <% if current_user.events.not_past.any? %>
+      <%= render 'events', events: current_user.events.not_past %>
+    <% else %>
+      <p>None.</p>
+    <% end %>
+  </div>
+<% end %>
 
-<div>
-  <h2>Past Events</h2>
-  <%= render 'events', events: Event.past %>
-</div>
+<% if @joinable.any? %>
+  <div id="upcoming">
+    <h2>Other Upcoming Events</h2>
+    <%= render 'events', events: @joinable %>
+  </div>
+<% end %>
+
+<%# todo: link to a separate page which lists the past events %>
+<% if Event.past.any? %>
+  <div>
+    <h2>Past Events</h2>
+    <%= render 'events', events: Event.past %>
+  </div>
+<% end %>

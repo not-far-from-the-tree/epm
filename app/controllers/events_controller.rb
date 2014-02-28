@@ -3,6 +3,7 @@ class EventsController < ApplicationController
   load_and_authorize_resource :event
 
   def index
+    @joinable = Event.participatable.not_past.not_attended_by(current_user)
   end
 
   def show
