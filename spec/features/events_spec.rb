@@ -234,4 +234,11 @@ describe "Events" do
     expect(current_path).to eq user_path(@participant)
   end
 
+  it "does not show non-participatable events to participants" do
+    e = create :event, coordinator: nil
+    login_as @participant
+    visit root_path
+    expect(page).not_to have_content 'with no Coordinator'
+  end
+
 end
