@@ -12,4 +12,4 @@ Events are "attended" by one "coordinator" and any number of "participants". Thu
 
 ### Tests
 
-Test by running 'rspec'. Ocassionally tests will fail due to Faker randomly generating the same email for multiple users or passwords that are below the minimum required length; in those cases just rerun rspec again.
+Test by running 'rspec'.
