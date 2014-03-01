@@ -3,9 +3,14 @@ class UsersController < ApplicationController
   load_and_authorize_resource :user
 
   def index
-    @q = params['q'] ? params['q'].strip : nil
     @users = User.all
+    @q = params['q'] ? params['q'].strip : nil
     @users = @users.search(@q) if @q.present?
+    role = params['role']
+    if role.present? && User.respond_to?(role.downcase)
+      @role = role
+      @users = @users.send(role.downcase)
+    end
   end
 
   def show

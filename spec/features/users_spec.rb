@@ -51,6 +51,21 @@ describe "Users" do
       expect(page).not_to have_content 'Jack'
     end
 
+    it "shows users with a particular role" do
+      login_as @admin
+      visit users_path
+      select 'Admins', from: :role
+      click_button 'Search'
+      expect(find('option[selected]').text).to eq 'Admins'
+      expect(page).to have_content @admin.display_name
+      expect(page).not_to have_content @participant.display_name
+      select 'Participants', from: :role
+      click_button 'Search'
+      expect(find('option[selected]').text).to eq 'Participants'
+      expect(page).not_to have_content @admin.display_name
+      expect(page).to have_content @participant.display_name
+    end
+
   end
 
   context "profile" do

@@ -79,7 +79,7 @@ describe User do
 
     it "lists users according to role" do
       User.destroy_all # make sure we're starting from a blank slate
-      create :admin
+      a = create :admin
       c = create :coordinator
       p1 = create :participant
       p1.roles.create name: :coordinator
@@ -94,6 +94,9 @@ describe User do
       expect(coordinators.length).to eq 2
       expect(coordinators).to include c
       expect(coordinators).to include p1
+      admins = User.admins
+      expect(admins.length).to eq 1
+      expect(admins.first).to eq a
     end
 
     it "searches for users" do

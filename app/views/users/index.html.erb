@@ -1,12 +1,13 @@
-<% title 'Users' %>
+<% title 'Find Users' %>
 
 <%= form_tag users_path, method: :get do %>
-  <h2>Find Users by Name or Email</h2>
-  <%= text_field_tag :q, @q %>
+  <%= select_tag :role, options_for_select(Role.names.map{|n, v| n.pluralize.capitalize}.unshift(['Everyone', nil]), @role) %>
+  <%= text_field_tag :q, @q, placeholder: 'Name or email' %>
   <%= submit_tag 'Search' %>
 <% end %>
 
 <% if @users.any? %>
+  <h2><%= pluralize @users.count, 'User' %></h2>
   <ul>
     <% @users.each do |user| %>
       <%= render 'user', user: user, tag: 'li' %>
