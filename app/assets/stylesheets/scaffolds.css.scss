@@ -5,6 +5,8 @@ html {
 body {
   margin: 0;
   padding-bottom: 2em;
+}
+body, input, select {
   font-size: 1.1em;
 }
 a img {
@@ -42,6 +44,9 @@ header {
   li {
     float: left;
     margin: 0 0.3em;
+  }
+  li a:hover, #account:hover {
+    text-decoration: underline;
   }
   li.active {
     background-color: #6B6B6B;
