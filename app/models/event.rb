@@ -23,6 +23,15 @@ class Event < ActiveRecord::Base
   scope :coordinatorless, -> { where(coordinator: nil) }
   scope :participatable, -> { where("start IS NOT NULL").where("coordinator_id IS NOT NULL") }
 
+  def duration=(timespan)
+    if start.present? && timespan.present? && timespan.to_i > 0
+      self.finish = start + timespan
+    end
+  end
+  def duration
+    (start.present? && finish.present?) ? (finish - start).round : nil
+  end
+
   def past?
     finish < Time.zone.now
   end

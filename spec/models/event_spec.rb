@@ -20,17 +20,21 @@ describe Event do
     end
 
     it "nullifies empty description" do
-      expect(create(:event, description: " \n").description).to be_nil
+      expect(create(:event, description: "\r\n ").description).to be_nil
     end
 
   end
 
   it "is invalid without a start" do
-    expect(build(:event, start: nil)).not_to be_valid
+    expect(build :event, start: nil).not_to be_valid
   end
 
-  it "is invalid without a finish" do
-    expect(build(:event, finish: nil)).not_to be_valid
+  it "is invalid without a finish or duration" do
+    expect(build :event, duration: nil, finish: nil).not_to be_valid
+  end
+
+  it "is invalid with a zero duration" do
+    expect(build :event, duration: 0).not_to be_valid
   end
 
   it "is invalid without a finish later than the start" do
@@ -42,6 +46,17 @@ describe Event do
   it "responds properly to past? method" do
     expect(build(:event).past?).to be_false
     expect(build(:past_event).past?).to be_true
+  end
+
+  it "sets finish when given a duration" do
+    now = Time.zone.now
+    expect(build(:event, start: now, duration: 1.hour).finish).to eq (now + 1.hour)
+    expect(build(:event, start: now, duration: 8.hours).finish).to eq (now + 8.hours)
+  end
+
+  it "properly calculates duration" do
+    expect(build(:event, start: Time.zone.now, duration: nil, finish: Time.zone.now + 1.hour).duration).to eq 1.hour.to_i
+    expect(build(:event, start: Time.zone.now, duration: nil, finish: Time.zone.now + 8.hours).duration).to eq 8.hours.to_i
   end
 
   context "participatable_by?" do

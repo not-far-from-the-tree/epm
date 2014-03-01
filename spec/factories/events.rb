@@ -2,7 +2,7 @@ FactoryGirl.define do
 
   factory :event do
     start { rand(100).days.from_now.change hour: rand(7..19) }
-    finish { (start || Time.now) + rand(1..5).hours }
+    duration { rand(1..5).hours }
 
     factory :participatable_event do
       coordinator
@@ -17,7 +17,7 @@ FactoryGirl.define do
 
   factory :past_event, class: Event do
     start { (rand(100)+1).days.ago.change hour: rand(7..19) }
-    finish { start + rand(1..5).hours }
+    duration { rand(1..5).hours }
 
     factory :full_past_event do
       name { Faker::Lorem.words(rand 2..5).join(' ').capitalize }
