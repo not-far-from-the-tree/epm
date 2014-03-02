@@ -21,7 +21,9 @@
   <p><%= @event.description %></p>
 <% end %>
 
-<p><%= @event.when %></p>
+<% if @event.start.present? %>
+  <p><%= @event.when %> (<%= pluralize @event.duration_hours, 'hour' %>)</p>
+<% end %>
 
 <section>
 

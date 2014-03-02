@@ -23,13 +23,24 @@ class Event < ActiveRecord::Base
   scope :coordinatorless, -> { where(coordinator: nil) }
   scope :participatable, -> { where("start IS NOT NULL").where("coordinator_id IS NOT NULL") }
 
+  def assign_attributes(attrs)
+    # this is needed because during mass assignment, we can't guarantee that :start will be set before :duration
+    dur = attrs.delete(:duration)
+    super(attrs)
+    self.duration = dur
+  end
   def duration=(timespan)
     if start.present? && timespan.present? && timespan.to_i > 0
-      self.finish = start + timespan
+      self.finish = start + timespan.to_i
+    else
+      nil
     end
   end
   def duration
     (start.present? && finish.present?) ? (finish - start).round : nil
+  end
+  def duration_hours
+    duration.present? ? (duration / 3600) : nil
   end
 
   def past?
@@ -40,12 +51,15 @@ class Event < ActiveRecord::Base
   def display_name
     return name if name.present?
     return truncate(description, length: 50, separator: ' ') if description.present?
-    return self.when if start.present? && finish.present?
+    return self.class.humanize(start) if start.present?
     '(untitled event)'
   end
 
+  def self.humanize(datetime)
+    datetime.strftime('%B %e %Y, %l:%M %p').gsub('  ', ' ')
+  end
   def when
-    "#{start.strftime '%B %e %Y, %l:%M %p'} to #{finish.strftime '%B %e %Y, %l:%M %p'}".gsub('  ', ' ')
+    "#{self.class.humanize start} to #{self.class.humanize finish}"
   end
 
   def participatable_by?(user)

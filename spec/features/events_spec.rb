@@ -17,11 +17,14 @@ describe "Events" do
       login_as @admin
       visit root_path
       click_link 'Add New Event'
-      event_name = 'Some event name'
-      fill_in 'Name', with: event_name
+      e = build :full_event
+      fill_in 'Name', with: e.name
+      fill_in 'Description', with: e.description
+      select (e.duration / 3600), from: 'Duration'
       expect{ click_button 'Create Event' }.to change{Event.count}.by 1
-      expect(current_path).to eq event_path(Event.last)
-      expect(page).to have_content(event_name)
+      expect(current_path).to eq event_path Event.last
+      expect(page).to have_content e.name
+      expect(page).to have_content "#{e.duration_hours} hour"
     end
 
     it "prevents participants from creating events" do
@@ -45,14 +48,16 @@ describe "Events" do
       e = create :event
       visit root_path
       click_link e.display_name
-      expect(current_path).to eq event_path(e)
+      expect(current_path).to eq event_path e
     end
 
+    # consider separating out testing that the duration select is showing the right value
     it "updates an event" do
       login_as @admin
-      e = create :event, name: 'original event name'
+      e = create :full_event
       visit event_path(e)
       click_link 'Edit'
+      expect(find('#event_duration option[selected]').text).to have_content e.duration_hours
       new_event_name = 'new event name'
       fill_in 'Name', with: new_event_name
       click_button 'Update Event'

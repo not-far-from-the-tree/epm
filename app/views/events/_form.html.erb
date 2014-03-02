@@ -11,12 +11,6 @@
     </div>
   <% end %>
 
-  <% coordinators = current_user.has_role?(:admin) ? User.coordinators : User.coordinators.where(id: current_user.id) %>
-  <div class="field">
-    <%= f.label :coordinator_id %><br>
-    <%= f.collection_select :coordinator_id, coordinators, :id, :display_name, include_blank: true %>
-  </div>
-
   <div class="field">
     <%= f.label :name %><br>
     <%= f.text_field :name %>
@@ -33,8 +27,14 @@
   </div>
 
   <div class="field">
-    <%= f.label :finish %><br>
-    <%= f.datetime_select :finish %>
+    <%= f.label :duration %><br>
+    <%= f.select :duration, options_for_select((1..6).map{|n| [pluralize(n, 'hour'), n.hours]}, @event.duration) %>
+  </div>
+
+  <% coordinators = current_user.has_role?(:admin) ? User.coordinators : User.coordinators.where(id: current_user.id) %>
+  <div class="field">
+    <%= f.label :coordinator_id %><br>
+    <%= f.collection_select :coordinator_id, coordinators, :id, :display_name, include_blank: true %>
   </div>
 
   <div class="actions">
