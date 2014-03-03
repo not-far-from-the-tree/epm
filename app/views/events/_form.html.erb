@@ -21,15 +21,17 @@
     <%= f.text_area :description %>
   </div>
 
-  <div class="field">
-    <%= f.label :start %><br>
-    <%= f.datetime_select :start %>
-  </div>
-
-  <div class="field">
-    <%= f.label :duration %><br>
+  <fieldset>
+    <legend>When</legend>
+    <%= f.label :start_day, 'Date' %><br>
+    <%= f.date_field :start_day, value: @event.start.present? ? @event.start.to_date.to_s : nil %>
+    <br>
+    <%= f.label :start_time, 'Time' %><br>
+    <%= f.time_field :start_time, step: 60 %>
+    <br>
+    <%= f.label :duration, 'For' %>
     <%= f.select :duration, options_for_select((1..6).map{|n| [pluralize(n, 'hour'), n.hours]}, @event.duration) %>
-  </div>
+  </fieldset>
 
   <% coordinators = current_user.has_role?(:admin) ? User.coordinators : User.coordinators.where(id: current_user.id) %>
   <div class="field">

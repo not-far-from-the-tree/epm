@@ -23,7 +23,17 @@ class Event < ActiveRecord::Base
   scope :coordinatorless, -> { where(coordinator: nil) }
   scope :participatable, -> { where("start IS NOT NULL").where("coordinator_id IS NOT NULL") }
 
+  attr_accessor :start_day, :start_time
+  after_initialize :set_start_parts, if: "start.present?"
+  def set_start_parts
+    # we should set start_day here as well except this seems to cause a bug in rails? so we handle this in the view (events/_form)
+    self.start_time = start
+  end
   def assign_attributes(attrs)
+    # if inputing start in parts (day and time), then combine them
+    start_day = attrs.delete(:start_day)
+    start_time = attrs.delete(:start_time)
+    attrs[:start] = "#{start_day} #{start_time}" if attrs[:start].blank? && start_day.present? && start_time.present?
     # this is needed because during mass assignment, we can't guarantee that :start will be set before :duration
     dur = attrs.delete(:duration)
     super(attrs)

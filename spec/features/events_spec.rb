@@ -20,7 +20,7 @@ describe "Events" do
       e = build :full_event
       fill_in 'Name', with: e.name
       fill_in 'Description', with: e.description
-      select (e.duration / 3600), from: 'Duration'
+      select (e.duration / 3600), from: 'For'
       expect{ click_button 'Create Event' }.to change{Event.count}.by 1
       expect(current_path).to eq event_path Event.last
       expect(page).to have_content e.name

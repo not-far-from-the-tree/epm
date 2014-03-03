@@ -14,7 +14,7 @@ class EventsController < ApplicationController
   end
 
   def new
-    @event = Event.new
+    @event = Event.new(start: Time.zone.now.change(hour: 0, minute: 0, second: 0) )
   end
 
   def edit
@@ -22,7 +22,6 @@ class EventsController < ApplicationController
 
   def create
     @event = Event.new(event_params)
-
     if @event.save
       redirect_to @event, notice: 'Event was successfully created.'
     else
@@ -57,7 +56,7 @@ class EventsController < ApplicationController
   private
 
     def event_params
-      params.require(:event).permit(:name, :description, :start, :duration, :finish, :coordinator_id)
+      params.require(:event).permit(:name, :description, :start, :start_day, :start_time, :duration, :finish, :coordinator_id)
     end
 
 end
