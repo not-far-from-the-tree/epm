@@ -5,8 +5,13 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Event-Participant Manager<%= ": #{yield :title}" if content_for :title %></title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
-  <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+  <%= stylesheet_link_tag    "application", media: "all" %>
+  <%= javascript_include_tag "application" %>
+  <% if content_for? :js_ready %>
+    <script type="text/javascript">
+      $(function(){<%= yield :js_ready %>});
+    </script>
+  <% end %>
   <%= csrf_meta_tags %>
 </head>
 <body>

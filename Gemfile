@@ -5,7 +5,7 @@ gem 'rails', "4.1.0.rc1"
 gem 'sass-rails'
 gem 'uglifier'
 gem 'jquery-rails'
-gem 'turbolinks'
+gem 'jquery-ui-rails'
 
 gem 'devise'
 gem 'cancancan'

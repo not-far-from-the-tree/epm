@@ -25,6 +25,17 @@
     <legend>When</legend>
     <%= f.label :start_day, 'Date' %><br>
     <%= f.date_field :start_day, value: @event.start.present? ? @event.start.to_date.to_s : nil %>
+    <% content_for :js_ready do %>
+      $('#event_start_day').after('<div id="datepicker"></div>')
+      $('#datepicker').datepicker({
+        dateFormat: 'yy-mm-dd',
+        nextText: '»',
+        prevText: '«',
+        onSelect: function(dateText) {
+          $('#event_start_day').val(dateText);
+        }
+      });
+    <% end %>
     <br>
     <%= f.label :start_time, 'Time' %><br>
     <%= f.time_field :start_time, step: 60 %>

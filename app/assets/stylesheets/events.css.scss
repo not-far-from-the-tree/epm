@@ -5,3 +5,57 @@
 ol.events {
   list-style-type: disc;
 }
+
+
+.ui-datepicker {
+  text-align: center;
+  width: 13.5em;
+  a {
+    text-decoration: none;
+  }
+  table {
+    border: 1px solid #ddd;
+    background-color: white;
+  }
+  th {
+    text-align: center;
+    font-weight: normal;
+  }
+  td a, td span { /* one day */
+    display: block;
+    border: 1px solid #ddd;
+    padding: 0.1em 0.2em;
+    text-align: right;
+  }
+  td a.ui-state-highlight { /* today */
+    background-color: #eee;
+  }
+  td a:hover { /* onhover day */
+    background-color: #eee;
+  }
+  td a.ui-state-active, td a:active { /* selected day */
+    background-color: black;
+    border-color: black;
+    color: white;
+  }
+}
+.ui-datepicker-header {
+  position: relative;
+}
+.ui-datepicker-prev, .ui-datepicker-next {
+  position: absolute;
+  font-size: 1.2em;
+  color: blue;
+  cursor: pointer;
+}
+.ui-datepicker-next {
+  right: 0;
+}
+.ui-datepicker-prev {
+  left: 0;
+}
+
+
+html.js #event_start_day {
+  display: none;
+}
