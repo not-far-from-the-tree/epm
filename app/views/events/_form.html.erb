@@ -35,10 +35,13 @@
           $('#event_start_day').val(dateText);
         }
       });
+      if (!$('#event_start_day').val()) { // if there's no date, don't show today selected
+        $('#datepicker .ui-state-active').removeClass('ui-state-active');
+      }
     <% end %>
     <br>
     <%= f.label :start_time, 'Time' %><br>
-    <%= f.time_field :start_time, step: 60 %>
+    <%= f.time_field :start_time, step: 60, value: (@event.start || Time.at((Time.zone.now.to_f / 3600).round * 3600)).strftime('%T.%L') %>
     <br>
     <%= f.label :duration, 'For' %>
     <%= f.select :duration, options_for_select((1..6).map{|n| [pluralize(n, 'hour'), n.hours]}, @event.duration) %>

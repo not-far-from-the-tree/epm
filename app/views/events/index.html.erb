@@ -2,11 +2,19 @@
   <strong><%= link_to 'Add New Event', new_event_path %></strong>
 <% end %>
 
-<% if (current_user.has_role?(:admin) || current_user.has_role?(:coordinator)) && Event.coordinatorless.any? %>
-  <div id="coordinatorless">
-    <h2>Events with No Coordinator</h2>
-      <%= render 'events', events: Event.coordinatorless %>
-  </div>
+<% if current_user.has_role?(:admin) || current_user.has_role?(:coordinator) %>
+  <% if Event.coordinatorless.any? %>
+    <div id="coordinatorless">
+      <h2>Events with No Coordinator</h2>
+        <%= render 'events', events: Event.coordinatorless %>
+    </div>
+  <% end %>
+  <% if Event.dateless.where('coordinator_id IS NOT NULL').any? %>
+    <div id="dateless">
+      <h2>Events with No Date</h2>
+        <%= render 'events', events: Event.dateless.where('coordinator_id IS NOT NULL') %>
+    </div>
+  <% end %>
 <% end %>
 
 <% if current_user.has_role?(:participant) || current_user.has_role?(:coordinator) %>

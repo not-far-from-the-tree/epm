@@ -14,7 +14,7 @@ class EventsController < ApplicationController
   end
 
   def new
-    @event = Event.new(start: Time.zone.now.change(hour: 0, minute: 0, second: 0) )
+    @event = Event.new
   end
 
   def edit

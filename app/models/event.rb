@@ -2,13 +2,21 @@ class Event < ActiveRecord::Base
 
   strip_attributes
 
-  validates :start, :finish, presence: true
-
   validate :must_start_before_finish
+  validate :must_not_be_empty
+  validates :finish, presence: true, if: "start.present?"
   def must_start_before_finish
     if start.present? && finish.present? && start > finish
-      errors.add(:finish, "must be after the start")
+      errors.add(:finish, 'must be after the start')
     end
+  end
+  def must_not_be_empty
+    if start.blank? && name.blank? && description.blank?
+      errors.add(:base, 'An event must have a name, description, or date')
+    end
+  end
+  before_validation do |event|
+    event.finish = nil if event.start.blank?
   end
 
   has_many :event_users, dependent: :destroy
@@ -17,18 +25,14 @@ class Event < ActiveRecord::Base
 
   default_scope { order :start }
   scope :past, -> { where('finish < ?', Time.zone.now).order('finish DESC') }
-  scope :not_past, -> { where 'finish > ?', Time.zone.now }
+  scope :not_past, -> { where 'start IS NULL OR finish > ?', Time.zone.now }
   # for not_attended_by, not sure why coordinator_id needs a separate null check. is this just a sqlite thing?
   scope :not_attended_by, ->(user) { joins('LEFT JOIN event_users ON events.id = event_users.event_id').where("events.id NOT IN (SELECT event_id FROM event_users WHERE user_id = ?) AND (coordinator_id IS NULL OR coordinator_id != ?)", user.id, user.id).distinct }
-  scope :coordinatorless, -> { where(coordinator: nil) }
-  scope :participatable, -> { where("start IS NOT NULL").where("coordinator_id IS NOT NULL") }
+  scope :coordinatorless, -> { where coordinator: nil }
+  scope :dateless, -> { where start: nil }
+  scope :participatable, -> { where 'start IS NOT NULL AND coordinator_id IS NOT NULL' }
 
-  attr_accessor :start_day, :start_time
-  after_initialize :set_start_parts, if: "start.present?"
-  def set_start_parts
-    # we should set start_day here as well except this seems to cause a bug in rails? so we handle this in the view (events/_form)
-    self.start_time = start
-  end
+  attr_reader :start_day, :start_time
   def assign_attributes(attrs)
     # if inputing start in parts (day and time), then combine them
     start_day = attrs.delete(:start_day)
@@ -54,7 +58,7 @@ class Event < ActiveRecord::Base
   end
 
   def past?
-    finish < Time.zone.now
+    finish.present? ? finish < Time.zone.now : nil
   end
 
   include ActionView::Helpers::TextHelper # needed for truncate()

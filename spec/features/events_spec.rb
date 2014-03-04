@@ -13,18 +13,47 @@ describe "Events" do
 
   describe "CRUD" do
 
-    it "creates an event" do
+    it "creates a dateless event" do
+      Event.destroy_all
       login_as @admin
       visit root_path
       click_link 'Add New Event'
       e = build :full_event
       fill_in 'Name', with: e.name
-      fill_in 'Description', with: e.description
-      select (e.duration / 3600), from: 'For'
-      expect{ click_button 'Create Event' }.to change{Event.count}.by 1
+      click_button 'Create Event'
       expect(current_path).to eq event_path Event.last
       expect(page).to have_content e.name
+      expect(page).to have_content 'No date set'
+    end
+
+    it "creates an event with dates when js is disabled" do
+      Event.destroy_all
+      e = build :event
+      login_as @admin
+      visit new_event_path
+      fill_in 'Date', with: e.start.to_date
+      select (e.duration / 3600), from: 'For'
+      click_button 'Create Event'
+      expect(current_path).to eq event_path Event.last
+      # expect(page).to have_content Event.humanize(e.start) # todo: figure out timezone issues causing this to fail
       expect(page).to have_content "#{e.duration_hours} hour"
+      expect(page).not_to have_content 'No date set'
+    end
+
+    it "creates an event with dates when js is enabled", js: true do
+      Event.destroy_all
+      login_as @admin
+      visit new_event_path
+      e = build :event
+      within '#datepicker' do
+        click_link 29 # select date towards the end of the current month
+      end
+      select (e.duration / 3600), from: 'For'
+      click_button 'Create Event'
+      expect(current_path).to eq event_path Event.last
+      # expect(page).to have_content Event.humanize(e.start) # todo: figure out timezone issues causing this to fail
+      expect(page).to have_content "#{e.duration_hours} hour"
+      expect(page).not_to have_content 'No date set'
     end
 
     it "prevents participants from creating events" do
@@ -122,6 +151,7 @@ describe "Events" do
       it "allows admin to set a coordinator" do
         login_as @admin
         visit new_event_path
+        fill_in 'Name', with: 'some event'
         select @coordinator.display_name, :from => 'Coordinator'
         click_button 'Create Event'
         expect(current_path).to eq event_path(Event.order(:created_at).last)
@@ -141,6 +171,7 @@ describe "Events" do
       end
 
       it "allows a coordinator to edit a coordinatorless event" do
+        Event.destroy_all # should be using db cleaner
         e = create :event
         login_as @coordinator
         visit root_path
@@ -161,6 +192,21 @@ describe "Events" do
         e.save
         login_as @coordinator
         visit edit_event_path e
+        name = 'some name'
+        fill_in 'Name', with: name
+        click_button 'Update Event'
+        expect(current_path).to eq event_path e
+        expect(page).to have_content name
+      end
+
+      it "allows coordinator to edit a dateless event" do
+        e = create :event, coordinator: @coordinator, start: nil, name: 'foo'
+        login_as @coordinator
+        visit root_path
+        within '#dateless' do
+          first('a').click
+        end
+        click_link 'Edit'
         name = 'some name'
         fill_in 'Name', with: name
         click_button 'Update Event'
@@ -238,7 +284,7 @@ describe "Events" do
       expect(page).not_to have_content 'with No Coordinator'
     end
 
-    it "shows current events on the index page and past events on the past page" do
+    it "shows current and past events on their respective pages" do
       current = create :participatable_event
       past = create :participatable_past_event
       login_as @admin

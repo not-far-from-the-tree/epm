@@ -12,40 +12,49 @@ describe Event do
     expect(create(:event).display_name).not_to be_blank
   end
 
-  # all fields should be stripped, this just tests two (excessive to check them all)
-  context "normalizing attributes" do
 
-    it "strips the name" do
-      expect(create(:event, name: "  Stuff\n").name).to eq 'Stuff'
+  context "validity and normalization" do
+
+    it "is invalid without a name, description, or start" do
+      expect(build :event, start: nil, name: nil, description: nil).not_to be_valid
+      expect(build :event, start: Time.zone.now, name: nil, description: nil).to be_valid
+      expect(build :event, start: nil, name: 'some name', description: nil).to be_valid
+      expect(build :event, start: nil, name: nil, description: 'some description').to be_valid
     end
 
-    it "nullifies empty description" do
-      expect(create(:event, description: "\r\n ").description).to be_nil
+    it "is invalid with a zero duration" do
+      expect(build :event, duration: 0).not_to be_valid
     end
 
-  end
+    it "is invalid without a finish later than the start" do
+      event = build :event
+      event.finish = event.start - 1.day
+      expect(event).not_to be_valid
+    end
 
-  it "is invalid without a start" do
-    expect(build :event, start: nil).not_to be_valid
-  end
+    it "invalid with a start and no finish" do
+      expect(build :event, start: Time.zone.now, finish: nil).not_to be_valid
+    end
 
-  it "is invalid without a finish or duration" do
-    expect(build :event, duration: nil, finish: nil).not_to be_valid
-  end
+    # all fields should be stripped, this just tests two (excessive to check them all)
+    context "normalizing attributes" do
 
-  it "is invalid with a zero duration" do
-    expect(build :event, duration: 0).not_to be_valid
-  end
+      it "strips the name" do
+        expect(create(:event, name: "  Stuff\n").name).to eq 'Stuff'
+      end
 
-  it "is invalid without a finish later than the start" do
-    event = build :event
-    event.finish = event.start - 1.day
-    expect(event).not_to be_valid
+      it "nullifies empty description" do
+        expect(create(:event, description: "\r\n ").description).to be_nil
+      end
+
+    end
+
   end
 
   it "responds properly to past? method" do
     expect(build(:event).past?).to be_false
     expect(build(:past_event).past?).to be_true
+    expect(build(:event, start: nil).past?).to be_nil
   end
 
   it "sets finish when given a duration" do
@@ -92,9 +101,20 @@ describe Event do
       expect(e.participatable_by? u).to be_false
     end
 
+    it "cannot be joined if it has no dates" do
+      u = create :participant
+      e = create :participatable_event, start: nil, name: 'foo'
+      expect(e.participatable_by? u).to be_false
+    end
+
   end
 
   context "multiple events" do
+
+    before :each do
+      # argh gotta use db cleaner instead
+      Event.destroy_all
+    end
 
     it "orders by date" do
       event1 = create :event
@@ -140,6 +160,14 @@ describe Event do
       events = Event.coordinatorless
       expect(events.length).to eq 1
       expect(events.first).to eq event2
+    end
+
+    it "lists events without dates" do
+      create :event
+      e = create :event, start: nil, name: 'foo'
+      events = Event.dateless
+      expect(events.length).to eq 1
+      expect(events.first).to eq e
     end
 
     it "list events that can have participants" do
