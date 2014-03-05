@@ -5,6 +5,18 @@
 ol.events {
   list-style-type: disc;
 }
+ol.events li {
+  margin: 0.2em 0;
+}
+ol.events small {
+  font-style: italic;
+  color: #ccc;
+}
+@media (max-width: 400px) {
+  ol.events small {
+    display: none; /* if we showed this on tiny screens, each event would wrap to a second line */
+  }
+}
 
 .ui-datepicker a {
   color: black;

@@ -24,7 +24,7 @@ class Event < ActiveRecord::Base
   belongs_to :coordinator, class_name: 'User'
 
   default_scope { order :start }
-  scope :past, -> { where('finish < ?', Time.zone.now).order('finish DESC') }
+  scope :past, -> { where('finish < ?', Time.zone.now).reorder('finish DESC') }
   scope :not_past, -> { where 'start IS NULL OR finish > ?', Time.zone.now }
   # for not_attended_by, not sure why coordinator_id needs a separate null check. is this just a sqlite thing?
   scope :not_attended_by, ->(user) { joins('LEFT JOIN event_users ON events.id = event_users.event_id').where("events.id NOT IN (SELECT event_id FROM event_users WHERE user_id = ?) AND (coordinator_id IS NULL OR coordinator_id != ?)", user.id, user.id).distinct }

@@ -116,7 +116,7 @@ describe Event do
       Event.destroy_all
     end
 
-    it "orders by date" do
+    it "orders by soonest first" do
       event1 = create :event
       event2 = create :past_event
       event3 = create :event, start: event1.start + 1.hour
@@ -125,13 +125,11 @@ describe Event do
       expect(events.last).to eq event3
     end
 
-    it "lists past events only" do
+    it "lists past events only, ordered by most recent first" do
       event1 = create :event
       event2 = create :past_event
-      event3 = create :event, start: event1.start + 1.hour
-      events = Event.past
-      expect(events.length).to eq 1
-      expect(events.first).to eq event2
+      event3 = create :past_event, start: event2.start - 1.hour, finish: event2.finish - 1.hour # farther in the past than event2
+      expect(Event.past).to eq [event2, event3]
     end
 
     it "lists only events which are not over" do

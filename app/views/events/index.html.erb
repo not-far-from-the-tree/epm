@@ -9,10 +9,10 @@
         <%= render 'events', events: Event.coordinatorless.not_past %>
     </div>
   <% end %>
-  <% if Event.dateless.where('coordinator_id IS NOT NULL').any? %>
+  <% if Event.dateless.any? %>
     <div id="dateless">
       <h2>Events with No Date</h2>
-        <%= render 'events', events: Event.dateless.where('coordinator_id IS NOT NULL') %>
+        <%= render 'events', events: Event.dateless %>
     </div>
   <% end %>
 <% end %>
