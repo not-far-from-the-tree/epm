@@ -11,6 +11,11 @@ class UsersController < ApplicationController
       @role = role
       @users = @users.send(role.downcase)
     end
+
+    respond_to do |format|
+      format.html
+      format.csv { send_data @users.csv }
+    end
   end
 
   def show

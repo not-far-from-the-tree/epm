@@ -4,6 +4,15 @@ class User < ActiveRecord::Base
 
   strip_attributes
 
+  def self.csv
+    CSV.generate force_quotes: true do |csv|
+      csv << ['id', 'name', 'email', 'phone number', 'joined', 'events attended', 'roles', 'description']
+      all.each do |user|
+        csv << [user.id, user.name, user.email, user.phone, user.created_at.to_date.to_s, user.events.past.count, user.roles.map{|r| r.name}.join(', '), user.description]
+      end
+    end
+  end
+
   scope :search, ->(q) {
     like = Rails.configuration.database_configuration[Rails.env]["adapter"] == 'postgresql' ? 'ILIKE' : 'LIKE'
     where("users.email LIKE ? OR users.name #{like} ?", "%#{q}%", "%#{q}%")
@@ -19,6 +28,7 @@ class User < ActiveRecord::Base
   def events # events where the user is a participant or the coordinator
     Event.joins("LEFT JOIN event_users ON events.id = event_users.event_id").where("events.coordinator_id = ? OR event_users.user_id = ?", id, id).distinct
   end
+
 
   has_many :roles, dependent: :destroy
   accepts_nested_attributes_for :roles

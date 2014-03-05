@@ -66,6 +66,18 @@ describe "Users" do
       expect(page).to have_content @participant.display_name
     end
 
+    it "exports user list to csv" do
+      login_as @admin
+      visit users_path
+      click_link 'Export'
+      csv = CSV.parse(source) # using source as page has normalized the whitespace (thus having no newlines)
+      expect(csv.length).to eq 3 # header row, participant, admin
+      ['id', 'name', 'email', 'phone number', 'description', 'roles', 'events attended', 'joined'].each do |field|
+        expect(csv.first).to include field
+      end
+      expect(page).to have_content @admin.email
+    end
+
   end
 
   context "profile" do
