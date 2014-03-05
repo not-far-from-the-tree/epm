@@ -21,13 +21,28 @@
   <p><%= @event.description %></p>
 <% end %>
 
-<p>
+<div>
   <% if @event.start.present? %>
-    <%= @event.when %> (<%= pluralize @event.duration_hours, 'hour' %>)
+    <div id="date"><p><%= @event.start.strftime '%B %e %Y' %></p></div>
+    <% content_for :js_ready do %>
+      $('#date').html('').datepicker({
+        dateFormat: 'yy-mm-dd',
+        defaultDate: "<%= @event.start.to_date %>",
+        nextText: '',
+        prevText: '',
+        disabled: true
+      });
+    <% end %>
+    <p>
+      <%= @event.start.strftime('%l:%M %p').gsub('  ', ' ') %>
+      to
+      <%= @event.finish.strftime('%l:%M %p').gsub('  ', ' ') %>
+      (<%= pluralize @event.duration_hours, 'hour' %>)
+    </p>
   <% else %>
-    No date set.
+    <p>No date set.</p>
   <% end %>
-</p>
+</div>
 
 <section>
 

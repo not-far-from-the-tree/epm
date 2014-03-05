@@ -12,6 +12,12 @@ body, input, textarea, select {
 a img {
   border: 0;
 }
+a {
+  color: $link_colour;
+}
+p {
+  max-width: 35em;
+}
 
 h1, h2 {
   margin: 0;
