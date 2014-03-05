@@ -3,7 +3,7 @@ require 'spec_helper'
 describe "Events" do
 
   include Warden::Test::Helpers
-  before :all do
+  before :each do
     @admin = create :admin
     @participant = create :participant
   end
@@ -13,63 +13,64 @@ describe "Events" do
 
   describe "CRUD" do
 
-    it "creates a dateless event" do
-      Event.destroy_all
-      login_as @admin
-      visit root_path
-      click_link 'Add New Event'
-      e = build :full_event
-      fill_in 'Name', with: e.name
-      click_button 'Create Event'
-      expect(current_path).to eq event_path Event.last
-      expect(page).to have_content e.name
-      expect(page).to have_content 'No date set'
-    end
+    context "creating" do
 
-    it "creates an event with dates when js is disabled" do
-      Event.destroy_all
-      e = build :event
-      login_as @admin
-      visit new_event_path
-      fill_in 'Date', with: e.start.to_date
-      select (e.duration / 3600), from: 'For'
-      click_button 'Create Event'
-      expect(current_path).to eq event_path Event.last
-      # expect(page).to have_content Event.humanize(e.start) # todo: figure out timezone issues causing this to fail
-      expect(page).to have_content "#{e.duration_hours} hour"
-      expect(page).not_to have_content 'No date set'
-    end
-
-    it "creates an event with dates when js is enabled", js: true do
-      Event.destroy_all
-      login_as @admin
-      visit new_event_path
-      e = build :event
-      within '#datepicker' do
-        click_link 29 # select date towards the end of the current month
+      it "creates a dateless event" do
+        login_as @admin
+        visit root_path
+        click_link 'Add New Event'
+        e = build :full_event
+        fill_in 'Name', with: e.name
+        click_button 'Create Event'
+        expect(current_path).to eq event_path Event.last
+        expect(page).to have_content e.name
+        expect(page).to have_content 'No date set'
       end
-      select (e.duration / 3600), from: 'For'
-      click_button 'Create Event'
-      expect(current_path).to eq event_path Event.last
-      # expect(page).to have_content Event.humanize(e.start) # todo: figure out timezone issues causing this to fail
-      expect(page).to have_content "#{e.duration_hours} hour"
-      expect(page).not_to have_content 'No date set'
-    end
 
-    it "prevents participants from creating events" do
-      login_as @participant
-      visit root_path
-      expect(page).not_to have_content 'Add New Event'
-      visit new_event_path
-      expect(page).to have_content 'Sorry'
-    end
+      it "creates an event with dates when js is disabled" do
+        e = build :event
+        login_as @admin
+        visit new_event_path
+        fill_in 'Date', with: e.start.to_date
+        select (e.duration / 3600), from: 'For'
+        click_button 'Create Event'
+        expect(current_path).to eq event_path Event.last
+        # expect(page).to have_content Event.humanize(e.start) # todo: figure out timezone issues causing this to fail
+        expect(page).to have_content "#{e.duration_hours} hour"
+        expect(page).not_to have_content 'No date set'
+      end
 
-    it "prevents coordinators from creating events" do
-      login_as create :coordinator
-      visit root_path
-      expect(page).not_to have_content 'Add New Event'
-      visit new_event_path
-      expect(page).to have_content 'Sorry'
+      it "creates an event with dates when js is enabled", js: true do
+        login_as @admin
+        visit new_event_path
+        e = build :event
+        within '#datepicker' do
+          click_link 29 # select date towards the end of the current month
+        end
+        select (e.duration / 3600), from: 'For'
+        click_button 'Create Event'
+        expect(current_path).to eq event_path Event.last
+        # expect(page).to have_content Event.humanize(e.start) # todo: figure out timezone issues causing this to fail
+        expect(page).to have_content "#{e.duration_hours} hour"
+        expect(page).not_to have_content 'No date set'
+      end
+
+      it "prevents participants from creating events" do
+        login_as @participant
+        visit root_path
+        expect(page).not_to have_content 'Add New Event'
+        visit new_event_path
+        expect(page).to have_content 'Sorry'
+      end
+
+      it "prevents coordinators from creating events" do
+        login_as create :coordinator
+        visit root_path
+        expect(page).not_to have_content 'Add New Event'
+        visit new_event_path
+        expect(page).to have_content 'Sorry'
+      end
+
     end
 
     it "views an event" do
@@ -171,7 +172,6 @@ describe "Events" do
       end
 
       it "allows a coordinator to edit a coordinatorless event" do
-        Event.destroy_all # should be using db cleaner
         e = create :event
         login_as @coordinator
         visit root_path

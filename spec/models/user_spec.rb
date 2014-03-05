@@ -63,7 +63,7 @@ describe User do
   context "roles" do
 
     it "ensures the first user is an admin but others are participants" do
-      User.destroy_all # ensures there are no existing users
+      User.destroy_all # todo: figure out why this is needed... should be handled by database cleaner
       expect(create(:user).roles.where(name: Role.names[:admin]).count).to eq 1
       expect(create(:user).roles.where(name: Role.names[:participant]).count).to eq 1
     end
@@ -77,8 +77,11 @@ describe User do
 
   context "multiple users" do
 
+    before :each do
+      User.destroy_all # todo: figure out why this is needed... should be handled by database cleaner
+    end
+
     it "lists users according to role" do
-      User.destroy_all # make sure we're starting from a blank slate
       a = create :admin
       c = create :coordinator
       p1 = create :participant
@@ -100,7 +103,6 @@ describe User do
     end
 
     it "searches for users" do
-      User.destroy_all # make sure we're starting from a blank slate
       u1 = create :user, name: 'Joe Smith', email: 'joe_smith@example.com'
       u2 = create :user, name: 'Sally', email: 'sally_smith@example.com'
       u3 = create :user, name: 'Bob Dole', email: 'blabla@example.com'
