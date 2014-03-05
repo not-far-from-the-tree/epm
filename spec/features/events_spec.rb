@@ -21,7 +21,7 @@ describe "Events" do
         click_link 'Add New Event'
         e = build :full_event
         fill_in 'Name', with: e.name
-        click_button 'Create Event'
+        click_button 'Save'
         expect(current_path).to eq event_path Event.last
         expect(page).to have_content e.name
         expect(page).to have_content 'No date set'
@@ -33,7 +33,7 @@ describe "Events" do
         visit new_event_path
         fill_in 'Date', with: e.start.to_date
         select (e.duration / 3600), from: 'For'
-        click_button 'Create Event'
+        click_button 'Save'
         expect(current_path).to eq event_path Event.last
         # expect(page).to have_content Event.humanize(e.start) # todo: figure out timezone issues causing this to fail
         expect(page).to have_content "#{e.duration_hours} hour"
@@ -48,7 +48,7 @@ describe "Events" do
           click_link 29 # select date towards the end of the current month
         end
         select (e.duration / 3600), from: 'For'
-        click_button 'Create Event'
+        click_button 'Save'
         expect(current_path).to eq event_path Event.last
         # expect(page).to have_content Event.humanize(e.start) # todo: figure out timezone issues causing this to fail
         expect(page).to have_content "#{e.duration_hours} hour"
@@ -90,7 +90,7 @@ describe "Events" do
       expect(find('#event_duration option[selected]').text).to have_content e.duration_hours
       new_event_name = 'new event name'
       fill_in 'Name', with: new_event_name
-      click_button 'Update Event'
+      click_button 'Save'
       expect(current_path).to eq event_path(e)
       expect(page).to have_content 'updated'
       expect(page).to have_content new_event_name
@@ -154,7 +154,7 @@ describe "Events" do
         visit new_event_path
         fill_in 'Name', with: 'some event'
         select @coordinator.display_name, :from => 'Coordinator'
-        click_button 'Create Event'
+        click_button 'Save'
         expect(current_path).to eq event_path(Event.order(:created_at).last)
         expect(page).to have_content @coordinator.display_name
       end
@@ -181,7 +181,7 @@ describe "Events" do
         click_link 'Edit'
         name = 'some name'
         fill_in 'Name', with: name
-        click_button 'Update Event'
+        click_button 'Save'
         expect(current_path).to eq event_path e
         expect(page).to have_content name
       end
@@ -194,7 +194,7 @@ describe "Events" do
         visit edit_event_path e
         name = 'some name'
         fill_in 'Name', with: name
-        click_button 'Update Event'
+        click_button 'Save'
         expect(current_path).to eq event_path e
         expect(page).to have_content name
       end
@@ -209,7 +209,7 @@ describe "Events" do
         click_link 'Edit'
         name = 'some name'
         fill_in 'Name', with: name
-        click_button 'Update Event'
+        click_button 'Save'
         expect(current_path).to eq event_path e
         expect(page).to have_content name
       end

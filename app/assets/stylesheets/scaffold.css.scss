@@ -67,6 +67,11 @@ header {
 #main, #flash {
   margin: 0.3em;
 }
+@media (min-width: 500px) {
+  #main, #flash {
+    margin: 1em;
+  }
+}
 #flash {
   font-style: italic;
 }
@@ -93,4 +98,31 @@ dt {
 }
 ol {
   margin: 0;
+}
+
+form .field, form fieldset {
+  margin: 1em 0;
+}
+input[type="text"], input[type="email"], input[type="tel"] {
+  width: 12em;
+}
+textarea {
+  width: 25em;
+  height: 4em;
+}
+input, textarea, fieldset {
+  max-width: 98%;
+}
+label, legend {
+  font-weight: bold;
+}
+fieldset label {
+  font-weight: normal;
+}
+fieldset {
+  border-radius: 10px;
+}
+input[type="submit"] {
+  font-weight: bold;
+  cursor: pointer;
 }
