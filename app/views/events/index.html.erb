@@ -3,10 +3,10 @@
 <% end %>
 
 <% if current_user.has_role?(:admin) || current_user.has_role?(:coordinator) %>
-  <% if Event.coordinatorless.any? %>
+  <% if Event.coordinatorless.not_past.any? %>
     <div id="coordinatorless">
       <h2>Events with No Coordinator</h2>
-        <%= render 'events', events: Event.coordinatorless %>
+        <%= render 'events', events: Event.coordinatorless.not_past %>
     </div>
   <% end %>
   <% if Event.dateless.where('coordinator_id IS NOT NULL').any? %>
