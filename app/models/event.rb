@@ -65,15 +65,8 @@ class Event < ActiveRecord::Base
   def display_name
     return name if name.present?
     return truncate(description, length: 50, separator: ' ') if description.present?
-    return self.class.humanize(start) if start.present?
+    return start.strftime('%B %e %Y, %l:%M %p').gsub('  ', ' ') if start.present?
     '(untitled event)'
-  end
-
-  def self.humanize(datetime)
-    datetime.strftime('%B %e %Y, %l:%M %p').gsub('  ', ' ')
-  end
-  def when
-    "#{self.class.humanize start} to #{self.class.humanize finish}"
   end
 
   def participatable_by?(user)
