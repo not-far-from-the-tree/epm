@@ -8,10 +8,6 @@ describe User do
       expect(create(:user)).to be_valid
     end
 
-      it "has a display name" do
-      expect(create(:user).display_name).not_to be_blank
-    end
-
     it "is invalid without an email" do
       expect(build(:user, email: nil)).not_to be_valid
     end
@@ -39,12 +35,16 @@ describe User do
 
   [:name, :email, :description, :phone].each do |field|
     it "has #{field}" do
-      expect(create :user).to respond_to field
+      expect(build :user).to respond_to field
     end
   end
 
   it "has a display name" do
-    expect(create(:user).display_name).not_to be_blank
+    expect(build(:user).display_name).not_to be_blank
+  end
+
+  it "has an avatar which is a url" do
+    expect(build(:user).avatar).to match URI::regexp(%w(http https))
   end
 
   # all fields should be stripped, this just tests two (excessive to check them all)

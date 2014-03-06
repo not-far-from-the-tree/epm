@@ -1,8 +1,4 @@
-<%
-  tag ||= 'div'
-  gravatar_url = "http://gravatar.com/avatar/#{CGI.escape(Digest::MD5.hexdigest(user.email.downcase))}?s=48&d=mm"
-%>
-<%= content_tag tag, class: 'user', style: "background-image:url('#{gravatar_url}')" do %>
+<%= content_tag (tag ||= 'div'), class: 'user', style: "background-image:url('#{user.avatar}')" do %>
   <%= link_to_if can?(:show, user), user.display_name, user %>
   <% if user.description.present? %>
     <p><%= truncate(user.description, length: 50, separator: ' ') %></p>

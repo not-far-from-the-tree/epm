@@ -6,14 +6,17 @@
 <% if @user.id == current_user.id %>
   <%= link_to 'Change my password', edit_user_registration_path %>
 <% end %>
+
 <% if can?(:add_role, @user) && !@user.has_role?(:coordinator) %>
-  <%= form_for @user, url: { action: :add_role}, method: :patch do |f| %>
+  <%= form_for @user, url: { action: :add_role}, method: :patch, html: {style: "margin:1em 0"} do |f| %>
     <%= f.fields_for :roles do |rf| %>
       <%= rf.hidden_field :name, value: :coordinator %>
     <% end %>
     <%= f.submit 'Make coordinator' %>
   <% end %>
 <% end %>
+
+<%= image_tag @user.avatar('large'), size: '80x80', alt: 'profile photo' %>
 
 <% if @user.description.present? %>
   <p><%= @user.description %></p>
@@ -23,16 +26,12 @@
   Joined <%= @user.created_at.strftime "%B %d %Y" %>.
 </p>
 
+<%= clear %>
+
 <div>
   <h2>Contact Information</h2>
-  <dl>
-    <dt>Email</dt>
-    <dd><%= @user.email %></dd>
-    <% if @user.phone.present? %>
-      <dt>Phone</dt>
-      <dd><%= @user.phone %></dd>
-    <% end %>
-  </dl>
+  <p><%= link_to @user.email, "mailto:#{@user.email}" %></p>
+  <%= @user.phone if @user.phone.present? %>
 </div>
 
 

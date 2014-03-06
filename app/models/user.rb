@@ -50,4 +50,9 @@ class User < ActiveRecord::Base
     end
   end
 
+  def avatar(size = :small)
+    sizes = {small: 48, large: 80}
+    "http://gravatar.com/avatar/#{CGI.escape(Digest::MD5.hexdigest(email.downcase))}?s=#{sizes[size]}&d=mm"
+  end
+
 end
