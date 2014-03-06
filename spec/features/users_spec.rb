@@ -71,7 +71,7 @@ describe "Users" do
       visit users_path
       click_link 'Export'
       csv = CSV.parse(source) # using source as page has normalized the whitespace (thus having no newlines)
-      expect(csv.length).to eq 3 # header row, participant, admin
+      expect(csv.length).to eq (User.count + 1)
       ['id', 'name', 'email', 'phone number', 'description', 'roles', 'events attended', 'joined'].each do |field|
         expect(csv.first).to include field
       end

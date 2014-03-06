@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :event_user do
-    event
+    association :event, factory: :participatable_event
     user
   end
 end

@@ -40,7 +40,7 @@ namespace :db do
     # future events
     20.times do
       e = FactoryGirl.build(:full_event)
-      e.coordinator = User.coordinators.sample(1).first if rand < 0.5
+      e.coordinator = User.coordinators.sample(1).first
       e = use_probabilities(e, event_attribute_probabilities)
       User.participants.sample(rand 7).each do |u|
         e.event_users.create user: u

@@ -122,11 +122,11 @@ describe User do
 
     it "lists events a user is participating in" do
       u = create :participant
-      e1 = create :event
+      e1 = create :participatable_event
       e1.event_users.create user: u
-      e2 = create :event
+      e2 = create :participatable_event
       e2.event_users.create user: u
-      create :event # event 3, not participating
+      create :participatable_event # event 3, not participating
       expect(u.participating_events.length).to eq 2
     end
 
@@ -140,13 +140,13 @@ describe User do
 
     it "lists events a user is involved with" do
       u = create :coordinator
-      create :event, coordinator: u
+      create :participatable_event, coordinator: u
       u.roles.create name: :participant
-      e1 = create :event
+      e1 = create :participatable_event
       e1.event_users.create user: u
-      e2 = create :event
+      e2 = create :participatable_event
       e2.event_users.create user: u
-      create :event # event 4, not coording or participating
+      create :participatable_event # event 4, not coording or participating
       expect(u.events.length).to eq 3
     end
 
