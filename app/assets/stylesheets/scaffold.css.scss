@@ -15,6 +15,9 @@ a img {
 a {
   color: $link_colour;
 }
+a:visited, a:active {
+  color: $link_colour_visited;
+}
 p {
   max-width: 35em;
 }
@@ -33,7 +36,7 @@ header {
     padding-top: 0.3em;
     padding-bottom: 0.3em;
   }
-  a {
+  a, a:visited, a:hover {
     color: white;
     padding-right: 0.4em;
     padding-left: 0.4em;
