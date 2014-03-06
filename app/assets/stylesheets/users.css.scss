@@ -1,3 +1,21 @@
-// Place all the styles related to the users controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
+ul.users {
+  list-style-type: none;
+  padding-left: 0;
+}
+ul.users li {
+  margin: 0.8em 0;
+}
+
+.user {
+  height: 48px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  padding-left: 55px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.user p {
+  margin: 0;
+  padding: 0.2em 0;
+  text-overflow: ellipsis;
+}

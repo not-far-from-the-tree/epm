@@ -56,7 +56,7 @@
   <% if @event.can_have_participants? %>
     <h2>Participants</h2>
     <% if @event.participants.any? %>
-      <ul>
+      <ul class="users">
         <% @event.participants.each do |user| %>
           <%= render 'users/user', user: user, tag: 'li' %>
         <% end %>
