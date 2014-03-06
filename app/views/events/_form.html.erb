@@ -2,6 +2,8 @@
 
   <%= render 'shared/errors', thing: @event %>
 
+  <%= start_cols %>
+
   <div class="field">
     <%= f.label :name %><br>
     <%= f.text_field :name %>
@@ -17,6 +19,8 @@
     <%= f.label :coordinator_id %><br>
     <%= f.collection_select :coordinator_id, coordinators, :id, :display_name, include_blank: true %>
   </div>
+
+  <%= next_col %>
 
   <fieldset style="width:14em">
     <legend>When</legend>
@@ -46,6 +50,8 @@
       <%= f.select :duration, options_for_select((1..6).map{|n| [pluralize(n, 'hour'), n.hours]}, @event.duration) %>
     </div>
   </fieldset>
+
+  <%= end_cols %>
 
   <%= f.submit 'Save' %>
 

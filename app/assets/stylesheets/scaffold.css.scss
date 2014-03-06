@@ -30,7 +30,8 @@ header {
   padding: 0 0.3em;
   margin-bottom: 1em;
   h1, li, #account {
-    padding: 0.3em 0;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
   }
   a {
     color: white;
@@ -38,21 +39,22 @@ header {
     padding-left: 0.4em;
     text-decoration: none;
   }
+  a:hover {
+    text-decoration: underline;
+  }
   h1 {
     font-size: 1em;
     font-weight: normal;
     float: left;
   }
   ul {
-    margin: 0 0 0 2em;
+    padding-left: 0;
+    margin-left: 4em;
     list-style-type: none;
   }
   li {
     float: left;
     margin: 0 0.3em;
-  }
-  li a:hover, #account:hover {
-    text-decoration: underline;
   }
   li.active {
     background-color: #6B6B6B;
@@ -63,6 +65,13 @@ header {
   top: 0;
   right: 0.3em;
 }
+@media (max-width: 400px) {
+  nav ul {
+    padding-top: 1.8em;
+    margin-left: 0;
+  }
+}
+
 
 #main, #flash {
   margin: 0.3em;
@@ -90,14 +99,33 @@ header {
     clear: both;
 }
 
+.cols .colA, .cols .colB {
+  width: 46%;
+  float: left;
+}
+.cols .colA {
+  margin-right: 3%;
+}
+@media (max-width: $col_limit) {
+  .cols .colA, .cols .colB {
+    width: 100%;
+    float: none;
+  }
+  .cols .colA {
+    margin-right: 0;
+  }
+}
+
+
 h2 {
-  margin-top: 0.6em;
+  margin-top: 1em;
 }
 dt {
   font-weight: bold;
 }
-ol {
+ul, ol {
   margin: 0;
+  padding-left: 1.3em;
 }
 
 form .field, form fieldset {
@@ -108,7 +136,7 @@ input[type="text"], input[type="email"], input[type="tel"] {
 }
 textarea {
   width: 25em;
-  height: 4em;
+  height: 7em;
 }
 input, textarea, fieldset {
   max-width: 98%;
@@ -116,12 +144,26 @@ input, textarea, fieldset {
 label, legend {
   font-weight: bold;
 }
-fieldset label {
-  font-weight: normal;
-}
+
+
 fieldset {
   border-radius: 10px;
 }
+@media (min-width: $col_limit) {
+  .cols fieldset {
+    border-width: 0;
+  }
+  .cols legend {
+    display: none;
+  }
+}
+@media (max-width: $col_limit) {
+  .cols fieldset label {
+    font-weight: normal;
+  }
+}
+
+
 input[type="submit"] {
   font-weight: bold;
   cursor: pointer;

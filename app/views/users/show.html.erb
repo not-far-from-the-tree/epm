@@ -30,8 +30,10 @@
 
 <div>
   <h2>Contact Information</h2>
-  <p><%= link_to @user.email, "mailto:#{@user.email}" %></p>
-  <%= @user.phone if @user.phone.present? %>
+  <%= link_to @user.email, "mailto:#{@user.email}" %>
+  <% if @user.phone.present? %>
+    <br><%= @user.phone %>
+  <% end %>
 </div>
 
 
