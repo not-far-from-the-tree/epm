@@ -16,6 +16,7 @@
   <% end %>
 <% end %>
 
+<%= clear %>
 <%= image_tag @user.avatar('large'), size: '80x80', alt: 'profile photo' %>
 
 <%= paragraphs @user.description if @user.description.present? %>
