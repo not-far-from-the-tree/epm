@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Event do
 
-  [:name, :description, :start, :finish, :participants, :coordinator].each do |field|
+  [:name, :description, :notes, :start, :finish, :participants, :coordinator].each do |field|
     it "has #{field}" do
       expect(create(:event)).to respond_to field
     end

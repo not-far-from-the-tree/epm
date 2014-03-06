@@ -19,10 +19,14 @@
 
 <%= start_cols %>
 
-<% if @event.description.present? %>
-  <%= paragraphs @event.description %>
-  <%= next_col %>
+<% if @event.notes.present? && can?(:read_notes, @event) %>
+  <div id="notes">
+    <strong>Notes for Admins and Coordinators</strong>
+    <%= paragraphs @event.notes %>
+  </div>
 <% end %>
+<%= paragraphs @event.description if @event.description.present? %>
+<%= next_col if @event.description.present? || (@event.notes.present? && can?(:read_notes, @event)) %>
 
 <div>
   <% if @event.start.present? %>
@@ -61,7 +65,7 @@
   <% if @event.can_have_participants? %>
     <h2>Participants</h2>
     <% if @event.participants.any? %>
-      <ul class="users">
+      <ul id="participants" class="users">
         <% @event.participants.each do |user| %>
           <%= render 'users/user', user: user, tag: 'li' %>
         <% end %>

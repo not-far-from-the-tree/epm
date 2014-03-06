@@ -13,12 +13,13 @@ class Ability
 
       if user.has_role? :admin
         can :manage, Event
+        can :read_notes, Event
         can [:read, :add_role], User
       end
 
       if user.has_role? :coordinator
         can :read, Event
-        can [:update, :destroy], Event, coordinator_id: user.id
+        can [:update, :destroy, :read_notes], Event, coordinator_id: user.id
         can :update, Event, coordinator_id: nil
       end
 

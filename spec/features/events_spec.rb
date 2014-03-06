@@ -298,13 +298,62 @@ describe "Events" do
 
   end
 
-  it "lets people with permission see attendees' profiles" do
-    login_as @admin
-    e = create :participatable_event
-    e.event_users.create user: @participant
-    visit event_path(e)
-    click_link @participant.display_name
-    expect(current_path).to eq user_path(@participant)
+  context "user and coordinator features" do
+
+    it "lets admins see attendees' profiles" do
+      login_as @admin
+      e = create :participatable_event
+      e.event_users.create user: @participant
+      visit event_path(e)
+      click_link @participant.display_name
+      expect(current_path).to eq user_path(@participant)
+    end
+
+    it "does not let participants see attendees' profiles" do
+      e = create :participatable_event
+      e.event_users.create user: create(:participant)
+      login_as @participant
+      visit event_path(e)
+      expect(all('#participants a').length).to eq 0
+    end
+
+    context "notes" do
+
+      # the first test creates the note through the ui to test that, the others don't need to
+
+      it "shows notes to admins" do
+        login_as @admin
+        visit new_event_path
+        fill_in 'Name', with: 'Event name'
+        fill_in 'Notes', with: 'Some note'
+        click_button 'Save'
+        expect(page).to have_content 'Some note'
+      end
+
+      it "shows notes to coordinator of an event" do
+        e = create :participatable_event, notes: 'Some note'
+        login_as e.coordinator
+        visit event_path e
+        expect(page).to have_content 'Some note'
+      end
+
+      it "does not show notes to coordinator not on an event" do
+        e = create :event, notes: 'Some note'
+        login_as create :coordinator
+        visit event_path e
+        expect(page).not_to have_content 'Some note'
+      end
+
+      it "does not show notes to participant" do
+        e = create :participatable_event, notes: 'Some note'
+        e.event_users.create user: create(:participant)
+        login_as e.participants.first
+        visit event_path e
+        expect(page).not_to have_content 'Some note'
+      end
+
+    end
+
   end
 
 end

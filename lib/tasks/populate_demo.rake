@@ -2,7 +2,7 @@ namespace :db do
   task :populate_demo => :environment do
 
     # probability that a record would have a particular attribute
-    event_attribute_probabilities = {name: 80, description: 30}
+    event_attribute_probabilities = {name: 80, description: 30, notes: 10}
     user_attribute_probabilities = {name: 90, description: 10, phone: 40}
     def use_probabilities(record, attr_prob)
       attr_prob.each do |k, prob|
