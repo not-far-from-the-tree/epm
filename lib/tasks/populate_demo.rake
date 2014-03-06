@@ -55,7 +55,7 @@ namespace :db do
     # events with a coordinator but no date
     2.times do
       e = FactoryGirl.build(:full_event, start: nil)
-      e.coordinator = User.coordinators.sample(1).first if rand < 0.5
+      e.coordinator = User.coordinators.sample(1).first
       e = use_probabilities(e, event_attribute_probabilities)
     end
     # events with no date or coordinator
