@@ -4,6 +4,11 @@ module ApplicationHelper
     content_for :title, str
   end
 
+  require 'rails_rinku'
+  def paragraphs(text)
+    simple_format auto_link text
+  end
+
   def clear
     content_tag 'div', nil, class: 'clearfix'
   end

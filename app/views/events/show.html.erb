@@ -17,8 +17,11 @@
   </strong></p>
 <% end %>
 
+<%= start_cols %>
+
 <% if @event.description.present? %>
-  <p><%= @event.description %></p>
+  <%= paragraphs @event.description %>
+  <%= next_col %>
 <% end %>
 
 <div>
@@ -43,6 +46,8 @@
     <p>No date set.</p>
   <% end %>
 </div>
+
+<%= end_cols %>
 
 <section>
 

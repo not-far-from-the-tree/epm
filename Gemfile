@@ -4,15 +4,19 @@ gem 'rails', "4.1.0.rc1"
 
 gem 'pg'
 
+# assets
 gem 'sass-rails'
 gem 'uglifier'
 gem 'jquery-rails'
 gem 'jquery-ui-rails'
 
+# authoerization and authentication
 gem 'devise'
 gem 'cancancan'
 
 gem 'strip_attributes'
+
+gem 'rinku' # URL auto-linking
 
 group :production do
   gem 'rails_12factor'

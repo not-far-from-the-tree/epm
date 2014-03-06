@@ -18,9 +18,7 @@
 
 <%= image_tag @user.avatar('large'), size: '80x80', alt: 'profile photo' %>
 
-<% if @user.description.present? %>
-  <p><%= @user.description %></p>
-<% end %>
+<%= paragraphs @user.description if @user.description.present? %>
 
 <p>
   Joined <%= @user.created_at.strftime "%B %d %Y" %>.
