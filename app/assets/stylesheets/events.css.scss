@@ -49,9 +49,6 @@ form .ui-datepicker a {
     padding: 0.1em 0.2em;
     text-align: right;
   }
-  td a.ui-state-highlight { /* today */
-    background-color: #eee;
-  }
 }
 form .ui-datepicker a {
   cursor: pointer; /* put back normal link cursor, note above */
@@ -61,11 +58,14 @@ form .ui-datepicker td a:hover { /* onhover day */
   color: $link_colour;
 }
 
+td a.ui-state-highlight { /* today */
+  background-color: #eee;
+}
 td a.ui-state-active, form .ui-datepicker td a:active { /* selected day */
     background-color: black;
     border-color: black;
     color: white;
-  }
+}
 
 .ui-datepicker-header {
   position: relative;
