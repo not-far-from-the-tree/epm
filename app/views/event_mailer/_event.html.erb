@@ -1,0 +1,24 @@
+<% user ||= User.new %>
+
+<dl>
+  <% if event.description %>
+    <dt>Description</dt>
+    <dd><%= paragraphs event.description %></dd>
+  <% end %>
+  <% if event.notes && can?(:read_note, user) %>
+    <dt>Notes for admins and coordinators</dt>
+    <dd><%= paragraphs event.notes %></dd>
+  <% end %>
+  <dt>When</dt>
+  <dd>
+    <% if event.start %>
+      <%= date event.start %>, <%= time event.start %> to <%= time event.finish %> (<%= pluralize event.duration_hours, 'hour' %>)
+    <% else %>
+      Date not set.
+    <% end %>
+  </dd>
+  <% if event.coordinator && user != event.coordinator %>
+    <dt>Coordinator</dt>
+    <dd><%= event.coordinator.display_name %></dd>
+  <% end %>
+</dl>

@@ -1,16 +1,5 @@
 <p>This email confirms that you are attending <%= link_to @event.display_name, event_url(@event) %>.<p>
 
-<dl>
-  <% if @event.description %>
-    <dt>Description</dt>
-    <dd><%= paragraphs @event.description %></dd>
-  <% end %>
-  <dt>When</dt>
-  <dd><%= date @event.start %>, <%= time @event.start %> to <%= time @event.finish %> (<%= pluralize @event.duration_hours, 'hour' %>)</dd>
-  <% if @event.coordinator %>
-    <dt>Coordinator</dt>
-    <dd><%= @event.coordinator.display_name %></dd>
-  <% end %>
-</dl>
+<%= render 'event', event: @event, user: @user %>
 
 <p>If you are unable to attend the event, please visit the <%= link_to 'event page', event_url(@event) %> to cancel.</p>

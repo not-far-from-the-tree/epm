@@ -159,6 +159,36 @@ describe "Events" do
         expect(page).to have_content @coordinator.display_name
       end
 
+      describe "email notifications" do
+
+        it "notifies a coordinator when a new event is assigned to them" do
+          login_as @admin
+          visit new_event_path
+          fill_in 'Name', with: 'some event'
+          select @coordinator.display_name, :from => 'Coordinator'
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+          expect(ActionMailer::Base.deliveries.last.to.first).to match @coordinator.email
+        end
+
+        it "notifies a coordinator when an existing event is assigned to them" do
+          e = create :event, coordinator: nil
+          login_as @admin
+          visit edit_event_path(e)
+          select @coordinator.display_name, :from => 'Coordinator'
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+          expect(ActionMailer::Base.deliveries.last.to.first).to match @coordinator.email
+        end
+
+        it "does not notify a coordinator when they assign an event to themselves" do
+          e = create :event, coordinator: nil
+          login_as @coordinator
+          visit edit_event_path(e)
+          select @coordinator.display_name, :from => 'Coordinator'
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
+        end
+
+      end
+
       it "allows coordinator to set an event's coordinator only to his/herself" do
         coordinator2 = create :coordinator
         e = create :event

@@ -23,6 +23,9 @@ class EventsController < ApplicationController
   def create
     @event = Event.new(event_params)
     if @event.save
+      if @event.coordinator && @event.coordinator != current_user
+        EventMailer.coordinator_assigned(@event).deliver
+      end
       redirect_to @event, notice: 'Event was successfully created.'
     else
       render action: 'new'
@@ -30,7 +33,12 @@ class EventsController < ApplicationController
   end
 
   def update
-    if @event.update(event_params)
+    @event.assign_attributes event_params
+    new_coordinator = @event.coordinator_id_changed? && @event.coordinator
+    if @event.save
+      if new_coordinator && @event.coordinator != current_user
+        EventMailer.coordinator_assigned(@event).deliver
+      end
       redirect_to @event, notice: 'Event was successfully updated.'
     else
       render action: 'edit'

@@ -1,11 +1,7 @@
 This email confirms that you are attending <%= @event.display_name %>, <%= event_url(@event) %>
 
 
-<%= "Description: #{@event.description}" if @event.description %>
-
-When: <%= date @event.start %>, <%= time @event.start %> to <%= time @event.finish %> (<%= pluralize @event.duration_hours, 'hour' %>)
-
-<%= "Coordinator: #{@event.coordinator.display_name}" if @event.coordinator %>
+<%= render 'event', event: @event, user: @user -%>
 
 
 If you are unable to attend the event, please visit the event page to cancel.

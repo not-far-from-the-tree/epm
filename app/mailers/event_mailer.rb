@@ -5,8 +5,18 @@ class EventMailer < ActionMailer::Base
   def attend(event, user)
     @event = event
     @user = user
-    to = @user.name.present? ? "#{@user.name} <#{@user.email}>" : @user.email
-    mail to: to, subject: 'You have joined an event'
+    mail to: to(user), subject: 'You have joined an event'
   end
+
+  def coordinator_assigned(event)
+    @event = event
+    mail to: to(@event.coordinator), subject: 'You have been assigned an event'
+  end
+
+  private
+
+    def to(user)
+      user.name.present? ? "#{user.name} <#{user.email}>" : user.email
+    end
 
 end
