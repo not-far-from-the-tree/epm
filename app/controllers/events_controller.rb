@@ -43,7 +43,9 @@ class EventsController < ApplicationController
   end
 
   def attend
-    @event.event_users.create user: current_user # this will fail if already attending but that's fine
+    if @event.event_users.create user: current_user # this will fail if already attending but that's fine
+      EventMailer.attend(@event, current_user).deliver
+    end
     redirect_to @event, notice: 'You are now attending this event.'
   end
 

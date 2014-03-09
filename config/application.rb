@@ -36,5 +36,13 @@ module Epm
         :routing_specs => false
     end
 
+    config.action_mailer.default_url_options = { host: 'example.com' } # todo: replace with config eventually
+    # enables using view helpers in mailer views
+     config.to_prepare do
+      ActionMailer::Base.helper 'application'
+      ActionMailer::Base.helper 'events'
+      ActionMailer::Base.helper 'users'
+    end
+
   end
 end

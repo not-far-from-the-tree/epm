@@ -241,6 +241,14 @@ describe "Events" do
       expect(page).to have_content @participant.email
     end
 
+    it "sends a confirmation email on joining an event" do
+      login_as @participant
+      e = create :participatable_event
+      visit event_path(e)
+      expect { click_link 'Join' }.to change{ActionMailer::Base.deliveries.size}.by 1
+      expect(ActionMailer::Base.deliveries.last.to).to eq [@participant.email]
+    end
+
     it "only allows participants to join events" do
       login_as @admin
       e = create :participatable_event
