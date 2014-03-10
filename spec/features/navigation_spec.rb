@@ -18,6 +18,7 @@ describe "Navigation" do
       expect(page).to have_content 'Events'
       expect(page).to have_content 'My Profile'
       expect(page).not_to have_content 'Users'
+      expect(page).not_to have_content 'Settings'
     end
   end
 
@@ -26,8 +27,9 @@ describe "Navigation" do
     visit root_path
     within 'nav' do
       expect(page).to have_content 'Events'
-      expect(page).to have_content 'My Profile'
       expect(page).to have_content 'Users'
+      expect(page).to have_content 'Settings'
+      expect(page).to have_content 'My Profile'
     end
   end
 
@@ -52,12 +54,18 @@ describe "Navigation" do
     expect(find('nav .active').text).to eq 'Users'
   end
 
-  it "shows the right active nav link for users" do
+  it "shows the right active nav link for my profile" do
     login_as @admin
     visit user_path @admin
     expect(find('nav .active').text).to eq 'My Profile'
     visit edit_user_path @admin
     expect(find('nav .active').text).to eq 'My Profile'
+  end
+
+  it "shows the right active nav link for settings" do
+    login_as @admin
+    visit settings_path
+    expect(find('nav .active').text).to eq 'Settings'
   end
 
 end

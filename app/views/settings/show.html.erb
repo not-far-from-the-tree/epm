@@ -1,0 +1,28 @@
+<%# copied (and modified) from https://github.com/paulca/configurable_engine/blob/master/app/views/admin/configurables/show.html.erb %>
+
+<% title 'Settings' %>
+
+<%= form_tag settings_path, :method => :put do -%>
+
+  <%- @keys.each do |key| -%>
+    <%- options = Configurable.defaults[key] -%>
+    <div class="field">
+      <%= label_tag key, options[:name] %><br>
+      <%- if options[:type] == 'boolean' %>
+        <%= hidden_field_tag key, "0" %>
+        <%= check_box_tag key, "1", Configurable.send(key) %>
+      <%- elsif options[:type] == 'password' -%>
+        <%= password_field_tag key, Configurable.send(key) %>
+      <%- elsif options[:type] == 'text' -%>
+        <%= text_area_tag key, Configurable.send(key) %>
+      <%- elsif options[:type] == 'list' -%>
+        <%= text_area_tag key, Configurable.send(key).collect{ |a| a.join(",")}.join("\n") %>
+      <%- else -%>
+        <%= text_field_tag key, Configurable.send(key) %>
+      <%- end -%>
+    </div>
+  <%- end -%>
+  
+  <%= submit_tag 'Save' %>
+
+<%- end -%>

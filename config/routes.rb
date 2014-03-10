@@ -15,4 +15,8 @@ Epm::Application.routes.draw do
     end
   end
 
+  # for configurable_engine gem; it generates its own routes as well which are unused
+  put 'settings', to: 'settings#update', as: 'settings'
+  get 'settings', to: 'settings#show'
+
 end

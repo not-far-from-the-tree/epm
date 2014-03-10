@@ -1,0 +1,9 @@
+site_title:
+  name: Site Title
+  type: string
+  default: Event-Participant Manager
+
+site_title_short:
+  name: Site Title (short)
+  type: string
+  default: EPM

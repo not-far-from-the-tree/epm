@@ -14,6 +14,8 @@ gem 'jquery-ui-rails'
 gem 'devise'
 gem 'cancancan'
 
+gem 'configurable_engine' # site-wide config
+
 gem 'strip_attributes'
 
 gem 'rinku' # URL auto-linking

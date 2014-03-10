@@ -12,8 +12,7 @@ class Ability
       can [:show, :update], User, id: user.id
 
       if user.has_role? :admin
-        can :manage, Event
-        can :read_notes, Event
+        can :manage, [Event, :setting]
         can [:read, :add_role], User
       end
 
