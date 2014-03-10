@@ -39,7 +39,7 @@ describe "Settings" do
       within 'header h1' do
         expect(page).to have_content 'EPM' # default short title
       end
-      fill_in 'Site Title (short)', with: 'Foo'
+      fill_in 'Title (short)', with: 'Foo'
       click_button 'Save'
       expect(current_path).to eq settings_path
       within 'header h1' do

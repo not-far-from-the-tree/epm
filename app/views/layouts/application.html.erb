@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title><%= Configurable.site_title %><%= ": #{yield :title}" if content_for :title %></title>
+  <title><%= Configurable.title %><%= ": #{yield :title}" if content_for :title %></title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <%= stylesheet_link_tag    "application", media: "all" %>
   <%= javascript_include_tag "application" %>
@@ -18,7 +18,7 @@
 
   <header>
     <% if user_signed_in? %>
-      <h1><%= link_to Configurable.site_title_short, root_path, title: Configurable.site_title %></h1>
+      <h1><%= link_to Configurable.title_short, root_path, title: Configurable.title %></h1>
       <nav>
         <ul>
           <li<%= ' class="active"'.html_safe if controller_name == 'events' %>><%= link_to 'Events', root_path %></li>
@@ -34,7 +34,7 @@
         <%= link_to 'Log out', destroy_user_session_path, id: 'account' %>
       </nav>
     <% else %>
-      <h1><%= link_to Configurable.site_title, root_path %></h1>
+      <h1><%= link_to Configurable.title, root_path %></h1>
     <% end %>
     <%= clear %>
   </header>

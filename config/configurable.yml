@@ -1,9 +1,14 @@
-site_title:
-  name: Site Title
+title:
+  name: Title
   type: string
   default: Event-Participant Manager
 
-site_title_short:
-  name: Site Title (short)
+title_short:
+  name: Title (short)
   type: string
   default: EPM
+
+email:
+  name: Email
+  type: string
+  default: no-reply@example.com

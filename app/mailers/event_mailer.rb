@@ -1,6 +1,6 @@
 class EventMailer < ActionMailer::Base
 
-  default from: "from@example.com" # todo: eventually replace with config
+  default from: "#{Configurable.title} <#{Configurable.email}>"
 
   def attend(event, user)
     @event = event
