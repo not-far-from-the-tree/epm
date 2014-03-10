@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
    if current_user
      redirect_to root_url, alert: "Sorry, you don't have permission to do that."
    else
-     redirect_to new_user_session_url, notice: 'Please log in first.'
+     redirect_to new_user_session_url
    end
   end
 
