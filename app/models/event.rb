@@ -22,6 +22,11 @@ class Event < ActiveRecord::Base
   has_many :event_users, dependent: :destroy
   has_many :participants, through: :event_users, source: :user
   belongs_to :coordinator, class_name: 'User'
+  def users
+    people = participants.to_a
+    people << coordinator if coordinator
+    people
+  end
 
   default_scope { order :start }
   scope :past, -> { where('finish < ?', Time.zone.now).reorder('finish DESC') }

@@ -92,7 +92,7 @@ describe "Events" do
       fill_in 'Name', with: new_event_name
       click_button 'Save'
       expect(current_path).to eq event_path(e)
-      expect(page).to have_content 'updated'
+      expect(page).to have_content 'saved'
       expect(page).to have_content new_event_name
     end
 
@@ -105,20 +105,55 @@ describe "Events" do
       expect(page).to have_content 'Sorry'
     end
 
-    it "deletes an event" do
-      login_as @admin
-      e = create :event
-      visit event_path(e)
-      expect{ click_link 'Delete' }.to change{Event.count}.by -1
-      expect(current_path).to eq events_path
-      expect(page).to have_content 'deleted'
-    end
+    context "deleting" do
 
-    it "prevents participants from deleting an event" do
-      login_as @participant
-      e = create :event
-      visit event_path(e)
-      expect(page).not_to have_content 'Delete'
+      it "deletes an event" do
+        login_as @admin
+        e = create :event
+        visit event_path e
+        expect{ click_link 'Delete' }.to change{Event.count}.by -1
+        expect(current_path).to eq events_path
+        expect(page).to have_content 'deleted'
+      end
+
+      it "prevents participants from deleting an event" do
+        login_as @participant
+        e = create :event
+        visit event_path e
+        expect(page).not_to have_content 'Delete'
+      end
+
+      it "sends an email to coordinator and participants when an event is cancelled" do
+        e = create :participatable_event
+        participant = create :participant
+        e.event_users.create user: participant
+        login_as @admin
+        visit event_path e
+        expect{ click_link 'Delete' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        expect(ActionMailer::Base.deliveries.last.bcc.length).to eq 2
+        expect(ActionMailer::Base.deliveries.last.bcc).to include e.coordinator.email
+        expect(ActionMailer::Base.deliveries.last.bcc).to include participant.email
+      end
+
+      it "sends an email to participants but not the coordinator when an event is cancelled by the coordinator" do
+        coordinator = create :coordinator
+        e = create :participatable_event, coordinator: coordinator
+        participant = create :participant
+        e.event_users.create user: participant
+        login_as coordinator
+        visit event_path e
+        expect{ click_link 'Delete' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        expect(ActionMailer::Base.deliveries.last.bcc.length).to eq 1
+        expect(ActionMailer::Base.deliveries.last.bcc.first).to eq participant.email
+      end
+
+      it "does not send an email when an event is cancelled that does not have a coordinator or participants" do
+        e = create :event
+        login_as @admin
+        visit event_path e
+        expect{ click_link 'Delete' }.to change{ActionMailer::Base.deliveries.size}.by 0
+      end
+
     end
 
     context "coordinator" do

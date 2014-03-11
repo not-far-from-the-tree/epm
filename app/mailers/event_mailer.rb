@@ -13,6 +13,11 @@ class EventMailer < ActionMailer::Base
     mail to: to(@event.coordinator), subject: 'You have been assigned an event'
   end
 
+  def cancel(event, users)
+    @event = event
+    mail bcc: users.map{|u| to(u)}, subject: "#{@event.display_name} has been cancelled"
+  end
+
   private
 
     def to(user)

@@ -26,9 +26,9 @@ class EventsController < ApplicationController
       if @event.coordinator && @event.coordinator != current_user
         EventMailer.coordinator_assigned(@event).deliver
       end
-      redirect_to @event, notice: 'Event was successfully created.'
+      redirect_to @event, notice: 'Event saved.'
     else
-      render action: 'new'
+      render :new
     end
   end
 
@@ -39,15 +39,20 @@ class EventsController < ApplicationController
       if new_coordinator && @event.coordinator != current_user
         EventMailer.coordinator_assigned(@event).deliver
       end
-      redirect_to @event, notice: 'Event was successfully updated.'
+      redirect_to @event, notice: 'Event saved.'
     else
-      render action: 'edit'
+      render :edit
     end
   end
 
   def destroy
-    @event.destroy
-    redirect_to events_url, notice: 'Event was successfully deleted.'
+    users = @event.users.reject{|u| u == current_user}
+    if @event.destroy
+      EventMailer.cancel(@event, users).deliver if users.any?
+      redirect_to events_url, notice: "#{@event.display_name} deleted."
+    else
+      redirect_to @event, notice: 'Unable to delete this event.'
+    end
   end
 
   def attend
