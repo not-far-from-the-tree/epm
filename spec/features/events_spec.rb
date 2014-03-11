@@ -81,28 +81,82 @@ describe "Events" do
       expect(current_path).to eq event_path e
     end
 
-    # consider separating out testing that the duration select is showing the right value
-    it "updates an event" do
-      login_as @admin
-      e = create :full_event
-      visit event_path(e)
-      click_link 'Edit'
-      expect(find('#event_duration option[selected]').text).to have_content e.duration_hours
-      new_event_name = 'new event name'
-      fill_in 'Name', with: new_event_name
-      click_button 'Save'
-      expect(current_path).to eq event_path(e)
-      expect(page).to have_content 'saved'
-      expect(page).to have_content new_event_name
-    end
+    context "updating" do
 
-    it "prevents updating an event without permission" do
-      login_as @participant
-      e = create :participatable_event
-      visit event_path(e)
-      expect(page).not_to have_content 'Edit'
-      visit edit_event_path(e)
-      expect(page).to have_content 'Sorry'
+      # consider separating out testing that the duration select is showing the right value
+      it "updates an event" do
+        login_as @admin
+        e = create :full_event
+        visit event_path(e)
+        click_link 'Edit'
+        expect(find('#event_duration option[selected]').text).to have_content e.duration_hours
+        new_event_name = 'new event name'
+        fill_in 'Name', with: new_event_name
+        click_button 'Save'
+        expect(current_path).to eq event_path(e)
+        expect(page).to have_content 'saved'
+        expect(page).to have_content new_event_name
+      end
+
+      it "prevents updating an event without permission" do
+        login_as @participant
+        e = create :participatable_event
+        visit event_path e
+        expect(page).not_to have_content 'Edit'
+        visit edit_event_path(e)
+        expect(page).to have_content 'Sorry'
+      end
+
+      context "email notifications" do
+
+        before :each do
+          @coordinator = create :coordinator
+          @participant = create :participant
+          @e = create :participatable_event, coordinator: @coordinator
+          @e.event_users.create user: @participant
+        end
+
+        it "emails attendees upon significantly changing an event" do
+          login_as @admin
+          visit edit_event_path @e
+          fill_in 'Name', with: 'New name'
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+          expect(last_email.bcc.length).to eq 2
+          expect(last_email.bcc).to include @coordinator.email
+          expect(last_email.bcc).to include @participant.email
+        end
+
+        it "emails participants but not coordinator upon the coordinator significantly changing an event" do
+          login_as @coordinator
+          visit edit_event_path @e
+          fill_in 'Name', with: 'New name'
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+          expect(last_email.bcc).to eq [@participant.email]
+        end
+
+        it "emails attendees but not coordinator upon significantly changing an event and also assigning a coordinator" do
+          new_coordinator = create :coordinator
+          login_as @admin
+          visit edit_event_path @e
+          fill_in 'Name', with: 'New name'
+          select new_coordinator.display_name, from: 'Coordinator'
+          ActionMailer::Base.deliveries.clear
+          # expecting to send a notice to the new coordinator of the event
+          # and also the notice to existing participants of changes
+          # which should be the last email
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 2
+          expect(last_email.bcc).to eq [@participant.email]
+        end
+
+        it "does not email attendees upon changing an event in a minor way" do
+          login_as @admin
+          visit edit_event_path @e
+          select '', from: 'Coordinator'
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
+        end
+
+      end
+
     end
 
     context "deleting" do
@@ -130,9 +184,9 @@ describe "Events" do
         login_as @admin
         visit event_path e
         expect{ click_link 'Delete' }.to change{ActionMailer::Base.deliveries.size}.by 1
-        expect(ActionMailer::Base.deliveries.last.bcc.length).to eq 2
-        expect(ActionMailer::Base.deliveries.last.bcc).to include e.coordinator.email
-        expect(ActionMailer::Base.deliveries.last.bcc).to include participant.email
+        expect(last_email.bcc.length).to eq 2
+        expect(last_email.bcc).to include e.coordinator.email
+        expect(last_email.bcc).to include participant.email
       end
 
       it "sends an email to participants but not the coordinator when an event is cancelled by the coordinator" do
@@ -143,8 +197,8 @@ describe "Events" do
         login_as coordinator
         visit event_path e
         expect{ click_link 'Delete' }.to change{ActionMailer::Base.deliveries.size}.by 1
-        expect(ActionMailer::Base.deliveries.last.bcc.length).to eq 1
-        expect(ActionMailer::Base.deliveries.last.bcc.first).to eq participant.email
+        expect(last_email.bcc.length).to eq 1
+        expect(last_email.bcc.first).to eq participant.email
       end
 
       it "does not send an email when an event is cancelled that does not have a coordinator or participants" do
@@ -202,7 +256,7 @@ describe "Events" do
           fill_in 'Name', with: 'some event'
           select @coordinator.display_name, :from => 'Coordinator'
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
-          expect(ActionMailer::Base.deliveries.last.to.first).to match @coordinator.email
+          expect(last_email.to.first).to match @coordinator.email
         end
 
         it "notifies a coordinator when an existing event is assigned to them" do
@@ -211,7 +265,7 @@ describe "Events" do
           visit edit_event_path(e)
           select @coordinator.display_name, :from => 'Coordinator'
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
-          expect(ActionMailer::Base.deliveries.last.to.first).to match @coordinator.email
+          expect(last_email.to.first).to match @coordinator.email
         end
 
         it "does not notify a coordinator when they assign an event to themselves" do
@@ -311,7 +365,7 @@ describe "Events" do
       e = create :participatable_event
       visit event_path(e)
       expect { click_link 'Join' }.to change{ActionMailer::Base.deliveries.size}.by 1
-      expect(ActionMailer::Base.deliveries.last.to).to eq [@participant.email]
+      expect(last_email.to).to eq [@participant.email]
     end
 
     it "only allows participants to join events" do

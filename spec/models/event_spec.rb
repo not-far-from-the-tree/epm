@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Event do
 
-  [:name, :description, :notes, :start, :finish, :participants, :coordinator].each do |field|
+  [:name, :description, :notes, :start, :finish, :coordinator].each do |field|
     it "has #{field}" do
       expect(create(:event)).to respond_to field
     end
@@ -12,6 +12,60 @@ describe Event do
     expect(create(:event).display_name).not_to be_blank
   end
 
+  context "significant attributes" do
+
+    it "has significant attributes" do
+      [:name, :description, :start, :finish].each do |attr|
+        expect(Event.significant_attributes).to include attr
+      end
+      [:coordinator_id, :fake_attribute].each do |attr|
+        expect(Event.significant_attributes).not_to include attr
+      end
+    end
+
+    it "is significantly changed when changing the start time" do
+      e = create :event
+      e.start = e.start - 1.hour
+      expect(e.changed_significantly?).to be_true
+    end
+
+    it "is not significantly changed when changing the coordinator" do
+      e = create :event
+      e.coordinator = create :coordinator
+      expect(e.changed_significantly?).to be_false
+    end
+
+  end
+
+  context "users" do
+
+    it "has an list of participants when there are none" do
+      e = create :participatable_event
+      expect(e.participants.length).to eq 0
+    end
+
+    it "has a list of participants when there are some" do
+      e = create :participatable_event
+      participant = create :participant
+      e.event_users.create user: participant
+      expect(e.participants).to eq [participant]
+    end
+
+    it "lists coordinator as user when there are no participants" do
+      coordinator = create :coordinator
+      e = create :participatable_event, coordinator: coordinator
+      expect(e.users).to eq [coordinator]
+    end
+
+    it "lists coordinator and participants as users" do
+      e = create :participatable_event, coordinator: create(:coordinator)
+      participant = create :participant
+      e.event_users.create user: participant
+      expect(e.users.length).to eq 2
+      expect(e.users).to include participant
+    end
+
+  end
 
   context "validity and normalization" do
 

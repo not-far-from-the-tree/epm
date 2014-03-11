@@ -8,6 +8,8 @@ describe EventMailer do
 
   context "from" do
 
+    # from address is set globally. here we check a few of the mailers but don't bother with all
+
     it "sends attend mail from the right address" do
       mail = EventMailer.attend @event, create(:participant)
       expect(mail.from).to eq ['no-reply@example.com']
@@ -62,5 +64,19 @@ describe EventMailer do
       expect(part.to_s).to match 'cancelled'
     end
   end
+
+  it "sends correct emails when an event is changed" do
+    mail = EventMailer.change(@event, @event.users)
+    expect(mail.to).to be_nil
+    expect(mail.bcc.length).to eq @event.users.length
+    expect(mail.bcc.first).to match @event.users.first.email
+    expect(mail.subject.downcase).to match 'changes'
+    # checks that there is both email and plain text, and they both have the right content
+    expect(mail.body.parts.length).to eq 2
+    mail.body.parts.each do |part|
+      expect(part.to_s).to match 'changes'
+    end
+  end
+
 
 end

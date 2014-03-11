@@ -1,6 +1,17 @@
 class Event < ActiveRecord::Base
 
   strip_attributes
+  def self.significant_attributes
+    # i.e. if any of these attributes change, attendees should be notified and may need to cancel
+    [:start, :finish, :name, :description]
+  end
+  def changed_significantly?
+    self.class.significant_attributes.each do |attr|
+      self.send("#{attr}=", nil) if self.send(attr).blank? # this is needed because strip_attributes nullifies, but only before validation
+      return true if self.send("#{attr}_changed?")
+    end
+    false
+  end
 
   validate :must_start_before_finish
   validate :must_not_be_empty

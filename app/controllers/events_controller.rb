@@ -34,11 +34,15 @@ class EventsController < ApplicationController
 
   def update
     @event.assign_attributes event_params
+    users = @event.users.reject{|u| u == current_user}
     new_coordinator = @event.coordinator_id_changed? && @event.coordinator
+    changed_significantly = @event.changed_significantly?
     if @event.save
       if new_coordinator && @event.coordinator != current_user
+        users.reject!{|u| u == @event.coordinator} # prevents emailing a coordinator twice when they are assigned an event which has significant changes
         EventMailer.coordinator_assigned(@event).deliver
       end
+      EventMailer.change(@event, users).deliver if users.any? && changed_significantly
       redirect_to @event, notice: 'Event saved.'
     else
       render :edit

@@ -20,8 +20,8 @@ describe "Authentication" do
 
     it "sends a confirmation email" do
       expect{ sign_up }.to change{ActionMailer::Base.deliveries.size}.by 1
-      expect(ActionMailer::Base.deliveries.last.to).to eq [User.last.email]
-      expect(ActionMailer::Base.deliveries.last.from).to eq ['no-reply@example.com']
+      expect(last_email.to).to eq [User.last.email]
+      expect(last_email.from).to eq ['no-reply@example.com']
     end
 
     it "logs them in" do
@@ -86,8 +86,8 @@ describe "Authentication" do
     click_link 'Forgot your password?'
     fill_in 'Email', with: user.email
     expect { click_button 'Send' }.to change{ActionMailer::Base.deliveries.size}.by 1
-    expect(ActionMailer::Base.deliveries.last.to).to eq [user.email]
-    expect(ActionMailer::Base.deliveries.last.from).to eq ['no-reply@example.com']
+    expect(last_email.to).to eq [user.email]
+    expect(last_email.from).to eq ['no-reply@example.com']
     expect(page).to have_content 'You will receive'
   end
 
@@ -105,8 +105,8 @@ describe "Authentication" do
     click_link "Didn't receive confirmation instructions?"
     fill_in 'Email', with: user.email
     expect { click_button 'Resend' }.to change{ActionMailer::Base.deliveries.size}.by 1
-    expect(ActionMailer::Base.deliveries.last.to).to eq [user.email]
-    expect(ActionMailer::Base.deliveries.last.from).to eq ['no-reply@example.com']
+    expect(last_email.to).to eq [user.email]
+    expect(last_email.from).to eq ['no-reply@example.com']
     expect(page).to have_content 'You will receive'
   end
 
