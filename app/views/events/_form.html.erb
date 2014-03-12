@@ -30,11 +30,12 @@
   <fieldset style="width:14em">
     <legend>When</legend>
     <%= f.label :start_day, 'Date' %><br>
-    <%= f.date_field :start_day, value: @event.start.present? ? @event.start.to_date.to_s : nil %>
+    <%= f.date_field :start_day, value: @event.start ? @event.start.to_date.to_s : nil %>
     <% content_for :js_ready do %>
       $('#event_start_day').after('<div id="datepicker"></div>')
       $('#datepicker').datepicker({
         dateFormat: 'yy-mm-dd',
+        <%= "defaultDate: '#{@event.start.to_date}',".html_safe if @event.start  %>
         nextText: '»',
         prevText: '«',
         onSelect: function(dateText) {
