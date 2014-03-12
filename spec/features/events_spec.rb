@@ -411,16 +411,35 @@ describe "Events" do
       expect(page).not_to have_content 'with No Coordinator'
     end
 
-    it "shows current and past events on their respective pages" do
+    it "shows next upcoming events on home page" do
       current = create :participatable_event
-      past = create :participatable_past_event
       login_as @admin
       visit root_path
-      expect(page).to have_content current.display_name
-      expect(page).not_to have_content past.display_name
-      click_link 'Past Events'
-      expect(page).to have_content past.display_name
-      expect(page).not_to have_content current.display_name
+      within '#upcoming' do
+        expect(page).to have_link current.display_name
+      end
+    end
+
+    it "displays events for a particular month" do
+      e_this = create :event, start: Time.zone.now
+      e_prev = create :event, start: e_this.start.advance(months: -1)
+      e_next = create :event, start: e_this.start.advance(months: 1)
+      login_as @admin
+      visit root_path
+      click_link 'Monthly Calendar'
+      expect(current_path).to eq calendar_events_path
+      expect(page).to have_link e_this.display_name
+      expect(page).not_to have_link e_prev.display_name
+      expect(page).not_to have_link e_next.display_name
+      click_link 'previous'
+      expect(page).not_to have_link e_this.display_name
+      expect(page).to have_link e_prev.display_name
+      expect(page).not_to have_link e_next.display_name
+      click_link 'next'
+      click_link 'next'
+      expect(page).not_to have_link e_this.display_name
+      expect(page).not_to have_link e_prev.display_name
+      expect(page).to have_link e_next.display_name
     end
 
   end

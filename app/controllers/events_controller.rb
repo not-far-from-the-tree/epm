@@ -6,15 +6,17 @@ class EventsController < ApplicationController
     @joinable = Event.participatable.not_past.not_attended_by(current_user)
   end
 
-  def past
-    @events = Event.past
+  def calendar
+    @events = Event.in_month params['year'], params['month']
   end
 
   def show
   end
 
   def new
-    @event = Event.new
+    attrs = {}
+    attrs[:start] = params['start_day'] if params['start_day']
+    @event = Event.new(attrs)
   end
 
   def edit

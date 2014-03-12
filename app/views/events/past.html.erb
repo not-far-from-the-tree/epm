@@ -1,7 +1,0 @@
-<% title 'Past Events' %>
-
-<% if @events.any? %>
-  <%= render 'events', events: Event.past %>
-<% else %>
-  <p>No past events.</p>
-<% end %>

@@ -46,6 +46,17 @@ class Event < ActiveRecord::Base
   scope :coordinatorless, -> { where coordinator: nil }
   scope :dateless, -> { where start: nil }
   scope :participatable, -> { where 'start IS NOT NULL AND coordinator_id IS NOT NULL' }
+  scope :in_month, ->(year, month) {
+    month ||= ''
+    year ||= ''
+    unless (1..12).include?(month.to_i) && year.to_s.length == 4
+      month = Time.zone.now.month
+      year = Time.zone.now.year
+    end
+    start = Time.zone.parse "#{year}-#{month}-01"
+    finish = month.to_i < 12 ? start.change(month: (start.month + 1)) : start.change(month: 1, year: (start.year + 1))
+    where("start >= ? AND finish < ?", start, finish)
+  }
 
   attr_reader :start_day, :start_time
   def assign_attributes(attrs)

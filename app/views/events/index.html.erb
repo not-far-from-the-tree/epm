@@ -35,6 +35,6 @@
   </div>
 <% end %>
 
-<% if current_user.has_role?(:admin) && Event.past.any? %>
-  <p><%= link_to 'Past Events', past_events_path %></p>
+<% if current_user.has_role? :admin %>
+  <p><%= link_to 'Monthly Calendar', calendar_events_path %></p>
 <% end %>

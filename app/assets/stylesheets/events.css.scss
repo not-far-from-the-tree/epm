@@ -1,7 +1,7 @@
 ol.events {
   list-style-type: disc;
 }
-ol.events li {
+ol.events li, .month_calendar .event {
   margin: 0.2em 0;
 }
 ol.events small {
@@ -13,6 +13,69 @@ ol.events small {
     display: none; /* if we showed this on tiny screens, each event would wrap to a second line */
   }
 }
+
+.month_calendar {
+  table {
+    width: 100%;
+    table-layout: fixed;
+    a.event {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    a.add {
+      position: absolute;
+      top: 0;
+      text-decoration: none;
+      font-weight: bold;
+      display: none; /* not ideal to display onhover given touch devices but it's okay */
+    }
+    td:hover a.add {
+      display: inline;
+    }
+  }
+  h2 {
+    text-align: center;
+    position: relative;
+    a {
+      text-decoration: none;
+      font-weight: normal;
+      position: absolute;
+    }
+  }
+  td {
+    width: 14.28%;
+    border: 1px solid #bbb;
+    vertical-align: top;
+  }
+  td.today {
+    background-color: #eee;
+  }
+  td > div {
+    overflow: auto;
+    height: 6em;
+    position: relative;
+    padding-top: 1.3em;
+  }
+}
+a.previous-month {
+  left: 0;
+}
+a.next-month {
+  right: 0;
+}
+.day_number {
+  font-size: 0.9em;
+  color: #aaa;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.not-current-month .day_number {
+  color: #ddd;
+}
+
 
 #notes {
   margin-top: 1em;

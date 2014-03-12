@@ -230,6 +230,23 @@ describe Event do
       expect(events.first).to eq e
     end
 
+    it "lists events within a given month" do
+      create :event, start: '2013-10-01'
+      nov1 = create :event, start: '2013-11-01'
+      nov2 = create :event, start: '2013-11-02'
+      dec = create :event, start: '2013-12-01'
+      jan = create :event, start: '2014-01-01'
+      create :event, start: '2014-02-01'
+      events_n = Event.in_month(2013, 11)
+      events_d = Event.in_month(2013, 12)
+      events_j = Event.in_month(2014, 1)
+      expect(events_n.length).to eq 2
+      expect(events_n).to include nov1
+      expect(events_n).to include nov2
+      expect(events_d).to eq [dec]
+      expect(events_j).to eq [jan]
+    end
+
   end
 
 end

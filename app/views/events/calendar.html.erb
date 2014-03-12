@@ -1,0 +1,5 @@
+<% title 'Events by Month' %>
+
+<%= month_calendar @events do |event| %>
+  <%= link_to(event.display_name, event, class: 'event') if can?(:show, event) %>
+<% end %>

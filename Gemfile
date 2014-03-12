@@ -14,11 +14,11 @@ gem 'jquery-ui-rails'
 gem 'devise'
 gem 'cancancan'
 
-gem 'configurable_engine' # site-wide config
-
 gem 'strip_attributes'
 
+gem 'configurable_engine' # site-wide config
 gem 'rinku' # URL auto-linking
+gem 'simple_calendar'
 
 group :production do
   gem 'rails_12factor'
