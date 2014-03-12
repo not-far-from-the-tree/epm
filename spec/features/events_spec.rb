@@ -404,6 +404,28 @@ describe "Events" do
 
   context "listing events" do
 
+    it "shows past events on the home page if there are no others" do
+      e = create :past_event
+      login_as @admin
+      visit root_path
+      expect(page).to have_link e.display_name
+    end
+
+    it "does not show past events on the home page if there are others" do
+      past = create :past_event
+      upcoming = create :event
+      login_as @admin
+      visit root_path
+      expect(page).to have_link upcoming.display_name
+      expect(page).not_to have_link past.display_name
+    end
+
+    it "shows a no-events message when there are no events" do
+      login_as @admin
+      visit root_path
+      expect(page).to have_content 'no events'
+    end
+
     it "does not show non-participatable events to participants" do
       e = create :event, coordinator: nil
       login_as @participant

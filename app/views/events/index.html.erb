@@ -1,15 +1,23 @@
-<% if can? :create, Event %>
-  <strong><%= link_to 'Add New Event', new_event_path %></strong>
+<% if can? :calendar, Event %>
+  <p><strong><%= link_to 'Monthly Calendar', calendar_events_path %></strong></p>
 <% end %>
+
+<% if can? :create, Event %>
+  <p><strong><%= link_to 'Add New Event', new_event_path %></strong></p>
+<% end %>
+
+<% events_shown = false %>
 
 <% if current_user.has_role?(:admin) || current_user.has_role?(:coordinator) %>
   <% if Event.coordinatorless.not_past.any? %>
+    <% events_shown = true %>
     <div id="coordinatorless">
       <h2>Events with No Coordinator</h2>
         <%= render 'events', events: Event.coordinatorless.not_past %>
     </div>
   <% end %>
   <% if Event.dateless.any? %>
+    <% events_shown = true %>
     <div id="dateless">
       <h2>Events with No Date</h2>
         <%= render 'events', events: Event.dateless %>
@@ -17,24 +25,29 @@
   <% end %>
 <% end %>
 
-<% if current_user.has_role?(:participant) || current_user.has_role?(:coordinator) %>
+<% if current_user.events.not_past.any? %>
+  <% events_shown = true %>
   <div>
     <h2>My Upcoming Events</h2>
-    <% if current_user.events.not_past.any? %>
-      <%= render 'events', events: current_user.events.not_past %>
-    <% else %>
-      <p>None.</p>
-    <% end %>
+    <%= render 'events', events: current_user.events.not_past %>
   </div>
 <% end %>
 
 <% if @joinable.any? %>
   <div id="upcoming">
-    <h2>Other Upcoming Events</h2>
+    <h2><%= 'More ' if events_shown %>Upcoming Events</h2>
+    <% events_shown = true %>
     <%= render 'events', events: @joinable %>
   </div>
 <% end %>
 
-<% if current_user.has_role? :admin %>
-  <p><%= link_to 'Monthly Calendar', calendar_events_path %></p>
+<% unless events_shown %>
+  <% if Event.past.any? %>
+    <div>
+      <h2>Past Events</h2>
+      <%= render 'events', events: Event.past.limit(10) %>
+    </div>
+  <% else %>
+    <p>There are no events yet.</p>
+  <% end %>
 <% end %>
