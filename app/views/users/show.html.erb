@@ -7,23 +7,38 @@
   <%= link_to 'Change my password', edit_user_registration_path %>
 <% end %>
 
-<% if can?(:add_role, @user) && !@user.has_role?(:coordinator) %>
-  <%= form_for @user, url: { action: :add_role}, method: :patch, html: {style: "margin:1em 0"} do |f| %>
-    <%= f.fields_for :roles do |rf| %>
-      <%= rf.hidden_field :name, value: :coordinator %>
-    <% end %>
-    <%= f.submit 'Make coordinator' %>
-  <% end %>
-<% end %>
-
 <%= clear %>
-<%= image_tag @user.avatar('large'), size: '80x80', alt: 'profile photo' %>
+<%= image_tag @user.avatar('large'), size: '80x80', alt: 'profile photo', style: 'margin-top:1em' %>
 
 <%= paragraphs @user.description if @user.description.present? %>
 
-<p>
-  Joined <%= @user.created_at.strftime "%B %d %Y" %>.
-</p>
+<div>
+  <%= 'Role'.pluralize @user.roles.count %>:
+  <% if @user.roles.any? %>
+    <%=
+      @user.roles.map do |role|
+        outp = role.name.capitalize
+        if can? :destroy, role
+          outp += ' ' + link_to('x', role, method: :delete, title: 'remove this role', data: {confirm: 'Are you sure you want to remove this role?'})
+        end
+        outp
+      end.to_sentence.html_safe
+    %>
+  <% else %>
+    None
+  <% end %>
+  <% if can? :create, Role %>
+    <% other_roles = Role.names.reject{|n, v| @user.roles.find{|r| r.name == n} } %>
+    <% if other_roles.any? %>
+      <%= form_for [@user, @user.roles.build], html: {style: 'display:inline'} do |f| %>
+        <%= f.select :name, options_for_select(other_roles.map{|n,v|[n.capitalize, n]}.unshift(['Add Role', nil])) %>
+        <%= f.submit 'Add' %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
+
+<p>Joined <%= @user.created_at.strftime "%B %d %Y" %>.</p>
 
 <%= clear %>
 

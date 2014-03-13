@@ -10,10 +10,11 @@ class Ability
       can :read, Event, can_have_participants?: true
       can :calendar, Event
       can [:show, :update], User, id: user.id
+      can :destroy, Role, user_id: user.id
 
       if user.has_role? :admin
-        can :manage, [Event, :setting]
-        can [:read, :add_role], User
+        can :manage, [Event, Role, :setting]
+        can :read, User
       end
 
       if user.has_role? :coordinator

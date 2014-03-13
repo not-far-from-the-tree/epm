@@ -17,4 +17,10 @@ describe Role do
   #   expect(u.roles.build(name: :participant)).not_to be_valid
   # end
 
+  it "prevents deleting admin role when there are no other admins" do
+    User.delete_all # todo: database cleaner should handle this but apparently not
+    admin = create :admin_role
+    expect(admin.destroy).to be_false
+  end
+
 end

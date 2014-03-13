@@ -63,7 +63,7 @@ describe User do
   context "roles" do
 
     it "ensures the first user is an admin but others are participants" do
-      User.destroy_all # todo: figure out why this is needed... should be handled by database cleaner
+      User.delete_all # todo: figure out why this is needed... should be handled by database cleaner
       expect(create(:user).roles.where(name: Role.names[:admin]).count).to eq 1
       expect(create(:user).roles.where(name: Role.names[:participant]).count).to eq 1
     end
@@ -78,7 +78,7 @@ describe User do
   context "multiple users" do
 
     before :each do
-      User.destroy_all # todo: figure out why this is needed... should be handled by database cleaner
+      User.delete_all # todo: figure out why this is needed... should be handled by database cleaner
     end
 
     it "lists users according to role" do

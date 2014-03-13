@@ -5,6 +5,7 @@ describe "Users" do
   include Warden::Test::Helpers
   before :all do
     @participant = create :participant
+    @coordinator = create :coordinator
     @admin = create :admin
   end
   after :each do
@@ -21,22 +22,16 @@ describe "Users" do
       expect(page).to have_content @admin.display_name
     end
 
-    it "does not allow participants to access user list" do
-      login_as @participant
-      visit root_path
-      expect(page).not_to have_content 'Users'
-      visit users_path
-      expect(current_path).not_to eq users_path
-      expect(page).to have_content 'Sorry'
-    end
-
-    it "does not allow coordinators to access user list" do
-      login_as create :coordinator
-      visit root_path
-      expect(page).not_to have_content 'Users'
-      visit users_path
-      expect(current_path).not_to eq users_path
-      expect(page).to have_content 'Sorry'
+    it "does not allow non-admins to access user list" do
+      [@participant, @coordinator].each do |user|
+        login_as user
+        visit root_path
+        expect(page).not_to have_content 'Users'
+        visit users_path
+        expect(current_path).not_to eq users_path
+        expect(page).to have_content 'Sorry'
+        logout
+      end
     end
 
     it "shows user search results" do
@@ -117,18 +112,63 @@ describe "Users" do
 
   context "roles" do
 
-    it "makes a user a coordinator" do
+    it "allows an admin to add a role" do
+      participant = create :participant # don't pollute @participant
       login_as @admin
-      visit user_path @participant
-      expect{click_button 'Make coordinator'}.to change{@participant.roles.where(name: Role.names[:coordinator]).count}.by 1
-      expect(current_path).to eq user_path @participant
-      expect(page).to have_content 'is now a coordinator'
+      visit user_path participant
+      select 'Coordinator', from: 'role_name'
+      click_button 'Add'
+      expect(current_path).to eq user_path participant
+      expect(page).to have_content 'Role added'
+      expect(participant.reload.has_role? :coordinator).to be_true
     end
 
-    it "prevent non-admins from making a user a coordinator" do
-      login_as @participant
-      visit user_path @participant
-      expect(page).not_to have_content 'Make coordinator'
+    it "prevents non-admins from adding a role" do
+      [@participant, @coordinator].each do |user|
+        login_as user
+        visit user_path @participant
+        expect(page).not_to have_button 'Add'
+        logout
+      end
+    end
+
+    it "does not show role adding form if user has all roles" do
+      user = create :participant
+      user.roles.create name: :coordinator
+      user.roles.create name: :admin
+      login_as @admin
+      visit user_path user
+      expect(page).not_to have_button 'Add'
+    end
+
+    it "allows an admin to remove a role" do
+      participant = create :participant # don't pollute @participant
+      login_as @admin
+      visit user_path participant
+      click_link 'x' # user has only one role, so this is the right delete link
+      expect(current_path).to eq user_path participant
+      expect(page).to have_content 'Role removed'
+      expect(participant.reload.has_role? :participant).to be_false
+    end
+
+    it "prevents non-admins from removing others' roles" do
+      users = [@participant, @coordinator]
+      users.each_with_index do |user, i|
+        login_as user
+        visit user_path users.reverse[i]
+        expect(page).not_to have_button 'Add'
+        logout
+      end
+    end
+
+    it "allows removing own's own roles" do
+      participant = create :participant
+      login_as participant
+      visit user_path participant
+      click_link 'x' # user has only one role, so this is the right delete link
+      expect(current_path).to eq user_path participant
+      expect(page).to have_content 'Role removed'
+      expect(participant.reload.has_role? :participant).to be_false
     end
 
   end
