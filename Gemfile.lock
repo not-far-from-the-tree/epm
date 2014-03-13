@@ -71,6 +71,9 @@ GEM
     jquery-ui-rails (4.2.0)
       railties (>= 3.2.16)
     json (1.8.1)
+    kaminari (0.15.1)
+      actionpack (>= 3.0.0)
+      activesupport (>= 3.0.0)
     launchy (2.4.2)
       addressable (~> 2.3)
     letter_opener (1.2.0)
@@ -173,6 +176,7 @@ DEPENDENCIES
   faker
   jquery-rails
   jquery-ui-rails
+  kaminari
   letter_opener
   pg
   rails (= 4.1.0.rc1)

@@ -43,6 +43,14 @@ describe User do
     expect(build(:user).display_name).not_to be_blank
   end
 
+  it "generates a name based on email" do
+    expect(create(:user, name: nil, email: 'joe.smith@example.com').name).to eq 'Joe Smith'
+  end
+
+  it "does not generate a name when one is given" do
+    expect(create(:user, name: 'My Name', email: 'joe.smith@example.com').name).to eq 'My Name'
+  end
+
   it "has an avatar which is a url" do
     expect(build(:user).avatar).to match URI::regexp(%w(http https))
   end
@@ -79,6 +87,13 @@ describe User do
 
     before :each do
       User.delete_all # todo: figure out why this is needed... should be handled by database cleaner
+    end
+
+    it "orders users by name" do
+      b = create :user, name: 'b'
+      a = create :user, name: 'a'
+      c = create :user, name: 'c'
+      expect(User.by_name).to eq [a, b, c]
     end
 
     it "lists users according to role" do

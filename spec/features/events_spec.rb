@@ -357,7 +357,7 @@ describe "Events" do
       visit event_path(e)
       expect { click_link 'Join' }.to change{e.participants.count}.by 1
       expect(current_path).to eq event_path(e)
-      expect(page).to have_content @participant.email
+      expect(page).to have_content @participant.display_name
     end
 
     it "sends a confirmation email on joining an event" do

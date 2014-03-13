@@ -3,7 +3,7 @@ class UsersController < ApplicationController
   load_and_authorize_resource :user
 
   def index
-    @users = User.all
+    @users = User.by_name
     @q = params['q'] ? params['q'].strip : nil
     @users = @users.search(@q) if @q.present?
     role = params['role']
@@ -13,7 +13,7 @@ class UsersController < ApplicationController
     end
 
     respond_to do |format|
-      format.html
+      format.html { @users = @users.page(params[:page]).per(20) }
       format.csv { send_data @users.csv }
     end
   end

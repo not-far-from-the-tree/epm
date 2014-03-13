@@ -12,13 +12,19 @@
 <% end %>
 
 <% if @users.any? %>
-  <h2><%= pluralize @users.count, 'User' %></h2>
-  <%= link_to 'Export these users', users_path(format: 'csv' ) %>
+  <h2><%= pluralize @users.total_count, 'User' %></h2>
+  <p><%= link_to 'Export these users', users_path(format: 'csv' ) %></p>
+  <%= paginate @users %>
+  <% switch_col = (@users.count/2) if @users.count > 5 %>
+  <%= start_cols %>
   <ul class="users">
-    <% @users.each do |user| %>
+    <% @users.each_with_index do |user, i| %>
+      <%= "</ul>#{next_col}<ul class=\"users\">".html_safe if defined?(switch_col) && switch_col == i %>
       <%= render 'user', user: user, tag: 'li' %>
     <% end %>
   </ul>
+  <%= end_cols %>
+  <%= paginate @users %>
 <% else %>
   <p>No users found.</p>
 <% end %>

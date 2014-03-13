@@ -73,6 +73,18 @@ describe "Users" do
       expect(page).to have_content @admin.email
     end
 
+    it "shows 20 users per page" do
+      25.times { create :user }
+      login_as @admin
+      visit users_path
+      expect(all('.user').length).to eq 20
+      expect(page).not_to have_link 'Prev'
+      all('.next a').first.click
+      expect(page).to have_link 'Prev'
+      expect(page).not_to have_link 'Next'
+      expect(all('.user').length).to eq (User.count - 20)
+    end
+
   end
 
   context "profile" do

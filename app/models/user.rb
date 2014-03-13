@@ -3,6 +3,12 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable, :confirmable, :recoverable, :rememberable, :trackable, :validatable
 
   strip_attributes
+  before_create do |user|
+    if user.name.blank? && user.email.present? && user.email.include?('@')
+      user.name = user.email.split('@').first.gsub(/\.|-|_/, ' ').titlecase
+    end
+    true
+  end
 
   def self.csv
     CSV.generate force_quotes: true do |csv|
@@ -13,6 +19,7 @@ class User < ActiveRecord::Base
     end
   end
 
+  scope :by_name, -> { order :name }
   scope :search, ->(q) {
     like = Rails.configuration.database_configuration[Rails.env]["adapter"] == 'postgresql' ? 'ILIKE' : 'LIKE'
     where("users.email LIKE ? OR users.name #{like} ?", "%#{q}%", "%#{q}%")
@@ -45,9 +52,7 @@ class User < ActiveRecord::Base
   end
 
   def display_name
-    [:name, :email].each do |field|
-      return self[field] if self[field].present?
-    end
+    name || '(no name)'
   end
 
   def avatar(size = :small)
