@@ -155,6 +155,22 @@ describe "Events" do
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
         end
 
+        it "does not email attendees upon significantly changing an event when opting out" do
+          login_as @admin
+          visit edit_event_path @e
+          fill_in 'Name', with: 'some new name'
+          uncheck 'Notify attendees of changes'
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
+        end
+
+        it "does not email attendees of changes to past events" do
+          @e.update(start: 1.month.ago, duration: 2.hours)
+          login_as @admin
+          visit edit_event_path @e
+          fill_in 'Name', with: 'some new name'
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
+        end
+
       end
 
     end

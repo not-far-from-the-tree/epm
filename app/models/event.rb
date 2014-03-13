@@ -30,6 +30,8 @@ class Event < ActiveRecord::Base
     event.finish = nil if event.start.blank?
   end
 
+  attr_accessor :notify_of_changes # setting to false allows supressing email notifications
+
   has_many :event_users, dependent: :destroy
   has_many :participants, through: :event_users, source: :user
   belongs_to :coordinator, class_name: 'User'
