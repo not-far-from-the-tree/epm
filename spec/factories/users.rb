@@ -3,7 +3,11 @@ FactoryGirl.define do
   factory :user do
 
     email { (65 + rand(26)).chr + Faker::Internet.free_email }
-    password { Faker::Internet.password + 'x' }
+    password do
+      pass = Faker::Internet.password
+      pass += 'x' * [0, (7-pass.length)].max # ensures password is at least 7 characters, the min length
+      pass
+    end
     # password confirmation is only checked if a confirmation is attempted. decided this is okay
 
     factory :admin do
