@@ -116,14 +116,23 @@ describe "Events" do
           @e.event_users.create user: @participant
         end
 
-        it "emails attendees upon significantly changing an event" do
+        it "separately emails coordinator and participants upon significantly changing an event" do
           login_as @admin
           visit edit_event_path @e
           fill_in 'Name', with: 'New name'
+          # separately emails those with and without ability to view event notes
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 2
+          # this is a bit fragile as it relies on knowing/caring the order of emails sent. todo: unfragilize
+          expect(ActionMailer::Base.deliveries[-2].bcc).to eq [@coordinator.email]
+          expect(last_email.bcc).to eq [@participant.email]
+        end
+
+        it "emails coordinator but not participants upon changing event notes" do
+          login_as @admin
+          visit edit_event_path @e
+          fill_in 'Notes', with: 'new note'
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
-          expect(last_email.bcc.length).to eq 2
-          expect(last_email.bcc).to include @coordinator.email
-          expect(last_email.bcc).to include @participant.email
+          expect(last_email.bcc).to eq [@coordinator.email]
         end
 
         it "emails participants but not coordinator upon the coordinator significantly changing an event" do

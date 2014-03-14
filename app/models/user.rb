@@ -60,4 +60,8 @@ class User < ActiveRecord::Base
     "http://gravatar.com/avatar/#{CGI.escape(Digest::MD5.hexdigest(email.downcase))}?s=#{sizes[size]}&d=mm"
   end
 
+  def ability # allows checking permissions for this user rather than the current
+    @ability ||= Ability.new(self)
+  end
+
 end

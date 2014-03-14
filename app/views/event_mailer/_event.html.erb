@@ -5,7 +5,7 @@
     <dt>Description</dt>
     <dd><%= paragraphs event.description %></dd>
   <% end %>
-  <% if event.notes && can?(:read_note, user) %>
+  <% if event.notes && user.ability.can?(:read_notes, event) %>
     <dt>Notes for admins and coordinators</dt>
     <dd><%= paragraphs event.notes %></dd>
   <% end %>
@@ -17,7 +17,7 @@
       Date not set.
     <% end %>
   </dd>
-  <% if event.coordinator && user != event.coordinator %>
+  <% if event.coordinator %>
     <dt>Coordinator</dt>
     <dd><%= event.coordinator.display_name %></dd>
   <% end %>

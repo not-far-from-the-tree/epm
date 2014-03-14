@@ -27,6 +27,30 @@ describe EventMailer do
 
   end
 
+  context "permissions" do
+
+    # both tests use the change() mailer, which is fine as all mailes which show an event use the same _event partial
+
+    it "shows notes to those who have access" do
+      @event.notes = 'some note'
+      mail = EventMailer.change @event, [@event.coordinator]
+      mail.body.parts.each do |part|
+        expect(part.to_s).to match 'some note'
+      end
+    end
+
+    it "does not show notes to those who do not have access" do
+      @event.notes = 'some note'
+      participant = create :participant
+      @event.event_users.create user: participant
+      mail = EventMailer.change @event, [participant]
+      mail.body.parts.each do |part|
+        expect(part.to_s).not_to match 'some note'
+      end
+    end
+
+  end
+
   it "sends correct attend emails" do
     participant = create :participant
     mail = EventMailer.attend(@event, participant)

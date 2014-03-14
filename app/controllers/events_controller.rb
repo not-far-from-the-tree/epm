@@ -41,13 +41,20 @@ class EventsController < ApplicationController
     users = @event.users.reject{|u| u == current_user}
     new_coordinator = @event.coordinator_id_changed? && @event.coordinator
     changed_significantly = @event.changed_significantly?
+    notes_changed = @event.notes_changed?
     if @event.save
       if new_coordinator && @event.coordinator != current_user
         users.reject!{|u| u == @event.coordinator} # prevents emailing a coordinator twice when they are assigned an event which has significant changes
         EventMailer.coordinator_assigned(@event).deliver
       end
-      if @event.notify_of_changes.present? && users.any? && changed_significantly && !(@event.past? && event_was_past)
-        EventMailer.change(@event, users).deliver
+      if @event.notify_of_changes.present? && !(@event.past? && event_was_past) && users.any?
+        users = users.partition{|u| u.ability.can?(:read_notes, @event)} # .first can read the note, .last can't
+        if (changed_significantly || notes_changed) && users.first.any?
+          EventMailer.change(@event, users.first).deliver
+        end
+        if changed_significantly && users.last.any?
+          EventMailer.change(@event, users.last).deliver
+        end
       end
       redirect_to @event, notice: 'Event saved.'
     else

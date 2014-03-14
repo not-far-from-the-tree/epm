@@ -20,6 +20,9 @@ class EventMailer < ActionMailer::Base
 
   def change(event, users)
     @event = event
+    # @user is for checking permissions -
+    #   can pass in the first user 'cause we're passing in users who all have the same permissions
+    @user = users.first
     mail bcc: users.map{|u| to(u)}, subject: 'Changes to an event you are attending'
   end
 
