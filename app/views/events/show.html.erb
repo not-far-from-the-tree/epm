@@ -3,6 +3,9 @@
 <% if can? :update, @event %>
   <%= link_to 'Edit', edit_event_path(@event) %>
 <% end %>
+<% if can?(:approve, @event) && @event.proposed? %>
+  <%= link_to 'Approve', approve_event_path(@event), method: :patch %>
+<% end %>
 <% if can?(:destroy, @event) && !@event.cancelled? %>
   <%= link_to 'Cancel', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
 <% end %>
@@ -18,7 +21,7 @@
 <% end %>
 
 <% unless @event.approved? %>
-  <p><strong>Event <%= @event.status.capitalize %></strong.</p>
+  <p><strong>Event <%= @event.status.capitalize %></strong></p>
 <% end %>
 
 <%= start_cols %>

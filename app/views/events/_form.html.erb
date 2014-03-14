@@ -11,6 +11,15 @@
     </div>
   <% end %>
 
+  <% if @event.new_record? %>
+  <%# can only be approved by admin, but only admins can create events so it's okay to do this like so %>
+    <fieldset>
+      <legend>Status</legend>
+      <label><%= f.radio_button :status, :proposed %> Proposed</label><br>
+      <label><%= f.radio_button :status, :approved %> Approved</label>
+    </fieldset>
+  <% end %>
+
   <div class="field">
     <%= f.label :name %><br>
     <%= f.text_field :name %>
@@ -34,7 +43,7 @@
 
   <%= next_col %>
 
-  <fieldset style="width:14em">
+  <fieldset id="when" style="width:14em">
     <legend>When</legend>
     <%= f.label :start_day, 'Date' %><br>
     <%= f.date_field :start_day, value: @event.start ? @event.start.to_date.to_s : nil %>

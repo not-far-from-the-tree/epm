@@ -16,20 +16,12 @@ label, legend {
   font-weight: bold;
 }
 fieldset {
+  border-width: 0;
   border-radius: 10px;
+  padding-left: 0;
 }
-@media (min-width: $col_limit) {
-  .cols fieldset {
-    border-width: 0;
-  }
-  .cols legend {
-    display: none;
-  }
-}
-@media (max-width: $col_limit) {
-  .cols fieldset label {
-    font-weight: normal;
-  }
+fieldset label {
+  font-weight: normal;
 }
 
 input[type="submit"] {

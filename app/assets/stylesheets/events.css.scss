@@ -155,3 +155,20 @@ form .ui-datepicker-title {
 html.js #event_start_day {
   display: none;
 }
+
+
+
+@media (min-width: $col_limit) {
+  .cols #when legend {
+    display: none;
+  }
+  .cols #when label {
+    font-weight: bold;
+  }
+}
+@media (max-width: $col_limit) {
+  .cols #when {
+    border-width: 1px;
+    padding-left: 0.5em;
+  }
+}

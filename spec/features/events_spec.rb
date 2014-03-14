@@ -11,7 +11,7 @@ describe "Events" do
     Warden.test_reset!
   end
 
-  describe "CRUD" do
+  describe "CRU" do
 
     context "creating" do
 
@@ -180,59 +180,6 @@ describe "Events" do
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
         end
 
-      end
-
-    end
-
-    context "cancelling" do
-
-      it "cancels an event" do
-        login_as @admin
-        e = create :event
-        visit event_path e
-        click_link 'Cancel'
-        expect(current_path).to eq event_path e
-        expect(page).to have_content 'cancelled'
-        expect(page).not_to have_link 'Cancel'
-        expect(e.reload.cancelled?).to be_true
-      end
-
-      it "prevents participants from cancelling an event" do
-        login_as @participant
-        e = create :event
-        visit event_path e
-        expect(page).not_to have_content 'Cancel'
-      end
-
-      it "sends an email to coordinator and participants when an event is cancelled" do
-        e = create :participatable_event
-        participant = create :participant
-        e.event_users.create user: participant
-        login_as @admin
-        visit event_path e
-        expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 1
-        expect(last_email.bcc.length).to eq 2
-        expect(last_email.bcc).to include e.coordinator.email
-        expect(last_email.bcc).to include participant.email
-      end
-
-      it "sends an email to participants but not the coordinator when an event is cancelled by the coordinator" do
-        coordinator = create :coordinator
-        e = create :participatable_event, coordinator: coordinator
-        participant = create :participant
-        e.event_users.create user: participant
-        login_as coordinator
-        visit event_path e
-        expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 1
-        expect(last_email.bcc.length).to eq 1
-        expect(last_email.bcc.first).to eq participant.email
-      end
-
-      it "does not send an email when an event is cancelled that does not have a coordinator or participants" do
-        e = create :event
-        login_as @admin
-        visit event_path e
-        expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 0
       end
 
     end
@@ -490,6 +437,100 @@ describe "Events" do
       expect(page).not_to have_link e_this.display_name
       expect(page).not_to have_link e_prev.display_name
       expect(page).to have_link e_next.display_name
+    end
+
+  end
+
+  context "status" do
+
+    context "approval" do
+
+      it "admin approves an event on creation" do
+        login_as @admin
+        visit new_event_path
+        fill_in 'Name', with: 'some event'
+        choose 'Approved'
+        click_button 'Save'
+        expect(page).not_to have_link 'Approve'
+      end
+
+      it "admin approves an event" do
+        login_as @admin
+        # create a new event that is proposed
+        visit new_event_path
+        fill_in 'Name', with: 'some event'
+        choose 'Proposed'
+        click_button 'Save'
+        # approve it
+        click_link 'Approve'
+        expect(page).to have_content  'approved'
+        expect(page).not_to have_link 'Approve'
+      end
+
+      it "prevents a coordinator from approving an event" do
+        c = create :coordinator
+        e = create :event, status: :proposed, coordinator: c
+        login_as c
+        visit event_path e
+        expect(page).not_to have_link 'Approve'
+        click_link 'Edit'
+        expect(current_path).to eq edit_event_path e
+        expect(page).not_to have_content 'Status'
+      end
+
+    end
+
+    context "cancelling" do
+
+      it "cancels an event" do
+        login_as @admin
+        e = create :event
+        visit event_path e
+        click_link 'Cancel'
+        expect(current_path).to eq event_path e
+        expect(page).to have_content 'cancelled'
+        expect(page).not_to have_link 'Cancel'
+        expect(e.reload.cancelled?).to be_true
+      end
+
+      it "prevents participants from cancelling an event" do
+        login_as @participant
+        e = create :event
+        visit event_path e
+        expect(page).not_to have_content 'Cancel'
+      end
+
+      it "sends an email to coordinator and participants when an event is cancelled" do
+        e = create :participatable_event
+        participant = create :participant
+        e.event_users.create user: participant
+        login_as @admin
+        visit event_path e
+        expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        expect(last_email.bcc.length).to eq 2
+        expect(last_email.bcc).to include e.coordinator.email
+        expect(last_email.bcc).to include participant.email
+      end
+
+      it "sends an email to participants but not the coordinator when an event is cancelled by the coordinator" do
+        coordinator = create :coordinator
+        e = create :participatable_event, coordinator: coordinator
+        participant = create :participant
+        e.event_users.create user: participant
+        login_as coordinator
+        visit event_path e
+        expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        expect(last_email.bcc.length).to eq 1
+        expect(last_email.bcc.first).to eq participant.email
+      end
+
+      it "does not send an email when an event is cancelled that does not have a coordinator or participants" do
+        e = create :event
+        login_as @admin
+        visit event_path e
+        expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 0
+      end
+
     end
 
   end

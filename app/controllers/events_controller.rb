@@ -18,7 +18,7 @@ class EventsController < ApplicationController
   end
 
   def new
-    attrs = {}
+    attrs = {status: :approved}
     attrs[:start] = params['start_day'] if params['start_day']
     @event = Event.new(attrs)
   end
@@ -28,7 +28,7 @@ class EventsController < ApplicationController
   end
 
   def create
-    @event = Event.new(event_params)
+    @event = Event.new event_params
     if @event.save
       if @event.coordinator && @event.coordinator != current_user
         EventMailer.coordinator_assigned(@event).deliver
@@ -71,6 +71,16 @@ class EventsController < ApplicationController
     end
   end
 
+  def approve
+    if @event.proposed?
+      @event.update(status: :approved)
+      flash[:notice] = 'Event approved.'
+    else
+      flash[:notice] = 'Cannot approve cancelled events.'
+    end
+    redirect_to @event
+  end
+
   def destroy
     @event.update(status: :cancelled)
     users = @event.users.reject{|u| u == current_user}
@@ -94,7 +104,8 @@ class EventsController < ApplicationController
   private
 
     def event_params
-      params.require(:event).permit(:name, :description, :notes, :start, :start_day, :start_time, :duration, :finish, :coordinator_id, :notify_of_changes)
+      # should actually only enable :status to be set by admin. todo
+      params.require(:event).permit(:name, :description, :notes, :start, :start_day, :start_time, :duration, :finish, :coordinator_id, :notify_of_changes, :status)
     end
 
 end

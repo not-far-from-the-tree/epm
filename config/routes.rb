@@ -10,6 +10,7 @@ Epm::Application.routes.draw do
   resources :events do
     get 'calendar', on: :collection
     member do
+      patch 'approve'
       patch 'attend'
       patch 'unattend'
     end
