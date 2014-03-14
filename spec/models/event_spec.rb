@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Event do
 
-  [:name, :description, :notes, :start, :finish, :coordinator].each do |field|
+  [:status, :name, :description, :notes, :start, :finish, :coordinator].each do |field|
     it "has #{field}" do
       expect(create(:event)).to respond_to field
     end
@@ -158,6 +158,12 @@ describe Event do
     it "cannot be joined if it has no dates" do
       u = create :participant
       e = create :participatable_event, start: nil, name: 'foo'
+      expect(e.participatable_by? u).to be_false
+    end
+
+    it "cannot be joined if it has been cancelled" do
+      u = create :participant
+      e = create :participatable_event, status: :cancelled
       expect(e.participatable_by? u).to be_false
     end
 

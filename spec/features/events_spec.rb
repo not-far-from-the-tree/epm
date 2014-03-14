@@ -184,22 +184,24 @@ describe "Events" do
 
     end
 
-    context "deleting" do
+    context "cancelling" do
 
-      it "deletes an event" do
+      it "cancels an event" do
         login_as @admin
         e = create :event
         visit event_path e
-        expect{ click_link 'Delete' }.to change{Event.count}.by -1
-        expect(current_path).to eq events_path
-        expect(page).to have_content 'deleted'
+        click_link 'Cancel'
+        expect(current_path).to eq event_path e
+        expect(page).to have_content 'cancelled'
+        expect(page).not_to have_link 'Cancel'
+        expect(e.reload.cancelled?).to be_true
       end
 
-      it "prevents participants from deleting an event" do
+      it "prevents participants from cancelling an event" do
         login_as @participant
         e = create :event
         visit event_path e
-        expect(page).not_to have_content 'Delete'
+        expect(page).not_to have_content 'Cancel'
       end
 
       it "sends an email to coordinator and participants when an event is cancelled" do
@@ -208,7 +210,7 @@ describe "Events" do
         e.event_users.create user: participant
         login_as @admin
         visit event_path e
-        expect{ click_link 'Delete' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 1
         expect(last_email.bcc.length).to eq 2
         expect(last_email.bcc).to include e.coordinator.email
         expect(last_email.bcc).to include participant.email
@@ -221,7 +223,7 @@ describe "Events" do
         e.event_users.create user: participant
         login_as coordinator
         visit event_path e
-        expect{ click_link 'Delete' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 1
         expect(last_email.bcc.length).to eq 1
         expect(last_email.bcc.first).to eq participant.email
       end
@@ -230,7 +232,7 @@ describe "Events" do
         e = create :event
         login_as @admin
         visit event_path e
-        expect{ click_link 'Delete' }.to change{ActionMailer::Base.deliveries.size}.by 0
+        expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 0
       end
 
     end
@@ -241,26 +243,27 @@ describe "Events" do
         @coordinator = create :coordinator
       end
 
-      it "prevents coordinators from deleting an event with no coordinator" do
+      it "prevents coordinators from cancelling an event with no coordinator" do
         login_as @coordinator
         visit event_path(create :event)
-        expect(page).not_to have_content 'Delete'
+        expect(page).not_to have_content 'Cancel'
       end
 
-      it "prevents coordinators from deleting an event with another coordinator" do
+      it "prevents coordinators from cancelling an event with another coordinator" do
         login_as @coordinator
         e = create :event, coordinator:(create :coordinator)
         visit event_path(e)
-        expect(page).not_to have_content 'Delete'
+        expect(page).not_to have_content 'Cancel'
       end
 
-      it "allows a coordinator to delete their own event" do
+      it "allows a coordinator to cancel their own event" do
         login_as @coordinator
         e = create :event, coordinator: @coordinator
         visit event_path(e)
-        expect{ click_link 'Delete' }.to change{Event.count}.by -1
-        expect(current_path).to eq events_path
-        expect(page).to have_content 'deleted'
+        click_link 'Cancel'
+        expect(current_path).to eq event_path e
+        expect(page).to have_content 'cancelled'
+        expect(e.reload.cancelled?).to be_true
       end
 
       it "allows admin to set a coordinator" do

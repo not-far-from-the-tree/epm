@@ -9,18 +9,18 @@
 <% events_shown = false %>
 
 <% if current_user.has_role?(:admin) || current_user.has_role?(:coordinator) %>
-  <% if Event.coordinatorless.not_past.any? %>
+  <% if @coordinatorless.any? %>
     <% events_shown = true %>
     <div id="coordinatorless">
       <h2>Events with No Coordinator</h2>
-        <%= render 'events', events: Event.coordinatorless.not_past %>
+        <%= render 'events', events: @coordinatorless %>
     </div>
   <% end %>
-  <% if Event.dateless.any? %>
+  <% if @dateless.any? %>
     <% events_shown = true %>
     <div id="dateless">
       <h2>Events with No Date</h2>
-        <%= render 'events', events: Event.dateless %>
+        <%= render 'events', events: @dateless %>
     </div>
   <% end %>
 <% end %>

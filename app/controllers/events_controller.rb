@@ -3,11 +3,15 @@ class EventsController < ApplicationController
   load_and_authorize_resource :event
 
   def index
+    if current_user.has_role?(:admin) || current_user.has_role?(:coordinator)
+      @coordinatorless = Event.coordinatorless.not_past.not_cancelled
+      @dateless = Event.dateless.not_cancelled
+    end
     @joinable = Event.participatable.not_past.not_attended_by(current_user).limit(10)
   end
 
   def calendar
-    @events = Event.in_month params['year'], params['month']
+    @events = Event.not_cancelled.in_month params['year'], params['month']
   end
 
   def show
@@ -43,17 +47,22 @@ class EventsController < ApplicationController
     changed_significantly = @event.changed_significantly?
     notes_changed = @event.notes_changed?
     if @event.save
-      if new_coordinator && @event.coordinator != current_user
-        users.reject!{|u| u == @event.coordinator} # prevents emailing a coordinator twice when they are assigned an event which has significant changes
-        EventMailer.coordinator_assigned(@event).deliver
-      end
-      if @event.notify_of_changes.present? && !(@event.past? && event_was_past) && users.any?
-        users = users.partition{|u| u.ability.can?(:read_notes, @event)} # .first can read the note, .last can't
-        if (changed_significantly || notes_changed) && users.first.any?
-          EventMailer.change(@event, users.first).deliver
+      # send email notifications if appropriate
+      unless @event.cancelled?
+        # alert coordinator being assigned
+        if new_coordinator && @event.coordinator != current_user
+          users.reject!{|u| u == @event.coordinator} # prevents emailing a coordinator twice when they are assigned an event which has significant changes
+          EventMailer.coordinator_assigned(@event).deliver
         end
-        if changed_significantly && users.last.any?
-          EventMailer.change(@event, users.last).deliver
+        # alert other attendees
+        if @event.notify_of_changes.present? && !(@event.past? && event_was_past) && users.any?
+          users = users.partition{|u| u.ability.can?(:read_notes, @event)} # .first can read the note, .last can't
+          if (changed_significantly || notes_changed) && users.first.any?
+            EventMailer.change(@event, users.first).deliver
+          end
+          if changed_significantly && users.last.any?
+            EventMailer.change(@event, users.last).deliver
+          end
         end
       end
       redirect_to @event, notice: 'Event saved.'
@@ -63,13 +72,10 @@ class EventsController < ApplicationController
   end
 
   def destroy
+    @event.update(status: :cancelled)
     users = @event.users.reject{|u| u == current_user}
-    if @event.destroy
-      EventMailer.cancel(@event, users).deliver if users.any?
-      redirect_to events_url, notice: "#{@event.display_name} deleted."
-    else
-      redirect_to @event, notice: 'Unable to delete this event.'
-    end
+    EventMailer.cancel(@event, users).deliver if users.any?
+    redirect_to @event, notice: 'Event cancelled.'
   end
 
   def attend

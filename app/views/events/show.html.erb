@@ -3,8 +3,8 @@
 <% if can? :update, @event %>
   <%= link_to 'Edit', edit_event_path(@event) %>
 <% end %>
-<% if can? :destroy, @event %>
-  <%= link_to 'Delete', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
+<% if can?(:destroy, @event) && !@event.cancelled? %>
+  <%= link_to 'Cancel', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
 <% end %>
 
 <% if @event.participatable_by? current_user %>
@@ -15,6 +15,10 @@
       <%= link_to 'Join', attend_event_path(@event), method: :patch %>
     <% end %>
   </strong></p>
+<% end %>
+
+<% unless @event.approved? %>
+  <p><strong>Event <%= @event.status.capitalize %></strong.</p>
 <% end %>
 
 <%= start_cols %>

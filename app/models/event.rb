@@ -13,6 +13,8 @@ class Event < ActiveRecord::Base
     false
   end
 
+  enum status: [:proposed, :approved, :cancelled]
+
   validate :must_start_before_finish
   validate :must_not_be_empty
   validates :finish, presence: true, if: "start.present?"
@@ -47,7 +49,8 @@ class Event < ActiveRecord::Base
   scope :not_attended_by, ->(user) { joins('LEFT JOIN event_users ON events.id = event_users.event_id').where("events.id NOT IN (SELECT event_id FROM event_users WHERE user_id = ?) AND coordinator_id != ?", user.id, user.id).distinct }
   scope :coordinatorless, -> { where coordinator: nil }
   scope :dateless, -> { where start: nil }
-  scope :participatable, -> { where 'start IS NOT NULL AND coordinator_id IS NOT NULL' }
+  scope :participatable, -> { where 'start IS NOT NULL AND coordinator_id IS NOT NULL AND status = ?', statuses[:approved] }
+  scope :not_cancelled, -> { where 'status != ?', statuses[:cancelled] }
   scope :in_month, ->(year, month) {
     month ||= ''
     year ||= ''
@@ -98,11 +101,11 @@ class Event < ActiveRecord::Base
   end
 
   def participatable_by?(user)
-    can_have_participants? && !past? && (user != coordinator) && user.has_role?(:participant)
+    can_have_participants? && !past? && (user != coordinator) && user.has_role?(:participant) && status == 'approved'
   end
 
   def can_have_participants?
-    start.present? && coordinator.present?
+    start.present? && coordinator.present? && status != 'proposed'
   end
 
 end
