@@ -1,4 +1,8 @@
-<% title @event.display_name %>
+<%
+  tit = @event.display_name
+  tit = "#{@event.status.capitalize}: #{tit}" unless @event.approved?
+  title tit
+%>
 
 <% if can? :update, @event %>
   <%= link_to 'Edit', edit_event_path(@event) %>
@@ -18,10 +22,6 @@
       <%= link_to 'Join', attend_event_path(@event), method: :patch %>
     <% end %>
   </strong></p>
-<% end %>
-
-<% unless @event.approved? %>
-  <p><strong>Event <%= @event.status.capitalize %></strong></p>
 <% end %>
 
 <%= start_cols %>
