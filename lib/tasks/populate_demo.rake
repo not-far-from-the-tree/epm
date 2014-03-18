@@ -46,6 +46,23 @@ namespace :db do
         e.event_users.create user: u
       end
     end
+
+    # proposed events
+    # with coordinator and date
+    e = FactoryGirl.build :full_event, status: Event.statuses[:proposed]
+    e.coordinator = User.coordinators.sample(1).first
+    e = use_probabilities(e, event_attribute_probabilities)
+    e.save
+    # with coordinator, no date
+    e = FactoryGirl.build :full_event, status: Event.statuses[:proposed], start: nil
+    e.coordinator = User.coordinators.sample(1).first
+    e = use_probabilities(e, event_attribute_probabilities)
+    e.save
+    # with date, no coordinator
+    e = FactoryGirl.build :full_event, status: Event.statuses[:proposed]
+    e = use_probabilities(e, event_attribute_probabilities)
+    e.save
+
     # events with a date but no coordinator
     2.times do
       e = FactoryGirl.build(:full_event)

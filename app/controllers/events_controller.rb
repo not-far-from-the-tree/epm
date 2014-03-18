@@ -3,9 +3,15 @@ class EventsController < ApplicationController
   load_and_authorize_resource :event
 
   def index
-    if current_user.has_role?(:admin) || current_user.has_role?(:coordinator)
-      @coordinatorless = Event.coordinatorless.not_past.not_cancelled
-      @dateless = Event.dateless.not_cancelled
+    if current_user.has_role? :admin
+      @awaiting_approval = Event.awaiting_approval
+    end
+    if current_user.has_role? :admin
+      @missing_title = 'Events with No Date or No Coordinator'
+      @missing_parts = Event.not_past.not_cancelled.where('coordinator_id IS NULL OR start IS NULL')
+    elsif current_user.has_role? :coordinator
+      @missing_title = 'Events with No Coordinator'
+      @missing_parts = Event.not_past.not_cancelled.where('coordinator_id IS NULL')
     end
     @joinable = Event.participatable.not_past.not_attended_by(current_user).limit(10)
   end

@@ -8,21 +8,20 @@
 
 <% events_shown = false %>
 
-<% if current_user.has_role?(:admin) || current_user.has_role?(:coordinator) %>
-  <% if @coordinatorless.any? %>
-    <% events_shown = true %>
-    <div id="coordinatorless">
-      <h2>Events with No Coordinator</h2>
-        <%= render 'events', events: @coordinatorless %>
-    </div>
-  <% end %>
-  <% if @dateless.any? %>
-    <% events_shown = true %>
-    <div id="dateless">
-      <h2>Events with No Date</h2>
-        <%= render 'events', events: @dateless %>
-    </div>
-  <% end %>
+<% if defined?(@awaiting_approval) && @awaiting_approval.any? %>
+  <% events_shown = true %>
+  <div>
+    <h2>Events Awaiting Approval</h2>
+      <%= render 'events', events: @awaiting_approval %>
+  </div>
+<% end %>
+
+<% if defined?(@missing_parts) && @missing_parts.any? %>
+  <% events_shown = true %>
+  <div>
+    <h2><%= @missing_title %></h2>
+      <%= render 'events', events: @missing_parts %>
+  </div>
 <% end %>
 
 <% if current_user.events.not_past.any? %>

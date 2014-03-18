@@ -253,6 +253,20 @@ describe Event do
       expect(events_j).to eq [jan]
     end
 
+    it "lists events awaiting approval" do
+      c = create :coordinator
+      e1 = create :event, status: :proposed, coordinator: c
+      e2 = create :event, status: :proposed, coordinator: c
+      e_approved = create :event, status: :approved, coordinator: c
+      e_past = create :past_event, status: :proposed, coordinator: c
+      e_no_coordinator = create :event, status: :proposed, coordinator: nil
+      e_no_date = create :event, status: :proposed, coordinator: c, start: nil, name: 'foo'
+      events = Event.awaiting_approval
+      expect(events.length).to eq 2
+      expect(events).to include e1
+      expect(events).to include e2
+    end
+
   end
 
 end

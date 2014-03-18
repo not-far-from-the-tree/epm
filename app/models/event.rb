@@ -51,6 +51,7 @@ class Event < ActiveRecord::Base
   scope :dateless, -> { where start: nil }
   scope :participatable, -> { where 'start IS NOT NULL AND coordinator_id IS NOT NULL AND status = ?', statuses[:approved] }
   scope :not_cancelled, -> { where 'status != ?', statuses[:cancelled] }
+  scope :awaiting_approval, -> { not_past.where 'status = ? AND coordinator_id IS NOT NULL AND start IS NOT NULL', statuses[:proposed] }
   scope :in_month, ->(year, month) {
     month ||= ''
     year ||= ''

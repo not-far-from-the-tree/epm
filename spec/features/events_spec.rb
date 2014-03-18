@@ -255,23 +255,19 @@ describe "Events" do
 
       it "allows coordinator to set an event's coordinator only to his/herself" do
         coordinator2 = create :coordinator
-        e = create :event
+        e = create :event, name: 'event with no coordinator'
         login_as @coordinator
         visit root_path
-        within '#coordinatorless' do
-          first('a').click
-        end
+        click_link 'event with no coordinator'
         click_link 'Edit'
         expect(page).to have_select('Coordinator', :options => ['', @coordinator.display_name])
       end
 
       it "allows a coordinator to edit a coordinatorless event" do
-        e = create :event
+        e = create :event, name: 'event with no coordinator'
         login_as @coordinator
         visit root_path
-        within '#coordinatorless' do
-          first('a').click
-        end
+        click_link 'event with no coordinator'
         click_link 'Edit'
         name = 'some name'
         fill_in 'Name', with: name
@@ -297,9 +293,7 @@ describe "Events" do
         e = create :event, coordinator: @coordinator, start: nil, name: 'foo'
         login_as @coordinator
         visit root_path
-        within '#dateless' do
-          first('a').click
-        end
+        click_link 'foo'
         click_link 'Edit'
         name = 'some name'
         fill_in 'Name', with: name
@@ -324,60 +318,28 @@ describe "Events" do
 
   end
 
-  describe "attendance" do
-
-    it "joins an event" do
-      login_as @participant
-      e = create :participatable_event
-      visit event_path(e)
-      expect { click_link 'Join' }.to change{e.participants.count}.by 1
-      expect(current_path).to eq event_path(e)
-      expect(page).to have_content @participant.display_name
-    end
-
-    it "sends a confirmation email on joining an event" do
-      login_as @participant
-      e = create :participatable_event
-      visit event_path(e)
-      expect { click_link 'Join' }.to change{ActionMailer::Base.deliveries.size}.by 1
-      expect(last_email.to).to eq [@participant.email]
-    end
-
-    it "only allows participants to join events" do
-      login_as @admin
-      e = create :participatable_event
-      visit event_path(e)
-      expect(page).not_to have_content 'Join'
-    end
-
-    it "cancels attending an event" do
-      login_as @participant
-      e = create :participatable_event
-      e.event_users.create user: @participant
-      visit event_path(e)
-      expect { click_link 'Cancel' }.to change{e.participants.count}.by -1
-      expect(current_path).to eq event_path(e)
-      expect(page).not_to have_content @participant.email
-    end
-
-    it "prevents joining a past event" do
-      login_as @participant
-      e = create :past_event
-      visit event_path(e)
-      expect(page).not_to have_content 'Join'
-    end
-
-    it "prevents cancelling attendance on a past event" do
-      login_as @participant
-      e = create :participatable_past_event
-      e.event_users.create user: @participant
-      visit event_path(e)
-      expect(page).not_to have_content 'Cancel'
-    end
-
-  end
-
   context "listing events" do
+
+    context "approval" do
+
+      it "shows events awaiting approval to admins" do
+        e = create :participatable_event, status: :proposed
+        login_as @admin
+        visit root_path
+        expect(page).to have_link e.display_name
+      end
+
+      it "does not show events awaiting approval to coordinators" do
+        e = create :participatable_event, status: :proposed
+        login_as create :coordinator
+        visit root_path
+        expect(page).not_to have_link e.display_name
+      end
+
+      # no test needed for participants, as this is tested below in
+      #   "does not show non-participatable events to participants"
+
+    end
 
     it "shows past events on the home page if there are no others" do
       e = create :past_event
