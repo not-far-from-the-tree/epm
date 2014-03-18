@@ -47,6 +47,7 @@ class EventsController < ApplicationController
 
   def update
     event_was_past = @event.past?
+    event_was_awaiting_approval = @event.awaiting_approval?
     @event.assign_attributes event_params
     users = @event.users.reject{|u| u == current_user}
     new_coordinator = @event.coordinator_id_changed? && @event.coordinator
@@ -55,6 +56,14 @@ class EventsController < ApplicationController
     if @event.save
       # send email notifications if appropriate
       unless @event.cancelled?
+        # alert admins if it's ready for approval
+        if !event_was_awaiting_approval && @event.awaiting_approval?
+          admins = User.admins.reject{|u| u == current_user}
+          if admins.any?
+            users.reject!{|u| admins.include? u} # prevents emailing an admin twice if they are also a coordinator or a participant of this event
+            EventMailer.awaiting_approval(@event, admins).deliver
+          end
+        end
         # alert coordinator being assigned
         if new_coordinator && @event.coordinator != current_user
           users.reject!{|u| u == @event.coordinator} # prevents emailing a coordinator twice when they are assigned an event which has significant changes

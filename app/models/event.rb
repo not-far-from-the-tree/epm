@@ -93,6 +93,10 @@ class Event < ActiveRecord::Base
     finish.present? ? finish < Time.zone.now : nil
   end
 
+  def awaiting_approval?
+    !past? && proposed? && coordinator && start
+  end
+
   include ActionView::Helpers::TextHelper # needed for truncate()
   def display_name
     return name if name.present?

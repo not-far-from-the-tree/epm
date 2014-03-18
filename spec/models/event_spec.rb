@@ -111,6 +111,15 @@ describe Event do
     expect(build(:event, start: nil).past?).to be_nil
   end
 
+  it "responds properly to awaiting_approval? method" do
+    c = create :coordinator
+    expect(create(:event, status: :proposed, coordinator: c).awaiting_approval?).to be_true
+    expect(create(:event, status: :approved, coordinator: c).awaiting_approval?).to be_false
+    expect(create(:past_event, status: :proposed, coordinator: c).awaiting_approval?).to be_false
+    expect(create(:event, status: :proposed, coordinator: nil).awaiting_approval?).to be_false
+    expect(create(:event, status: :proposed, coordinator: c, start: nil, name: 'foo').awaiting_approval?).to be_false
+  end
+
   it "sets finish when given a duration" do
     now = Time.zone.now
     expect(build(:event, start: now, duration: 1.hour).finish).to eq (now + 1.hour)

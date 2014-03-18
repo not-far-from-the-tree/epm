@@ -440,6 +440,28 @@ describe "Events" do
         expect(page).not_to have_content 'Status'
       end
 
+      it "emails admins when an event is ready for approval" do
+        e = create :event, status: :proposed # missing a coordinator
+        c = create :coordinator
+        login_as c
+        visit edit_event_path e
+        select c.display_name, from: 'Coordinator'
+        expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        expect(last_email.bcc).to eq User.admins.map{|u| u.email}
+      end
+
+      it "does not email admins when an event is ready for approval by their own change" do
+        User.admins.where.not(id: @admin.id).destroy_all # there should only be one admin. todo: figure out why this isn't handled by database cleaner
+        e = create :event, status: :proposed, coordinator: create(:coordinator), start: nil, name: 'foo'
+        login_as @admin
+        visit edit_event_path e
+        fill_in 'Date', with: Time.zone.tomorrow.to_date
+        # it will send an email to tell the coordinator about the change in time
+        # but should not be sending an email to the admin
+        expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        expect(last_email.bcc).not_to include @admin.email
+      end
+
     end
 
     context "cancelling" do

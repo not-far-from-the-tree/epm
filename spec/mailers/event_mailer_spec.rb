@@ -99,8 +99,23 @@ describe EventMailer do
     expect(mail.body.parts.length).to eq 2
     mail.body.parts.each do |part|
       expect(part.to_s).to match 'changes'
+      expect(part.to_s).to match event_url(@event)
     end
   end
 
+  it "sends correct emails when an event is changed to be ready for approval" do
+    create :admin # make sure there's at least one admin
+    event = create :event, status: :proposed, coordinator: create(:coordinator)
+    mail = EventMailer.awaiting_approval(event, User.admins)
+    expect(mail.to).to be_nil
+    expect(mail.bcc.length).to eq User.admins.length
+    expect(mail.bcc).to include User.admins.first.email
+    expect(mail.subject.downcase).to match 'awaiting approval'
+    # checks that there is both email and plain text, and they both have the right content
+    expect(mail.body.parts.length).to eq 2
+    mail.body.parts.each do |part|
+      expect(part.to_s).to match event_url(event)
+    end
+  end
 
 end

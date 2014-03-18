@@ -26,6 +26,14 @@ class EventMailer < ActionMailer::Base
     mail bcc: users.map{|u| to(u)}, subject: 'Changes to an event you are attending'
   end
 
+  def awaiting_approval(event, users)
+    @event = event
+    # @user is for checking permissions -
+    #   can pass in the first user 'cause we're passing in users who all have the same permissions
+    @user = users.first
+    mail bcc: users.map{|u| to(u)}, subject: 'An event is awaiting approval'
+  end
+
   private
 
     def to(user)
