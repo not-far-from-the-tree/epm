@@ -98,7 +98,7 @@ class EventsController < ApplicationController
 
   def destroy
     @event.update(status: :cancelled)
-    users = @event.users.reject{|u| u == current_user}
+    users = (@event.users + User.admins).reject{|u| u == current_user}
     EventMailer.cancel(@event, users).deliver if users.any?
     redirect_to @event, notice: 'Event cancelled.'
   end

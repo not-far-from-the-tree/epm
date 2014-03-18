@@ -484,19 +484,22 @@ describe "Events" do
         expect(page).not_to have_content 'Cancel'
       end
 
-      it "sends an email to coordinator and participants when an event is cancelled" do
+      it "sends an email to admins coordinator and participants when an event is cancelled" do
+        other_admin = create :admin
+        admins = User.admins
         e = create :participatable_event
         participant = create :participant
         e.event_users.create user: participant
         login_as @admin
         visit event_path e
         expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 1
-        expect(last_email.bcc.length).to eq 2
+        expect(last_email.bcc.length).to eq (2 + (admins.length - 1))
         expect(last_email.bcc).to include e.coordinator.email
         expect(last_email.bcc).to include participant.email
+        expect(last_email.bcc).to include other_admin.email
       end
 
-      it "sends an email to participants but not the coordinator when an event is cancelled by the coordinator" do
+      it "sends an email to admins and participants but not the coordinator when an event is cancelled by the coordinator" do
         coordinator = create :coordinator
         e = create :participatable_event, coordinator: coordinator
         participant = create :participant
@@ -504,11 +507,12 @@ describe "Events" do
         login_as coordinator
         visit event_path e
         expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 1
-        expect(last_email.bcc.length).to eq 1
-        expect(last_email.bcc.first).to eq participant.email
+        expect(last_email.bcc.length).to eq (1 + User.admins.length)
+        expect(last_email.bcc).to include participant.email
       end
 
-      it "does not send an email when an event is cancelled that does not have a coordinator or participants" do
+      it "does not send email when an event is cancelled by the only admin, that does not have a coordinator or participants" do
+        User.admins.where.not(id: @admin.id).destroy_all # make sure there is only the one admin. todo: figure out why not handled by database cleaner
         e = create :event
         login_as @admin
         visit event_path e
