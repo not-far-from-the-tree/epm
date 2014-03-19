@@ -452,6 +452,15 @@ describe "Events" do
         expect(page).not_to have_link 'Approve'
       end
 
+      it "sends an email to the coordinator on approving an event" do
+        coordinator = create :coordinator
+        e = create :event, coordinator: coordinator, status: :proposed
+        login_as @admin
+        visit event_path e
+        expect{click_link 'Approve'}.to change{ActionMailer::Base.deliveries.size}.by 1
+        expect(last_email.to).to eq [coordinator.email]
+      end
+
       it "prevents a coordinator from approving an event" do
         c = create :coordinator
         e = create :event, status: :proposed, coordinator: c

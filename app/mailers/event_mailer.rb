@@ -34,6 +34,11 @@ class EventMailer < ActionMailer::Base
     mail bcc: users.map{|u| to(u)}, subject: 'An event is awaiting approval'
   end
 
+  def approve(event)
+    @event = event
+    mail to: to(event.coordinator), subject: 'Your event has been approved'
+  end
+
   private
 
     def to(user)

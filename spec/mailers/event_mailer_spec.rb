@@ -118,4 +118,17 @@ describe EventMailer do
     end
   end
 
+  it "sends correct emails when an event is approved" do
+    coordinator = create :coordinator
+    event = create :event, coordinator: coordinator
+    mail = EventMailer.approve(event)
+    expect(mail.to).to eq [coordinator.email]
+    expect(mail.subject.downcase).to match 'approved'
+    # checks that there is both email and plain text, and they both have the right content
+    expect(mail.body.parts.length).to eq 2
+    mail.body.parts.each do |part|
+      expect(part.to_s).to match event_url(event)
+    end
+  end
+
 end
