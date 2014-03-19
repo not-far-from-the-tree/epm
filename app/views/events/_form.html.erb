@@ -36,10 +36,22 @@
   </div>
 
   <% coordinators = current_user.has_role?(:admin) ? User.coordinators : User.coordinators.where(id: current_user.id) %>
-  <div class="field">
-    <%= f.label :coordinator_id %><br>
-    <%= f.collection_select :coordinator_id, coordinators, :id, :display_name, include_blank: true %>
-  </div>
+  <fieldset id="coordinators">
+    <legend>Coordinator</legend>
+    <label style="margin-bottom:0.5em">
+      <%= f.radio_button :coordinator_id, nil %>
+      No coordinator
+    </label>
+    <% coordinators.each do |coordinator| %>
+      <label>
+        <%= f.radio_button :coordinator_id, coordinator.id %>
+        <%= render 'users/user', user: coordinator %>
+      </label>
+    <% end %>
+    <% content_for :js_ready do %>
+      $('#coordinators a').attr('target', '_new');
+    <% end %>
+  </fieldset>
 
   <%= next_col %>
 

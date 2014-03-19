@@ -30,9 +30,9 @@ module ApplicationHelper
     super(name, *(args << options.merge(:builder => StandardFormBuilder)), &block)
   end
   def text_field_tag(name, value = nil, options = {})
-    options[:size] = 30 unless options.has_key? :size
+    options[:size] = 25 unless options.has_key? :size
     options[:size] = [[options[:size], value.length].max, 100].min unless value.nil?
-    options['data-default_size'] = 30 unless options.has_key? :maxlength
+    options['data-default_size'] = 25 unless options.has_key? :maxlength
     super(name, value, options)
   end
 
@@ -41,7 +41,7 @@ end
 
 class StandardFormBuilder < ActionView::Helpers::FormBuilder
 
-  def self.create_tagged_field(method_name, default_size = 30)
+  def self.create_tagged_field(method_name, default_size = 25)
     define_method(method_name) do |label, *args|
       args[0] = {} unless args.any?
       # smart length expands from default (up to a max) based on the content
@@ -53,6 +53,7 @@ class StandardFormBuilder < ActionView::Helpers::FormBuilder
   end
   create_tagged_field('text_field')
   create_tagged_field('email_field')
+  create_tagged_field('password_field')
   create_tagged_field('telephone_field')
   create_tagged_field('url_field', 52)
 

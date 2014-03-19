@@ -171,7 +171,7 @@ describe "Events" do
           login_as @admin
           visit edit_event_path @e
           fill_in 'Name', with: 'New name'
-          select new_coordinator.display_name, from: 'Coordinator'
+          choose "event_coordinator_id_#{new_coordinator.id}"
           ActionMailer::Base.deliveries.clear
           # expecting to send a notice to the new coordinator of the event
           # and also the notice to existing participants of changes
@@ -183,7 +183,7 @@ describe "Events" do
         it "does not email attendees upon changing an event in a minor way" do
           login_as @admin
           visit edit_event_path @e
-          select '', from: 'Coordinator'
+          choose 'event_coordinator_id' # select the nil option
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
         end
 
@@ -240,7 +240,7 @@ describe "Events" do
         login_as @admin
         visit new_event_path
         fill_in 'Name', with: 'some event'
-        select @coordinator.display_name, :from => 'Coordinator'
+        choose "event_coordinator_id_#{@coordinator.id}"
         click_button 'Save'
         expect(current_path).to eq event_path(Event.order(:created_at).last)
         expect(page).to have_content @coordinator.display_name
@@ -252,7 +252,7 @@ describe "Events" do
           login_as @admin
           visit new_event_path
           fill_in 'Name', with: 'some event'
-          select @coordinator.display_name, :from => 'Coordinator'
+          choose "event_coordinator_id_#{@coordinator.id}"
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
           expect(last_email.to.first).to match @coordinator.email
         end
@@ -261,7 +261,7 @@ describe "Events" do
           e = create :event, coordinator: nil
           login_as @admin
           visit edit_event_path(e)
-          select @coordinator.display_name, :from => 'Coordinator'
+          choose "event_coordinator_id_#{@coordinator.id}"
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
           expect(last_email.to.first).to match @coordinator.email
         end
@@ -270,7 +270,7 @@ describe "Events" do
           e = create :event, coordinator: nil
           login_as @coordinator
           visit edit_event_path(e)
-          select @coordinator.display_name, :from => 'Coordinator'
+          choose "event_coordinator_id_#{@coordinator.id}"
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
         end
 
@@ -283,7 +283,7 @@ describe "Events" do
         visit root_path
         click_link 'event with no coordinator'
         click_link 'Edit'
-        expect(page).to have_select('Coordinator', :options => ['', @coordinator.display_name])
+        expect(all('#coordinators input').length).to eq 2 # nil and self
       end
 
       it "allows a coordinator to edit a coordinatorless event" do
@@ -468,7 +468,7 @@ describe "Events" do
         c = create :coordinator
         login_as c
         visit edit_event_path e
-        select c.display_name, from: 'Coordinator'
+        choose "event_coordinator_id_#{c.id}"
         expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
         expect(last_email.bcc).to eq User.admins.map{|u| u.email}
       end
