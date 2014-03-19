@@ -1,12 +1,6 @@
 form .field, form fieldset {
   margin: 1em 0;
 }
-input[type="text"], input[type="password"], input[type="email"], input[type="tel"] {
-  width: 12em;
-}
-input[type="text"].time {
-  width: 4em;
-}
 textarea {
   width: 25em;
   height: 7em;
