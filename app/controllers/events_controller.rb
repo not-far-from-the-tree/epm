@@ -120,7 +120,7 @@ class EventsController < ApplicationController
 
     def event_params
       # should actually only enable :status to be set by admin. todo
-      params.require(:event).permit(:name, :description, :notes, :start, :start_day, :start_time, :duration, :finish, :coordinator_id, :notify_of_changes, :status)
+      params.require(:event).permit(:name, :description, :notes, :start, :start_day, :start_time_12, :start_time_p, :duration, :finish, :coordinator_id, :notify_of_changes, :status)
     end
 
 end

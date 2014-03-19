@@ -64,8 +64,9 @@
     <% end %>
 
     <div class="field">
-      <%= f.label :start_time, 'Time' %>
-      <%= f.time_field :start_time, step: 60, value: (@event.start || Time.at((Time.zone.now.to_f / 3600).round * 3600)).strftime('%T.%L') %>
+      <%= f.label :start_time_12, 'Time' %>
+      <%= f.text_field :start_time_12, size: 5, class: 'time', value: (@event.start.present? ? @event.start_time_12 : '12:00') %>
+      <%= f.select :start_time_p, options_for_select(['AM', 'PM'], @event.start_time_p) %>
     </div>
     <div class="field">
       <%= f.label :duration, 'For' %>

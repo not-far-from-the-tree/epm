@@ -87,7 +87,7 @@ describe "Events" do
       it "updates an event" do
         login_as @admin
         e = create :full_event
-        visit event_path(e)
+        visit event_path e
         click_link 'Edit'
         expect(find('#event_duration option[selected]').text).to have_content e.duration_hours
         new_event_name = 'new event name'
@@ -96,6 +96,29 @@ describe "Events" do
         expect(current_path).to eq event_path(e)
         expect(page).to have_content 'saved'
         expect(page).to have_content new_event_name
+      end
+
+      context "time input" do
+
+        it "disallows an invalid time" do
+          e = create :full_event
+          login_as @admin
+          visit edit_event_path e
+          fill_in 'Time', with: 'foo'
+          click_button 'Save'
+          expect(page).to have_content 'must be in the format'
+        end
+
+        it "allows a valid time" do
+          e = create :full_event
+          login_as @admin
+          visit edit_event_path e
+          fill_in 'Time', with: '10:15'
+          click_button 'Save'
+          expect(current_path).to eq event_path e
+          expect(page).not_to have_content 'must be in the format'
+        end
+
       end
 
       it "prevents updating an event without permission" do

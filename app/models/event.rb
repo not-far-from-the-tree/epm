@@ -64,16 +64,31 @@ class Event < ActiveRecord::Base
     where("start >= ? AND finish < ?", start, finish)
   }
 
-  attr_reader :start_day, :start_time
+  attr_reader :start_day, :start_time_12, :start_time_p
+  attr_accessor :time_error
+  before_validation do |event|
+    errors.add(:base, 'Start time must be in the format ##:##') if event.time_error
+  end
   def assign_attributes(attrs)
     # if inputing start in parts (day and time), then combine them
     start_day = attrs.delete(:start_day)
-    start_time = attrs.delete(:start_time)
-    attrs[:start] = "#{start_day} #{start_time}" if attrs[:start].blank? && start_day.present? && start_time.present?
+    start_time = attrs.delete(:start_time_12)
+    if start_time.present? && !(start_time.strip =~ /1?[0-9](:[0-9]{2})?/)
+      start_time = nil
+      self.time_error = true
+    end
+    start_time_p = (attrs.delete(:start_time_p) || 'AM').upcase.gsub('.', '')
+    attrs[:start] = "#{start_day} #{start_time} #{start_time_p}" if attrs[:start].blank? && start_day.present? && start_time.present?
     # this is needed because during mass assignment, we can't guarantee that :start will be set before :duration
     dur = attrs.delete(:duration)
     super(attrs)
     self.duration = dur
+  end
+  def start_time_12 # start time using 12-hour clock
+    start.present? ? start.strftime('%l:%M') : nil
+  end
+  def start_time_p
+    start.present? ? start.strftime('%p') : nil
   end
   def duration=(timespan)
     if start.present? && timespan.present? && timespan.to_i > 0
