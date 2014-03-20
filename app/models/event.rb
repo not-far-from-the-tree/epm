@@ -43,6 +43,9 @@ class Event < ActiveRecord::Base
     people
   end
 
+  acts_as_mappable default_units: :kms
+  after_validation :geocode, if: "address_changed? && address.present? && (lat.blank? || lng.blank?)"
+
   default_scope { order :start }
   scope :past, -> { where('finish < ?', Time.zone.now).reorder('finish DESC') }
   scope :not_past, -> { where 'start IS NULL OR finish > ?', Time.zone.now }
@@ -127,5 +130,16 @@ class Event < ActiveRecord::Base
   def can_have_participants?
     start.present? && coordinator.present? && status != 'proposed'
   end
+
+  private
+
+    def geocode
+      geo = Geokit::Geocoders::MultiGeocoder.geocode address
+      if geo.success
+        self.lat, self.lng = geo.lat, geo.lng
+      else
+        errors.add(:address, 'Problem locating address')
+      end
+    end
 
 end

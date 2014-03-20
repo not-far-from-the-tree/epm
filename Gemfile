@@ -17,6 +17,8 @@ gem 'cancancan'
 
 gem 'configurable_engine' # site-wide config
 
+gem 'geokit-rails'
+
 # ui
 gem 'rinku' # URL auto-linking
 gem 'simple_calendar'
