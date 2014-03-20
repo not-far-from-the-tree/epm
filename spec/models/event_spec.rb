@@ -216,8 +216,7 @@ describe Event do
       user = create :user
       event2.event_users.create user: user
       events = Event.not_attended_by user
-      expect(events.length).to eq 1
-      expect(events.first).to eq event1
+      expect(events).to eq [event1]
     end
 
     it "lists events without a coordinator" do

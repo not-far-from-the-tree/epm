@@ -44,6 +44,7 @@ class Event < ActiveRecord::Base
   end
 
   default_scope { order :start }
+  scope :with_date, -> { where 'start IS NOT NULL AND finish IS NOT NULL' }
   scope :past, -> { where('finish < ?', Time.zone.now).reorder('finish DESC') }
   scope :not_past, -> { where 'start IS NULL OR finish > ?', Time.zone.now }
   scope :not_attended_by, ->(user) { joins('LEFT JOIN event_users ON events.id = event_users.event_id').where("events.id NOT IN (SELECT event_id FROM event_users WHERE user_id = ?) AND coordinator_id != ?", user.id, user.id).distinct }
@@ -126,6 +127,38 @@ class Event < ActiveRecord::Base
 
   def can_have_participants?
     start.present? && coordinator.present? && status != 'proposed'
+  end
+
+  def self.ical_date(datetime)
+    datetime.strftime '%Y%m%dT%H%M00Z'
+  end
+
+  def to_ical(host = nil)
+    vevent = Icalendar::Event.new
+    vevent.klass = 'PRIVATE'
+    vevent.url = Rails.application.routes.url_helpers.event_url(self, host: host) unless host.nil?
+    vevent.created = self.class.ical_date created_at
+    vevent.last_modified = self.class.ical_date updated_at
+    vevent.dtstart = self.class.ical_date start
+    vevent.dtend = self.class.ical_date finish
+    vevent.summary = name if name
+    desc = description || ''
+    unless host.nil?
+      desc += "\n\n" unless desc.blank? # is this working?
+      desc += vevent.url
+    end
+    vevent.description desc if desc.present?
+    if cancelled?
+      vevent.status = 'CANCELLED'
+    elsif can_have_participants?
+      vevent.status = 'CONFIRMED'
+    else
+      vevent.status = 'TENTATIVE'
+    end
+    vevent.add_contact(coordinator.name) if coordinator # todo: replace with organizer property?
+    # vevent.geo = "#{lat},#{lng}" if lat && lng
+    # vevent.location = address if address
+    vevent
   end
 
 end

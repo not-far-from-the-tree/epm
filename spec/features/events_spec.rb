@@ -343,6 +343,16 @@ describe "Events" do
 
   context "listing events" do
 
+    it "exports to icalendar" do
+      login_as @admin
+      visit events_path(format: 'ics')
+      expect(response_headers['Content-Type'].start_with? 'text/calendar').to be_true
+      # todo: figure out how to get the following to work
+      # cals = Icalendar.parse(source)
+      # expect(cals.length).to eq 1
+      # expect(cals.first.events.length).to eq Event.with_date.length
+    end
+
     context "approval" do
 
       it "shows events awaiting approval to admins" do
