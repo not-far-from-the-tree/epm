@@ -31,15 +31,35 @@ describe User do
       expect(build(:user, email: user1.email.downcase)).not_to be_valid
     end
 
-  end
-
-  [:name, :email, :description, :phone].each do |field|
-    it "has #{field}" do
-      expect(build :user).to respond_to field
+    it "is valid with a latitude in range" do
+      expect(build :event, lat: 40, lng: -80).to be_valid
     end
+
+    it "is invalid with a latitude out of range" do
+      expect(build :event, lat: 3000, lng: -80).not_to be_valid
+    end
+
   end
 
-  it "has a display name" do
+  context "geocoding" do
+
+    it "geocodes an address" do
+      e = build :user, address: '1600 Pennsylvania Avenue, Washington, DC'
+      e.valid? # triggers geocoding
+      expect(e.lat).to be_within(1).of(38)
+      expect(e.lng).to be_within(1).of(-77)
+    end
+
+    it "does not override given coordinates" do
+      e = build :user, address: '1600 Pennsylvania Avenue, Washington, DC', lat: 40, lng: -75
+      e.valid? # triggers geocoding
+      expect(e.lat).to eq 40
+      expect(e.lng).to eq -75
+    end
+
+  end
+
+  it "has a non-blank display name" do
     expect(build(:user).display_name).not_to be_blank
   end
 

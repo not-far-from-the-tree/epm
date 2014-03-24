@@ -48,6 +48,7 @@ class Event < ActiveRecord::Base
     people
   end
 
+  # this section identical to that in model user.rb
   acts_as_mappable
   attr_accessor :no_geocode # force geocoding to not happen. used for testing
   after_validation :geocode, if: "!no_geocode && address_changed? && address.present? && (lat.blank? || lng.blank?)"
@@ -140,12 +141,14 @@ class Event < ActiveRecord::Base
     start.present? && coordinator.present? && status != 'proposed'
   end
 
+  # this method identical to that in model user.rb
   def coords
     (lat.present? && lng.present?) ? [lat, lng] : nil
   end
 
   private
 
+    # this method identical to that in model user.rb
     def geocode
       geo = Geokit::Geocoders::MultiGeocoder.geocode address.gsub(/\n/, ', ')
       if geo.success

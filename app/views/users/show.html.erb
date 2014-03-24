@@ -45,8 +45,11 @@
 <div>
   <h2>Contact Information</h2>
   <%= link_to @user.email, "mailto:#{@user.email}" %>
-  <% if @user.phone.present? %>
+  <% if @user.phone %>
     <br><%= link_to @user.phone, "tel:#{@user.phone}" %>
+  <% end %>
+  <% if @user == current_user && @user.address %>
+    <p><%= with_br @user.address %></p>
   <% end %>
 </div>
 

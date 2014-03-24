@@ -3,7 +3,7 @@ namespace :db do
 
     # probability that a record would have a particular attribute
     event_attribute_probabilities = {name: 80, description: 30, notes: 10, address: 40, lat: 35}
-    user_attribute_probabilities = {name: 90, description: 10, phone: 40}
+    user_attribute_probabilities = {name: 90, description: 10, phone: 40, address: 60, lat: 55}
     def use_probabilities(record, attr_prob)
       attr_prob.each do |k, prob|
         record.send("#{k}=", nil) if (rand * 100) > prob
@@ -15,13 +15,13 @@ namespace :db do
     # users
     # first user is automatically an admin, others are participants
     40.times do
-      u = FactoryGirl.build :full_user
+      u = FactoryGirl.build :full_user, no_geocode: true
       u.skip_confirmation! # don't send emails
       use_probabilities(u, user_attribute_probabilities)
     end
     # handful of coordinators
     5.times do
-      u = FactoryGirl.build :full_user
+      u = FactoryGirl.build :full_user, no_geocode: true
       u.skip_confirmation! # don't send emails
       u.roles.build name: :coordinator
       use_probabilities(u, user_attribute_probabilities)
