@@ -8,6 +8,9 @@ module ApplicationHelper
   def paragraphs(text)
     simple_format auto_link text
   end
+  def with_br(str)
+    str.gsub(/\n/, '<br>').html_safe
+  end
 
   def clear
     content_tag 'div', nil, class: 'clearfix'

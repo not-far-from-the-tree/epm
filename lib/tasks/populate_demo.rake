@@ -2,7 +2,7 @@ namespace :db do
   task :populate_demo => :environment do
 
     # probability that a record would have a particular attribute
-    event_attribute_probabilities = {name: 80, description: 30, notes: 10}
+    event_attribute_probabilities = {name: 80, description: 30, notes: 10, address: 40, lat: 35}
     user_attribute_probabilities = {name: 90, description: 10, phone: 40}
     def use_probabilities(record, attr_prob)
       attr_prob.each do |k, prob|
@@ -30,7 +30,7 @@ namespace :db do
     # events and participants
     # past events
     30.times do
-      e = FactoryGirl.build(:full_past_event)
+      e = FactoryGirl.build :full_past_event, no_geocode: true
       e.coordinator = User.coordinators.sample(1).first
       e = use_probabilities(e, event_attribute_probabilities)
       User.participants.sample(rand 3..7).each do |u|
@@ -39,7 +39,7 @@ namespace :db do
     end
     # future events
     20.times do
-      e = FactoryGirl.build(:full_event)
+      e = FactoryGirl.build :full_event, no_geocode: true
       e.coordinator = User.coordinators.sample(1).first
       e = use_probabilities(e, event_attribute_probabilities)
       User.participants.sample(rand 7).each do |u|
@@ -49,35 +49,35 @@ namespace :db do
 
     # proposed events
     # with coordinator and date
-    e = FactoryGirl.build :full_event, status: Event.statuses[:proposed]
+    e = FactoryGirl.build :full_event, status: Event.statuses[:proposed], no_geocode: true
     e.coordinator = User.coordinators.sample(1).first
     e = use_probabilities(e, event_attribute_probabilities)
     e.save
     # with coordinator, no date
-    e = FactoryGirl.build :full_event, status: Event.statuses[:proposed], start: nil
+    e = FactoryGirl.build :full_event, status: Event.statuses[:proposed], start: nil, no_geocode: true
     e.coordinator = User.coordinators.sample(1).first
     e = use_probabilities(e, event_attribute_probabilities)
     e.save
     # with date, no coordinator
-    e = FactoryGirl.build :full_event, status: Event.statuses[:proposed]
+    e = FactoryGirl.build :full_event, status: Event.statuses[:proposed], no_geocode: true
     e = use_probabilities(e, event_attribute_probabilities)
     e.save
 
     # events with a date but no coordinator
     2.times do
-      e = FactoryGirl.build(:full_event)
+      e = FactoryGirl.build :full_event, no_geocode: true
       e = use_probabilities(e, event_attribute_probabilities)
     end
     event_attribute_probabilities[:name] = 100
     # events with a coordinator but no date
     2.times do
-      e = FactoryGirl.build(:full_event, start: nil)
+      e = FactoryGirl.build :full_event, start: nil, no_geocode: true
       e.coordinator = User.coordinators.sample(1).first
       e = use_probabilities(e, event_attribute_probabilities)
     end
     # events with no date or coordinator
     2.times do
-      e = FactoryGirl.build(:full_event, start: nil)
+      e = FactoryGirl.build :full_event, start: nil, no_geocode: true
       e = use_probabilities(e, event_attribute_probabilities)
     end
 

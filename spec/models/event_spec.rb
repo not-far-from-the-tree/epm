@@ -2,20 +2,14 @@ require 'spec_helper'
 
 describe Event do
 
-  [:status, :name, :description, :notes, :start, :finish, :coordinator].each do |field|
-    it "has #{field}" do
-      expect(create(:event)).to respond_to field
-    end
-  end
-
-  it "has a display name" do
+  it "has a display name with some text" do
     expect(create(:event).display_name).not_to be_blank
   end
 
   context "significant attributes" do
 
     it "has significant attributes" do
-      [:name, :description, :start, :finish].each do |attr|
+      [:name, :description, :start, :finish, :address, :lat, :lng].each do |attr|
         expect(Event.significant_attributes).to include attr
       end
       [:coordinator_id, :fake_attribute].each do |attr|
@@ -37,43 +31,17 @@ describe Event do
 
   end
 
-  context "users" do
-
-    it "has an list of participants when there are none" do
-      e = create :participatable_event
-      expect(e.participants.length).to eq 0
-    end
-
-    it "has a list of participants when there are some" do
-      e = create :participatable_event
-      participant = create :participant
-      e.event_users.create user: participant
-      expect(e.participants).to eq [participant]
-    end
-
-    it "lists coordinator as user when there are no participants" do
-      coordinator = create :coordinator
-      e = create :participatable_event, coordinator: coordinator
-      expect(e.users).to eq [coordinator]
-    end
-
-    it "lists coordinator and participants as users" do
-      e = create :participatable_event, coordinator: create(:coordinator)
-      participant = create :participant
-      e.event_users.create user: participant
-      expect(e.users.length).to eq 2
-      expect(e.users).to include participant
-    end
-
-  end
-
   context "validity and normalization" do
 
-    it "is invalid without a name, description, or start" do
-      expect(build :event, start: nil, name: nil, description: nil).not_to be_valid
-      expect(build :event, start: Time.zone.now, name: nil, description: nil).to be_valid
-      expect(build :event, start: nil, name: 'some name', description: nil).to be_valid
-      expect(build :event, start: nil, name: nil, description: 'some description').to be_valid
+    it "is invalid without a name, description, start, or address/coords" do
+      empty_hash = { start: nil, name: nil, description: nil, address: nil, lat: nil, lng: nil }
+      expect(build :event, empty_hash).not_to be_valid
+      expect(build :event, empty_hash.merge(start: Time.zone.now)).to be_valid
+      expect(build :event, empty_hash.merge(name: 'some name')).to be_valid
+      expect(build :event, empty_hash.merge(description: 'some description')).to be_valid
+      expect(build :event, empty_hash.merge(address: '123 fake street', no_geocode: true)).to be_valid
+      expect(build :event, empty_hash.merge(lat: 40, lng: -80)).to be_valid
+      expect(build :event, empty_hash.merge(lat: 40)).not_to be_valid
     end
 
     it "is invalid with a zero duration" do
@@ -90,6 +58,14 @@ describe Event do
       expect(build :event, start: Time.zone.now, finish: nil).not_to be_valid
     end
 
+    it "is valid with a latitude in range" do
+      expect(build :event, lat: 40, lng: -80).to be_valid
+    end
+
+    it "is invalid with a latitude out of range" do
+      expect(build :event, lat: 3000, lng: -80).not_to be_valid
+    end
+
     # all fields should be stripped, this just tests two (excessive to check them all)
     context "normalizing attributes" do
 
@@ -101,6 +77,31 @@ describe Event do
         expect(create(:event, description: "\r\n ").description).to be_nil
       end
 
+    end
+
+  end
+
+  context "geocoding" do
+
+    it "geocodes an address" do
+      e = build :event, address: '1600 Pennsylvania Avenue, Washington, DC'
+      e.valid? # triggers geocoding
+      expect(e.lat).to be_within(1).of(38)
+      expect(e.lng).to be_within(1).of(-77)
+    end
+
+    it "geocodes an address with newlines" do
+      e = build :event, address: "1600 Pennsylvania Avenue\nWashington, DC"
+      e.valid? # triggers geocoding
+      expect(e.lat).to be_within(1).of(38)
+      expect(e.lng).to be_within(1).of(-77)
+    end
+
+    it "does not override given coordinates" do
+      e = build :event, address: '1600 Pennsylvania Avenue, Washington, DC', lat: 40, lng: -75
+      e.valid? # triggers geocoding
+      expect(e.lat).to eq 40
+      expect(e.lng).to eq -75
     end
 
   end
@@ -174,6 +175,36 @@ describe Event do
       u = create :participant
       e = create :participatable_event, status: :cancelled
       expect(e.participatable_by? u).to be_false
+    end
+
+  end
+
+  context "users" do
+
+    it "has an list of participants when there are none" do
+      e = create :participatable_event
+      expect(e.participants.length).to eq 0
+    end
+
+    it "has a list of participants when there are some" do
+      e = create :participatable_event
+      participant = create :participant
+      e.event_users.create user: participant
+      expect(e.participants).to eq [participant]
+    end
+
+    it "lists coordinator as user when there are no participants" do
+      coordinator = create :coordinator
+      e = create :participatable_event, coordinator: coordinator
+      expect(e.users).to eq [coordinator]
+    end
+
+    it "lists coordinator and participants as users" do
+      e = create :participatable_event, coordinator: create(:coordinator)
+      participant = create :participant
+      e.event_users.create user: participant
+      expect(e.users.length).to eq 2
+      expect(e.users).to include participant
     end
 
   end

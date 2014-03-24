@@ -36,7 +36,7 @@
 <%= next_col if @event.description.present? || (@event.notes.present? && can?(:read_notes, @event)) %>
 
 <div>
-  <% if @event.start.present? %>
+  <% if @event.start %>
     <div id="date"><p><%= date @event.start %></p></div>
     <% content_for :js_ready do %>
       $('#date').html('').datepicker({
@@ -52,6 +52,15 @@
     <p>No date set.</p>
   <% end %>
 </div>
+
+<% if @event.address || @event.coords %>
+  <h2>Where</h2>
+  <% if @event.address %>
+    <%= with_br @event.address %>
+  <% else %>
+    <%= @event.coords.join ', ' %>
+  <% end %>
+<% end %>
 
 <%= end_cols %>
 

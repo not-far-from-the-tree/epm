@@ -18,6 +18,7 @@ gem 'cancancan'
 gem 'configurable_engine' # site-wide config
 
 gem 'geokit-rails'
+gem 'geokit-nominatim'
 
 # ui
 gem 'rinku' # URL auto-linking

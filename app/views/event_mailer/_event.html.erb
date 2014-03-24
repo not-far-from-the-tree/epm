@@ -17,6 +17,16 @@
       Date not set.
     <% end %>
   </dd>
+  <% if event.address || event.coords %>
+    <dt>Where</dt>
+    <dd>
+      <% if event.address %>
+        <%= with_br event.address %>
+      <% else %>
+        <%= event.coords.join ', ' %>
+      <% end %>
+    </dd>
+  <% end %>
   <% if event.coordinator %>
     <dt>Coordinator</dt>
     <dd><%= event.coordinator.display_name %></dd>
