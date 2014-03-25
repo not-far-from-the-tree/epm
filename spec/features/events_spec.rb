@@ -73,12 +73,31 @@ describe "Events" do
 
     end
 
-    it "views an event" do
-      login_as @admin
-      e = create :event
-      visit root_path
-      click_link e.display_name
-      expect(current_path).to eq event_path e
+    context "show" do
+
+      it "views an event" do
+        login_as @admin
+        e = create :event
+        visit root_path
+        click_link e.display_name
+        expect(current_path).to eq event_path e
+        expect(page).to have_content e.display_name
+      end
+
+      it "shows a map when geocoded", js: true do
+        e = create :full_event
+        login_as @admin
+        visit event_path e
+        expect(all('#map img.leaflet-marker-icon').length).to eq 1
+      end
+
+      it "shows no map when not geocoded", js: true do
+        e = create :event
+        login_as @admin
+        visit event_path e
+        expect(all('#map').length).to eq 0
+      end
+
     end
 
     context "updating" do

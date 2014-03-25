@@ -17,8 +17,10 @@ gem 'cancancan'
 
 gem 'configurable_engine' # site-wide config
 
+# geo stuff
 gem 'geokit-rails'
 gem 'geokit-nominatim'
+gem 'leaflet-rails'
 
 # ui
 gem 'rinku' # URL auto-linking
