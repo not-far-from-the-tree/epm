@@ -36,7 +36,7 @@ class EventsController < ApplicationController
   end
 
   def new
-    attrs = {status: :approved}
+    attrs = {}
     attrs[:start] = params['start_day'] if params['start_day']
     @event = Event.new(attrs)
   end
