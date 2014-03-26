@@ -11,6 +11,7 @@ class Ability
       can :calendar, Event
       can [:show, :update], User, id: user.id
       can :destroy, Role, user_id: user.id
+      can :index, :geocode
 
       if user.has_role? :admin
         can :manage, [Event, Role, :setting]

@@ -358,6 +358,32 @@ describe "Events" do
 
     end
 
+    context "geocoding" do
+
+      it "geocodes with ajax", js: true do
+        login_as @admin
+        visit new_event_path
+        fill_in 'Address', with: '1600 Pennsylvania Avenue, Washington, DC'
+        find_field('Address').trigger('blur')
+        Timeout.timeout(10) do
+          loop until page.evaluate_script('jQuery.active').zero?
+        end
+        expect(find_field('Latitude', visible: false).value.to_i).to be_within(1).of(38)
+        expect(find_field('Longitude', visible: false).value.to_i).to be_within(1).of(-77)
+      end
+
+      it "geocodes without javascript" do
+        e = create :event
+        login_as @admin
+        visit edit_event_path e
+        fill_in 'Address', with: '1600 Pennsylvania Avenue, Washington, DC'
+        click_button 'Save'
+        expect(e.reload.lat).to be_within(1).of(38)
+        expect(e.lng).to be_within(1).of(-77)
+      end
+
+    end
+
   end
 
   context "listing events" do
@@ -574,7 +600,7 @@ describe "Events" do
 
   end
 
-  context "user and coordinator features" do
+  context "admin and coordinator features" do
 
     it "lets admins see attendees' profiles" do
       login_as @admin

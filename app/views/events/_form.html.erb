@@ -35,10 +35,7 @@
     <%= f.text_area :notes %>
   </div>
 
-  <div class="field">
-    <%= f.label :address %><br>
-    <%= f.text_area :address %>
-  </div>
+  <%= render 'shared/address_form', f: f %>
 
   <% coordinators = current_user.has_role?(:admin) ? User.coordinators : User.coordinators.where(id: current_user.id) %>
   <fieldset id="coordinators">

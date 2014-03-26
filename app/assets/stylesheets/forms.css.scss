@@ -8,6 +8,10 @@ textarea {
 input, textarea, fieldset {
   max-width: 98%;
 }
+#address textarea {
+  width: 20em;
+  height: 4em;
+}
 
 label, legend {
   font-weight: bold;
@@ -30,4 +34,8 @@ span.hint {
   font-style: italic;
   padding-left: 0.2em;
   color: #aaa;
+}
+
+html.js form #coords {
+  display: none;
 }

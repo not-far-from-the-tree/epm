@@ -57,24 +57,13 @@
   <section id="where"<%= " data-lat=\"#{@event.lat}\" data-lng=\"#{@event.lng}\"".html_safe if @event.coords %>>
     <h2>Where</h2>
     <%= with_br(@event.address) if @event.address %>
-  </section>
-  <% if @event.coords %>
-    <% content_for :js_ready do %>
-      $('#where').append('<div id="map"></div>');
-      var point = L.latLng($('#where').data('lat'), $('#where').data('lng'));
-      var map = new L.Map('map', {
-        center: point,
-        zoom: 10,
-        minZoom: 3,
-        maxZoom: 18,
-        layers: [new L.TileLayer('http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
-          attribution: 'Data &copy; <a href="http://www.openstreetmap.org/">OpenStreetMap</a> contributors; Tiles by <a href="http://www.mapquest.com/">MapQuest</a>',
-          subdomains: ['otile1','otile2','otile3','otile4']
-        })]
-      });
-      var marker = L.marker(point).addTo(map);
+    <% if @event.coords %>
+      <% content_for :js_ready do %>
+        $('#where').append('<div id="map"></div>');
+        show_map($('#where'));
+      <% end %>
     <% end %>
-  <% end %>
+  </section>
 <% end %>
 
 <%= end_cols %>

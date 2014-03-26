@@ -131,6 +131,10 @@ ul, ol {
   padding-left: 1.3em;
 }
 
+.loading {
+  background: white image-url('loading.gif') right top no-repeat;
+}
+
 #map {
   height: 20em;
 }
