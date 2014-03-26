@@ -88,7 +88,7 @@ describe "Events" do
         e = create :full_event
         login_as @admin
         visit event_path e
-        expect(all('#map img.leaflet-marker-icon').length).to eq 1
+        expect(all('#map .leaflet-marker-icon').length).to eq 2 # self and geocoded location
       end
 
       it "shows no map when not geocoded", js: true do
@@ -361,15 +361,18 @@ describe "Events" do
     context "geocoding" do
 
       it "geocodes with ajax", js: true do
+        # checks that geocoding happens and that a map shows up
         login_as @admin
         visit new_event_path
         fill_in 'Address', with: '1600 Pennsylvania Avenue, Washington, DC'
+        expect(all('#map').length).to eq 0
         find_field('Address').trigger('blur')
-        Timeout.timeout(10) do
+        Timeout.timeout(5) do
           loop until page.evaluate_script('jQuery.active').zero?
         end
         expect(find_field('Latitude', visible: false).value.to_i).to be_within(1).of(38)
         expect(find_field('Longitude', visible: false).value.to_i).to be_within(1).of(-77)
+        expect(all('#map .leaflet-marker-icon').length).to eq 2 # should show self and geocoded location
       end
 
       it "geocodes without javascript" do

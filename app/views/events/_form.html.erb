@@ -35,8 +35,6 @@
     <%= f.text_area :notes %>
   </div>
 
-  <%= render 'shared/address_form', f: f %>
-
   <% coordinators = current_user.has_role?(:admin) ? User.coordinators : User.coordinators.where(id: current_user.id) %>
   <fieldset id="coordinators">
     <legend>Coordinator</legend>
@@ -87,6 +85,8 @@
       <%= f.select :duration, options_for_select((1..6).map{|n| [pluralize(n, 'hour'), n.hours]}, @event.duration) %>
     </div>
   </fieldset>
+
+  <%= render 'shared/address_form', f: f %>
 
   <%= end_cols %>
 
