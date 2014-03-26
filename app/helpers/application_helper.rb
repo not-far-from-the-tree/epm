@@ -57,7 +57,7 @@ class StandardFormBuilder < ActionView::Helpers::FormBuilder
   create_tagged_field('text_field')
   create_tagged_field('email_field')
   create_tagged_field('password_field')
-  create_tagged_field('telephone_field')
+  create_tagged_field('phone_field')
   create_tagged_field('url_field', 52)
 
 end
