@@ -2,6 +2,9 @@ html {
   font-family: Helvetica, sans-serif;
   background-color: white;
 }
+textarea  {
+  font-family: Helvetica, sans-serif;
+}
 body {
   margin: 0;
   padding-bottom: 2em;
@@ -129,4 +132,29 @@ dt {
 ul, ol {
   margin: 0;
   padding-left: 1.3em;
+}
+
+.loading {
+  background: white image-url('loading.gif') right top no-repeat;
+}
+
+#map {
+  height: 20em;
+}
+#instruction {
+  text-align: right;
+  font-style: italic;
+}
+
+#map .me {
+  border: 2px solid blue;
+  border-radius: 20px;
+  padding: 5px;
+}
+#map .me .inner {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 0 2px 4px blue inset;
 }

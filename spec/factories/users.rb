@@ -27,6 +27,9 @@ FactoryGirl.define do
       email { Faker::Internet.free_email(name) }
       description { Faker::Lorem.sentences(rand 1..5).join(' ') }
       phone { Faker::PhoneNumber.phone_number }
+      address { "#{Faker::Address.street_address}\n#{Faker::Address.city}, #{Faker::Address.country}" }
+      lat { Faker::Address.latitude }
+      lng { Faker::Address.longitude }
     end
 
   end

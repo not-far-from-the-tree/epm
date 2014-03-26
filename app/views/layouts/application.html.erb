@@ -14,7 +14,11 @@
   <% end %>
   <%= csrf_meta_tags %>
 </head>
-<body>
+<body
+  class="<%= controller_name %>-<%= params[:action] %>"
+  data-lat="<%= (user_signed_in? ? current_user.lat : nil) || 40 %>"
+  data-lng="<%= (user_signed_in? ? current_user.lng : nil) || -75 %>"
+  >
 
   <header>
     <% if user_signed_in? %>

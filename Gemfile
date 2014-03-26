@@ -19,6 +19,11 @@ gem 'configurable_engine' # site-wide config
 
 gem 'icalendar'
 
+# geo stuff
+gem 'geokit-rails'
+gem 'geokit-nominatim'
+gem 'leaflet-rails'
+
 # ui
 gem 'rinku' # URL auto-linking
 gem 'simple_calendar'

@@ -73,12 +73,31 @@ describe "Events" do
 
     end
 
-    it "views an event" do
-      login_as @admin
-      e = create :event
-      visit root_path
-      click_link e.display_name
-      expect(current_path).to eq event_path e
+    context "show" do
+
+      it "views an event" do
+        login_as @admin
+        e = create :event
+        visit root_path
+        click_link e.display_name
+        expect(current_path).to eq event_path e
+        expect(page).to have_content e.display_name
+      end
+
+      it "shows a map when geocoded", js: true do
+        e = create :full_event
+        login_as @admin
+        visit event_path e
+        expect(all('#map .leaflet-marker-icon').length).to eq 2 # self and geocoded location
+      end
+
+      it "shows no map when not geocoded", js: true do
+        e = create :event
+        login_as @admin
+        visit event_path e
+        expect(all('#map').length).to eq 0
+      end
+
     end
 
     context "updating" do
@@ -339,6 +358,35 @@ describe "Events" do
 
     end
 
+    context "geocoding" do
+
+      it "geocodes with ajax", js: true do
+        # checks that geocoding happens and that a map shows up
+        login_as @admin
+        visit new_event_path
+        fill_in 'Address', with: '1600 Pennsylvania Avenue, Washington, DC'
+        expect(all('#map').length).to eq 0
+        find_field('Address').trigger('blur')
+        Timeout.timeout(5) do
+          loop until page.evaluate_script('jQuery.active').zero?
+        end
+        expect(find_field('Latitude', visible: false).value.to_i).to be_within(1).of(38)
+        expect(find_field('Longitude', visible: false).value.to_i).to be_within(1).of(-77)
+        expect(all('#map .leaflet-marker-icon').length).to eq 2 # should show self and geocoded location
+      end
+
+      it "geocodes without javascript" do
+        e = create :event
+        login_as @admin
+        visit edit_event_path e
+        fill_in 'Address', with: '1600 Pennsylvania Avenue, Washington, DC'
+        click_button 'Save'
+        expect(e.reload.lat).to be_within(1).of(38)
+        expect(e.lng).to be_within(1).of(-77)
+      end
+
+    end
+
   end
 
   context "listing events" do
@@ -565,7 +613,7 @@ describe "Events" do
 
   end
 
-  context "user and coordinator features" do
+  context "admin and coordinator features" do
 
     it "lets admins see attendees' profiles" do
       login_as @admin

@@ -45,8 +45,19 @@
 <div>
   <h2>Contact Information</h2>
   <%= link_to @user.email, "mailto:#{@user.email}" %>
-  <% if @user.phone.present? %>
+  <% if @user.phone %>
     <br><%= link_to @user.phone, "tel:#{@user.phone}" %>
+  <% end %>
+  <% if @user == current_user && @user.address %>
+    <div id="address"<%= " data-lat=\"#{@user.lat}\" data-lng=\"#{@user.lng}\"".html_safe if @user.coords %>>
+      <%= with_br(@user.address) if @user.address %>
+      <% if @user.coords %>
+        <% content_for :js_ready do %>
+          $('#address').append('<div id="map"></div>');
+          show_map($('#address'));
+        <% end %>
+      <% end %>
+    </div>
   <% end %>
 </div>
 

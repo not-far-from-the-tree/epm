@@ -8,6 +8,9 @@ module ApplicationHelper
   def paragraphs(text)
     simple_format auto_link text
   end
+  def with_br(str)
+    str.gsub(/\n/, '<br>').html_safe
+  end
 
   def clear
     content_tag 'div', nil, class: 'clearfix'
@@ -54,7 +57,7 @@ class StandardFormBuilder < ActionView::Helpers::FormBuilder
   create_tagged_field('text_field')
   create_tagged_field('email_field')
   create_tagged_field('password_field')
-  create_tagged_field('telephone_field')
+  create_tagged_field('phone_field')
   create_tagged_field('url_field', 52)
 
 end

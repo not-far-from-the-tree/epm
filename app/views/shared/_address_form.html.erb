@@ -1,0 +1,45 @@
+<div class="field" id="address">
+
+  <%= f.label :address %>
+  <% if local_assigns.has_key? :hint %>
+    <span class="hint"><%= hint %></span>
+  <% end %>
+  <br>
+  <%= f.text_area :address %>
+  <% content_for :js_ready do %>
+    $('#address textarea').after('<div id="map_wrapper"><div id="instruction">drag marker to adjust</div><div id="map"></div></div>');
+    show_map();
+    if (!markers.length) { $('#map_wrapper').hide(); }
+  <% end %>
+
+  <fieldset id="coords">
+    <%= f.label :lat, 'Latitude' %> <%= f.number_field :lat, size: 10, :step => 'any' %><br>
+    <%= f.label :lng, 'Longitude' %> <%= f.number_field :lng, size: 10, :step => 'any' %>
+  </fieldset>
+
+  <% content_for :js_ready do %>
+    $('#address textarea').blur(function(){
+      var addr = $(this).val();
+      if (addr) {
+        $(this).addClass('loading');
+        $.getJSON('<%= geocode_path %>', {address: addr}, function(data){
+          $('#address textarea').removeClass('loading');
+          if (data[0]) {
+            $('#coords input:first').val(data[0]);
+            $('#coords input:last').val(data[1]);
+            var ll = L.latLng(data[0], data[1]);
+            if (markers.length) {
+              markers[0].setLatLng(ll);
+            }
+            else {
+              $('#map_wrapper').show();
+              markers.push( L.marker(ll, {draggable: true}).addTo(map).on('dragend', marker_dragged) );
+            }
+            map.panTo(ll);
+          }
+        });
+      }
+    });
+  <% end %>
+
+</div>

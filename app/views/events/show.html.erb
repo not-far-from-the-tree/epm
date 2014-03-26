@@ -36,7 +36,7 @@
 <%= next_col if @event.description.present? || (@event.notes.present? && can?(:read_notes, @event)) %>
 
 <div>
-  <% if @event.start.present? %>
+  <% if @event.start %>
     <div id="date"><p><%= date @event.start %></p></div>
     <% content_for :js_ready do %>
       $('#date').html('').datepicker({
@@ -52,6 +52,19 @@
     <p>No date set.</p>
   <% end %>
 </div>
+
+<% if @event.address || @event.coords %>
+  <section id="where"<%= " data-lat=\"#{@event.lat}\" data-lng=\"#{@event.lng}\"".html_safe if @event.coords %>>
+    <h2>Where</h2>
+    <%= with_br(@event.address) if @event.address %>
+    <% if @event.coords %>
+      <% content_for :js_ready do %>
+        $('#where').append('<div id="map"></div>');
+        show_map($('#where'));
+      <% end %>
+    <% end %>
+  </section>
+<% end %>
 
 <%= end_cols %>
 

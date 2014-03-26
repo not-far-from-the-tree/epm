@@ -17,3 +17,5 @@
 
 # private information
 .secret
+
+.DS_Store

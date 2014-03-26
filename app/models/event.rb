@@ -3,7 +3,7 @@ class Event < ActiveRecord::Base
   strip_attributes
   def self.significant_attributes
     # i.e. if any of these attributes change, attendees should be notified and may need to cancel
-    [:start, :finish, :name, :description]
+    [:start, :finish, :name, :description, :address, :lat, :lng]
   end
   def changed_significantly?
     self.class.significant_attributes.each do |attr|
@@ -15,24 +15,29 @@ class Event < ActiveRecord::Base
 
   enum status: [:proposed, :approved, :cancelled]
 
-  validate :must_start_before_finish
   validate :must_not_be_empty
+  def must_not_be_empty
+    if start.blank? && name.blank? && description.blank? && address.blank? && !coords
+      errors.add(:base, 'An event must have a name, description, date, or address')
+    end
+  end
+
+  validate :must_start_before_finish
   validates :finish, presence: true, if: "start.present?"
   def must_start_before_finish
     if start.present? && finish.present? && start > finish
       errors.add(:finish, 'must be after the start')
     end
   end
-  def must_not_be_empty
-    if start.blank? && name.blank? && description.blank?
-      errors.add(:base, 'An event must have a name, description, or date')
-    end
-  end
+
   before_validation do |event|
     event.finish = nil if event.start.blank?
+    # don't allow saving with only one of lat, lng; must be neither or both
+    event.lat = nil if event.lng.blank?
+    event.lng = nil if event.lat.blank?
   end
 
-  attr_accessor :notify_of_changes # setting to false allows supressing email notifications
+  attr_accessor :notify_of_changes # setting to false allows supressing email notifications; todo: move to controller
 
   has_many :event_users, dependent: :destroy
   has_many :participants, through: :event_users, source: :user
@@ -42,6 +47,13 @@ class Event < ActiveRecord::Base
     people << coordinator if coordinator
     people
   end
+
+  # this section identical to that in model user.rb
+  acts_as_mappable
+  attr_accessor :no_geocode # force geocoding to not happen. used for testing
+  after_validation :geocode, if: "!no_geocode && address_changed? && address.present? && (lat.blank? || lng.blank?)"
+  validates :lat, numericality: {greater_than_or_equal_to: -90, less_than_or_equal_to: 90}, allow_nil: true
+  validates :lng, numericality: {greater_than_or_equal_to: -180, less_than_or_equal_to: 180}, allow_nil: true
 
   default_scope { order :start }
   scope :with_date, -> { where 'start IS NOT NULL AND finish IS NOT NULL' }
@@ -117,6 +129,7 @@ class Event < ActiveRecord::Base
   def display_name
     return name if name.present?
     return truncate(description, length: 50, separator: ' ') if description.present?
+    return truncate(address, length: 50, separator: ' ') if address.present?
     return start.strftime('%B %e %Y, %l:%M %p').gsub('  ', ' ') if start.present?
     '(untitled event)'
   end
@@ -160,5 +173,22 @@ class Event < ActiveRecord::Base
     # vevent.location = address if address
     vevent
   end
+
+  # this method identical to that in model user.rb
+  def coords
+    (lat.present? && lng.present?) ? [lat, lng] : nil
+  end
+
+  private
+
+    # this method identical to that in model user.rb
+    def geocode
+      geo = Geokit::Geocoders::MultiGeocoder.geocode address.gsub(/\n/, ', ')
+      if geo.success
+        self.lat, self.lng = geo.lat, geo.lng
+      else
+        errors.add(:address, 'Problem locating address')
+      end
+    end
 
 end

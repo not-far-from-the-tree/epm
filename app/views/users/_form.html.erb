@@ -23,6 +23,8 @@
     <%= f.text_area :description %>
   </div>
 
+  <%= render 'shared/address_form', f: f, hint: 'not shown to anyone' %>
+
   <%= f.submit 'Save Profile' %>
 
 <% end %>

@@ -20,4 +20,6 @@ Epm::Application.routes.draw do
   put 'settings', to: 'settings#update', as: 'settings'
   get 'settings', to: 'settings#show'
 
+  get 'geocode', to: 'geocode#index'
+
 end
