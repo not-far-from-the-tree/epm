@@ -40,13 +40,12 @@
   </div>
 <% end %>
 
-<% unless events_shown %>
-  <% if Event.past.any? %>
-    <div>
-      <h2>Past Events</h2>
-      <%= render 'events', events: Event.past.limit(10) %>
-    </div>
-  <% else %>
-    <p>There are no events yet.</p>
-  <% end %>
+<% if (!events_shown || current_user.has_role?(:admin)) && Event.past.any? %>
+  <% events_shown = true %>
+  <div id="past">
+    <h2>Most Recent Events</h2>
+    <%= render 'events', events: Event.past.limit(10) %>
+  </div>
 <% end %>
+
+<%= '<p>There are no events yet.</p>'.html_safe unless events_shown %>

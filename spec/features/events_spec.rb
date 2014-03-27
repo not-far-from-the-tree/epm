@@ -422,21 +422,15 @@ describe "Events" do
 
     end
 
-    it "shows past events on the home page if there are no others" do
+    it "shows past events on the home page to admins" do
       e = create :past_event
       login_as @admin
       visit root_path
-      expect(page).to have_link e.display_name
+      within '#past' do
+        expect(page).to have_link e.display_name
+      end
     end
 
-    it "does not show past events on the home page if there are others" do
-      past = create :past_event
-      upcoming = create :event
-      login_as @admin
-      visit root_path
-      expect(page).to have_link upcoming.display_name
-      expect(page).not_to have_link past.display_name
-    end
 
     it "shows a no-events message when there are no events" do
       login_as @admin
