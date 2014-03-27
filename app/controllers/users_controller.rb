@@ -34,4 +34,13 @@ class UsersController < ApplicationController
     end
   end
 
+  def deactivate
+    if @user.roles.destroy_all
+      flash[:notice] = 'Your account has been deactivated.'
+    else
+      flash[:notice] = 'Your account was unable to be deactivated.'
+    end
+    redirect_to @user
+  end
+
 end

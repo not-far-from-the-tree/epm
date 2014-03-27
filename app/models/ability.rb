@@ -9,9 +9,13 @@ class Ability
 
       can :read, Event, can_have_participants?: true
       can :calendar, Event
+      can :index, :geocode
+
       can [:show, :update], User, id: user.id
       can :destroy, Role, user_id: user.id
-      can :index, :geocode
+      can :deactivate, User do |user|
+        user.roles.reject{|r| user.ability.can?(:destroy, r)}.empty?
+      end
 
       if user.has_role? :admin
         can :manage, [Event, Role, :setting]

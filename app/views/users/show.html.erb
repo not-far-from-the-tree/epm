@@ -1,10 +1,17 @@
-<% title @user.display_name %>
+<%
+  tit = @user.display_name
+  tit = "Inactive: #{tit}" if @user.roles.empty?
+  title tit
+%>
 
 <% if can? :update, @user %>
   <%= link_to 'Edit', edit_user_path(@user) %>
 <% end %>
 <% if @user.id == current_user.id %>
   <%= link_to 'Change my password', edit_user_registration_path %>
+  <% if @user.roles.any? && can?(:deactivate, @user) %>
+    <%= link_to 'Deactivate my account', deactivate_user_path(current_user), method: :patch, data: {confirm: 'Are you sure you want to deactivate your account?'} %>
+  <% end %>
 <% end %>
 
 <%= clear %>
@@ -18,7 +25,7 @@
     <%=
       @user.roles.map do |role|
         outp = role.name.capitalize
-        if can? :destroy, role
+        if can?(:destroy, role) && current_user.has_role?(:admin)
           outp += ' ' + link_to('x', role, method: :delete, title: 'remove this role', data: {confirm: 'Are you sure you want to remove this role?'})
         end
         outp

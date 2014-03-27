@@ -5,6 +5,7 @@ Epm::Application.routes.draw do
   devise_for :users, controllers: { registrations: 'registrations' }
   resources :users, only: [:index, :show, :edit, :update] do
     resources :roles, only: [:create, :destroy], shallow: true
+    patch 'deactivate', on: :member
   end
 
   resources :events do

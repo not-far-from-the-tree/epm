@@ -173,14 +173,20 @@ describe "Users" do
       end
     end
 
-    it "allows removing own's own roles" do
+    it "allows deactivating oneself" do
       participant = create :participant
       login_as participant
       visit user_path participant
-      click_link 'x' # user has only one role, so this is the right delete link
+      click_link 'Deactivate'
       expect(current_path).to eq user_path participant
-      expect(page).to have_content 'Role removed'
+      expect(page).to have_content 'deactivated'
       expect(participant.reload.has_role? :participant).to be_false
+    end
+
+    it "does not allow deactivating another" do
+      login_as @admin
+      visit user_path @participant
+      expect(page).not_to have_link 'Deactivate'
     end
 
   end
