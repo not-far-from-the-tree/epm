@@ -8,9 +8,11 @@ Epm::Application.routes.draw do
     patch 'deactivate', on: :member
   end
 
-  resources :events do
+  resources :events, except: :destroy do
     get 'calendar', on: :collection
     member do
+      get 'cancel', to: 'events#ask_to_cancel'
+      patch 'cancel'
       patch 'approve'
       patch 'attend'
       patch 'unattend'

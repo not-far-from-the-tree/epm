@@ -10,8 +10,8 @@
 <% if can?(:approve, @event) && @event.proposed? %>
   <%= link_to 'Approve', approve_event_path(@event), method: :patch %>
 <% end %>
-<% if can?(:destroy, @event) && !@event.cancelled? %>
-  <%= link_to 'Cancel', @event, method: :delete, data: { confirm: 'Are you sure?' } %>
+<% if can?(:cancel, @event) && !@event.cancelled? %>
+  <%= link_to 'Cancel', cancel_event_path(@event) %>
 <% end %>
 
 <% if @event.participatable_by? current_user %>

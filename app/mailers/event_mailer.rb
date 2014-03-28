@@ -15,6 +15,9 @@ class EventMailer < ActionMailer::Base
 
   def cancel(event, users)
     @event = event
+    # @user is for checking permissions -
+    #   can pass in the first user 'cause we're passing in users who all have the same permissions
+    @user = users.first
     mail bcc: users.map{|u| to(u)}, subject: "#{@event.display_name} has been cancelled"
   end
 

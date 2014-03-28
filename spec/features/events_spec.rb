@@ -246,12 +246,14 @@ describe "Events" do
       end
 
       it "allows a coordinator to cancel their own event" do
-        login_as @coordinator
         e = create :event, coordinator: @coordinator
-        visit event_path(e)
+        login_as @coordinator
+        visit event_path e
         click_link 'Cancel'
+        fill_in 'Reason', with: 'Bad weather'
+        click_button 'Cancel Event'
         expect(current_path).to eq event_path e
-        expect(page).to have_content 'cancelled'
+        expect(page).to have_content 'Event cancelled'
         expect(e.reload.cancelled?).to be_true
       end
 
@@ -555,8 +557,9 @@ describe "Events" do
         e = create :event
         visit event_path e
         click_link 'Cancel'
+        click_button 'Cancel Event'
         expect(current_path).to eq event_path e
-        expect(page).to have_content 'cancelled'
+        expect(page).to have_content 'Event cancelled'
         expect(page).not_to have_link 'Cancel'
         expect(e.reload.cancelled?).to be_true
       end
@@ -568,7 +571,7 @@ describe "Events" do
         expect(page).not_to have_content 'Cancel'
       end
 
-      it "sends an email to admins coordinator and participants when an event is cancelled" do
+      it "send emails to admins+coordinator and participants when an event is cancelled" do
         other_admin = create :admin
         admins = User.admins
         e = create :participatable_event
@@ -576,23 +579,21 @@ describe "Events" do
         e.event_users.create user: participant
         login_as @admin
         visit event_path e
-        expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 1
-        expect(last_email.bcc.length).to eq (2 + (admins.length - 1))
-        expect(last_email.bcc).to include e.coordinator.email
-        expect(last_email.bcc).to include participant.email
-        expect(last_email.bcc).to include other_admin.email
+        click_link 'Cancel'
+        expect{ click_button 'Cancel Event' }.to change{ActionMailer::Base.deliveries.size}.by 2 # email to admins/coordinators and to participants
       end
 
-      it "sends an email to admins and participants but not the coordinator when an event is cancelled by the coordinator" do
+      it "send emails to admins and participants but not the coordinator when an event is cancelled by the coordinator" do
         coordinator = create :coordinator
         e = create :participatable_event, coordinator: coordinator
         participant = create :participant
         e.event_users.create user: participant
         login_as coordinator
         visit event_path e
-        expect{ click_link 'Cancel' }.to change{ActionMailer::Base.deliveries.size}.by 1
-        expect(last_email.bcc.length).to eq (1 + User.admins.length)
-        expect(last_email.bcc).to include participant.email
+        click_link 'Cancel'
+        expect{ click_button 'Cancel Event' }.to change{ActionMailer::Base.deliveries.size}.by 2 # email to admins/coordinators and to participants
+        # todo: fix fragility; this relies on order of emails sent
+        expect(ActionMailer::Base.deliveries[-2].bcc.length).to eq User.admins.length
       end
 
       it "does not send email when an event is cancelled by the only admin, that does not have a coordinator or participants" do

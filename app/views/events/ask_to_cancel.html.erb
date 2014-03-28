@@ -1,0 +1,20 @@
+<% title "Cancel #{@event.display_name}" %>
+
+<%= form_for @event, url: cancel_event_path(@event), method: :patch do |f| %>
+
+  <p>You may optionally enter in a reason for cancellation.</p>
+
+  <div class="field">
+    <%= f.label :cancel_description, 'Reason' %><br>
+    <%= f.text_area :cancel_description %>
+  </div>
+
+  <div class="field">
+    <%= f.label :cancel_notes, 'Reason &ndash; shown only to Admins and Coordinator'.html_safe %><br>
+    <%= f.text_area :cancel_notes %>
+  </div>
+
+  <%= f.submit 'Do Not Cancel' %>
+  <%= f.submit 'Cancel Event' %>
+
+<% end %>

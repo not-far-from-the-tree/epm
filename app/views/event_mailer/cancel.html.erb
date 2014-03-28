@@ -1,3 +1,13 @@
 <p>An event you were attending, <%= @event.display_name %>, has been cancelled.<p>
 
+<% if @event.cancel_description %>
+  <strong>Cancellation reason:</strong>
+  <%= paragraphs @event.cancel_description %>
+<% end %>
+
+<% if @event.cancel_notes && @user.ability.can?(:read_notes, @event) %>
+  <strong>Notes for admins and coordinator:</strong>
+  <%= paragraphs @event.cancel_notes %>
+<% end %>
+
 <p>You can see all upcoming events on the <%= link_to "#{Configurable.title} home page", root_url %>.</p>

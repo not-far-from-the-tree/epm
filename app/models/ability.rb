@@ -24,7 +24,7 @@ class Ability
 
       if user.has_role? :coordinator
         can :read, Event
-        can [:update, :destroy, :read_notes], Event, coordinator_id: user.id
+        can [:update, :ask_to_cancel, :cancel, :read_notes], Event, coordinator_id: user.id
         can :update, Event, coordinator_id: nil
       end
 

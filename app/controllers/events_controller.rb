@@ -111,11 +111,21 @@ class EventsController < ApplicationController
     redirect_to @event
   end
 
-  def destroy
-    @event.update(status: :cancelled)
-    users = (@event.users + User.admins).reject{|u| u == current_user}
-    EventMailer.cancel(@event, users).deliver if users.any?
-    redirect_to @event, notice: 'Event cancelled.'
+  def ask_to_cancel
+  end
+
+  def cancel
+    if params['commit'] == 'Cancel Event'
+      @event.update params.require(:event).permit(:cancel_notes, :cancel_description).merge(status: :cancelled)
+      users = (@event.users + User.admins).reject{|u| u == current_user}
+      users = users.partition{|u| u.ability.can?(:read_notes, @event)} # .first can read the note, .last can't
+      EventMailer.cancel(@event, users.first).deliver if users.first.any?
+      EventMailer.cancel(@event, users.last).deliver if users.last.any?
+      flash[:notice] = 'Event cancelled.'
+    else
+      flash[:notice] = 'Event not cancelled.'
+    end
+    redirect_to @event
   end
 
   def attend

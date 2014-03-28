@@ -76,17 +76,43 @@ describe EventMailer do
     end
   end
 
-  it "sends correct emails when an event is cancelled" do
-    mail = EventMailer.cancel(@event, @event.users)
-    expect(mail.to).to be_nil
-    expect(mail.bcc.length).to eq @event.users.length
-    expect(mail.bcc.first).to match @event.users.first.email
-    expect(mail.subject).to match 'cancelled'
-    # checks that there is both email and plain text, and they both have the right content
-    expect(mail.body.parts.length).to eq 2
-    mail.body.parts.each do |part|
-      expect(part.to_s).to match 'cancelled'
+  context "event cancelled" do
+
+    it "sends correct emails to admins/coordinator when an event is cancelled" do
+      @event.cancel_description = 'bad weather'
+      @event.cancel_notes = 'blabla'
+      mail = EventMailer.cancel(@event, [@event.coordinator])
+      expect(mail.to).to be_nil
+      expect(mail.bcc.length).to eq 1
+      expect(mail.bcc.first).to match @event.coordinator.email
+      expect(mail.subject).to match 'cancelled'
+      # checks that there is both email and plain text, and they both have the right content
+      expect(mail.body.parts.length).to eq 2
+      mail.body.parts.each do |part|
+        expect(part.to_s).to match 'cancelled'
+        expect(part.to_s).to match 'bad weather'
+        expect(part.to_s).to match 'blabla'
+      end
     end
+
+    it "sends correct emails to admins/coordinator when an event is cancelled" do
+      @event.cancel_description = 'bad weather'
+      @event.cancel_notes = 'blabla'
+      participant = create :participant
+      mail = EventMailer.cancel(@event, [participant])
+      expect(mail.to).to be_nil
+      expect(mail.bcc.length).to eq 1
+      expect(mail.bcc.first).to match participant.email
+      expect(mail.subject).to match 'cancelled'
+      # checks that there is both email and plain text, and they both have the right content
+      expect(mail.body.parts.length).to eq 2
+      mail.body.parts.each do |part|
+        expect(part.to_s).to match 'cancelled'
+        expect(part.to_s).to match 'bad weather'
+        expect(part.to_s).not_to match 'blabla'
+      end
+    end
+
   end
 
   it "sends correct emails when an event is changed" do

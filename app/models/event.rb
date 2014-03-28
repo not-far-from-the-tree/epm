@@ -37,6 +37,23 @@ class Event < ActiveRecord::Base
     event.lng = nil if event.lat.blank?
   end
 
+  # allow for adding a reason for cancelling an event, with separate fields for admin/coordinator and participants
+  attr_accessor :cancel_notes, :cancel_description
+  def cancel_notes=(str)
+    str = str.strip unless str.nil?
+    if str.present?
+      self.notes = "Cancelled because: #{str}\n\n#{notes}".strip
+      @cancel_notes = str
+    end
+  end
+  def cancel_description=(str)
+    str = str.strip unless str.nil?
+    if str.present?
+      self.description = "Cancelled because: #{str}\n\n#{description}".strip
+      @cancel_description = str
+    end
+  end
+
   attr_accessor :notify_of_changes # setting to false allows supressing email notifications; todo: move to controller
 
   has_many :event_users, dependent: :destroy
