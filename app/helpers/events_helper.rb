@@ -29,3 +29,22 @@ module EventsHelper
   end
 
 end
+
+# overriding header method for calendar so that we can insert the number of events during that month
+# for now relies on using instance variable @events
+# original: https://github.com/excid3/simple_calendar/blob/master/lib/simple_calendar/view_helpers.rb
+module SimpleCalendar
+  module ViewHelpers
+    def month_header(selected_month, options)
+      content_tag :h2 do
+        previous_month = selected_month.advance :months => -1
+        next_month = selected_month.advance :months => 1
+        tags = []
+        tags << month_link(options[:prev_text], previous_month, options[:params], {:class => "previous-month"})
+        tags << "#{I18n.t("date.month_names")[selected_month.month]} #{selected_month.year} &ndash; #{pluralize @events.length, 'Event'}"
+        tags << month_link(options[:next_text], next_month, options[:params], {:class => "next-month"})
+        tags.join.html_safe
+      end
+    end
+  end
+end

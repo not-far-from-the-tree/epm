@@ -1,5 +1,10 @@
 <% title 'Events by Month' %>
 
+<% now = Time.zone.now %>
+<% if params['month'].present? && !(params['month'].to_i == now.month && params['year'].to_i == now.year) %>
+  <p><%= link_to "Back to #{now.strftime('%B, %Y')}", calendar_events_path %></p>
+<% end %>
+
 <%= month_calendar @events do |event| %>
   <%= link_to(event.display_name, event, class: 'event') if can?(:show, event) %>
 <% end %>

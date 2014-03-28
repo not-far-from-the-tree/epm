@@ -31,7 +31,7 @@ ol.events small {
       font-weight: bold;
       display: none; /* not ideal to display onhover given touch devices but it's okay */
     }
-    td:hover a.add {
+    td.today:hover a.add, td.future:hover a.add {
       display: inline;
     }
   }
