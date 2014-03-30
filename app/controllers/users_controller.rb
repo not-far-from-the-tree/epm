@@ -19,8 +19,8 @@ class UsersController < ApplicationController
   end
 
   def show
-    @upcoming = @user.events.not_past
-    @past = @user.events.past
+    @upcoming = @user.events.not_past.not_cancelled
+    @past = @user.events.past.not_cancelled
   end
 
   def edit
