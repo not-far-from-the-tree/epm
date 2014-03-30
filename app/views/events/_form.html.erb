@@ -11,8 +11,7 @@
     </div>
   <% end %>
 
-  <% if @event.new_record? %>
-  <%# can only be approved by admin, but only admins can create events so it's okay to do this like so %>
+  <% if @event.new_record? && can?(:approve, @event) %>
     <fieldset>
       <legend>Status</legend>
       <label><%= f.radio_button :status, :proposed %> Proposed</label><br>
