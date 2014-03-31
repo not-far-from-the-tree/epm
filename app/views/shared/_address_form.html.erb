@@ -20,10 +20,12 @@
   <% content_for :js_ready do %>
     $('#address textarea').blur(function(){
       var addr = $(this).val();
-      if (addr) {
+      if (addr && addr != $(this).data('was')) {
         $(this).addClass('loading');
         $.getJSON('<%= geocode_path %>', {address: addr}, function(data){
-          $('#address textarea').removeClass('loading');
+          $('#address textarea')
+            .removeClass('loading')
+            .data('was', addr);
           if (data[0]) {
             $('#coords input:first').val(data[0]);
             $('#coords input:last').val(data[1]);
@@ -33,6 +35,7 @@
             }
             else {
               $('#map_wrapper').show();
+              map.invalidateSize();
               markers.push( L.marker(ll, {draggable: true}).addTo(map).on('dragend', marker_dragged) );
             }
             map.panTo(ll);
