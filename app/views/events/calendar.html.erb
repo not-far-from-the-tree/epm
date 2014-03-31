@@ -6,5 +6,18 @@
 <% end %>
 
 <%= month_calendar @events do |event| %>
-  <%= link_to(event.display_name, event, class: 'event') if can?(:show, event) %>
+  <% if can? :show, event %>
+    <%
+      ops = { class: 'event' }
+      ops[:data] = {lat: event.lat, lng: event.lng, popup: true} if event.coords
+    %>
+    <%= link_to event.display_name, event, ops %>
+  <% end %>
+<% end %>
+
+<% if @events.find{|e| e.coords } %>
+  <% content_for :js_ready do %>
+    $('.month_calendar').append('<div id="map"></div>');
+    show_map($('.month_calendar .event[data-lat]'));
+  <% end %>
 <% end %>

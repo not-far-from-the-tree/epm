@@ -478,6 +478,13 @@ describe "Events" do
       expect(page).to have_link e_next.display_name
     end
 
+    it "displays a map on the calendar page", js: true do
+      create :full_event, start: Time.zone.now
+      login_as @admin
+      visit calendar_events_path
+      expect(all('#map .leaflet-marker-icon').length).to eq 2 # self and event
+    end
+
   end
 
   context "status" do

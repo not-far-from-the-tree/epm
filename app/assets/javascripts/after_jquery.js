@@ -13,9 +13,16 @@ function show_map(html_points) {
   me = L.latLng($('body').data('lat'), $('body').data('lng'));
   var editing = $('#map').parents('form').length > 0
   var points = [];
+  var popups = [];
   if (!html_points) { html_points = [] }
   $(html_points).each(function(){
     points.push(L.latLng($(this).data('lat'), $(this).data('lng')));
+    if ($(this).data('popup')) {
+      popups.push($('<div>').append($(this).clone()).html());
+    }
+    else {
+      popups.push(false);
+    }
   });
   if (editing && $('#coords input:first').val() && $('#coords input:last').val()) {
     points.push(L.latLng($('#coords input:first').val(), $('#coords input:last').val()));
@@ -30,8 +37,11 @@ function show_map(html_points) {
       subdomains: ['otile1','otile2','otile3','otile4']
     })]
   });
-  $(points).each(function(){
+  $(points).each(function(i){
     markers.push( L.marker(this, {draggable: editing}).addTo(map) );
+    if (popups[i]) {
+      markers[i].bindPopup(popups[i]);
+    }
   });
   if (editing) {
     $(markers).each(function(){ this.on('dragend', marker_dragged); });

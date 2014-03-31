@@ -65,6 +65,17 @@ a.previous-month {
 a.next-month {
   right: 0;
 }
+/* next bits are to abbreviate previous -> prev -> symbol (same for next) */
+@media (max-width: 550px) {
+  a.previous-month span span {
+    display: none;
+  }
+}
+@media (max-width: 450px) {
+  a.previous-month span, a.next-month span {
+    display: none;
+  }
+}
 .day_number {
   font-size: 0.9em;
   color: #aaa;

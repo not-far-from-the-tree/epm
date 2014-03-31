@@ -14,8 +14,8 @@ module EventsHelper
       options = {
         time_selector: 'start',
         class: nil,
-        prev_text: '« previous',
-        next_text: 'next »'
+        prev_text: '«<span> prev<span>ious</span></span>'.html_safe,
+        next_text: '<span>next </span>»'.html_safe
       }
       if can? :create, Event
         add_link = lambda{ |date| link_to '+', new_event_path(start_day: date), class: 'add', title: 'add event on this day' }
