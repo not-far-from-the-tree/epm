@@ -82,7 +82,7 @@ class Event < ActiveRecord::Base
   scope :participatable, -> { where 'start IS NOT NULL AND coordinator_id IS NOT NULL AND events.status = ?', statuses[:approved] }
   scope :not_cancelled, -> { where 'events.status != ?', statuses[:cancelled] }
   scope :awaiting_approval, -> { not_past.where 'events.status = ? AND coordinator_id IS NOT NULL AND start IS NOT NULL', statuses[:proposed] }
-  scope :in_month, ->(year, month) {
+  scope :in_month, ->(year, month) { # can pass in integers or strings which are integers
     month ||= ''
     year ||= ''
     unless (1..12).include?(month.to_i) && year.to_s.length == 4
@@ -91,7 +91,7 @@ class Event < ActiveRecord::Base
     end
     start = Time.zone.parse "#{year}-#{month}-01"
     finish = month.to_i < 12 ? start.change(month: (start.month + 1)) : start.change(month: 1, year: (start.year + 1))
-    where("start >= ? AND finish < ?", start, finish)
+    where("start >= ? AND start < ?", start, finish)
   }
 
   attr_reader :start_day, :start_time_12, :start_time_p
