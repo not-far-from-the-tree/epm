@@ -129,16 +129,22 @@ class EventsController < ApplicationController
   end
 
   def attend
-    if @event.event_users.create user: current_user # this will fail if already attending but that's fine
+    eu = @event.event_users.find_or_create_by user_id: current_user.id
+    if eu.update status: :attending
       EventMailer.attend(@event, current_user).deliver
+      flash[:notice] = 'You are now attending this event.'
     end
-    redirect_to @event, notice: 'You are now attending this event.'
+    redirect_to @event
   end
 
   def unattend
-    # if user is already not attending this event, it does nothing and shows the same message which is fine
-    @event.event_users.where(user: current_user).destroy_all
-    redirect_to @event, notice: 'You are no longer attending this event.'
+    eu = @event.event_users.find_by user_id: current_user.id
+    if eu
+      if eu.update status: :cancelled
+        flash[:notice] = 'You are no longer attending this event.'
+      end
+    end
+    redirect_to @event
   end
 
   private

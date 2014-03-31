@@ -57,7 +57,7 @@ class Event < ActiveRecord::Base
   attr_accessor :notify_of_changes # setting to false allows supressing email notifications; todo: move to controller
 
   has_many :event_users, dependent: :destroy
-  has_many :participants, through: :event_users, source: :user
+  has_many :participants, -> { where "event_users.status = ?", EventUser.statuses[:attending] }, through: :event_users, source: :user
   belongs_to :coordinator, class_name: 'User'
   def users
     people = participants.to_a
@@ -79,9 +79,9 @@ class Event < ActiveRecord::Base
   scope :not_attended_by, ->(user) { joins('LEFT JOIN event_users ON events.id = event_users.event_id').where("events.id NOT IN (SELECT event_id FROM event_users WHERE user_id = ?) AND coordinator_id != ?", user.id, user.id).distinct }
   scope :coordinatorless, -> { where coordinator: nil }
   scope :dateless, -> { where start: nil }
-  scope :participatable, -> { where 'start IS NOT NULL AND coordinator_id IS NOT NULL AND status = ?', statuses[:approved] }
-  scope :not_cancelled, -> { where 'status != ?', statuses[:cancelled] }
-  scope :awaiting_approval, -> { not_past.where 'status = ? AND coordinator_id IS NOT NULL AND start IS NOT NULL', statuses[:proposed] }
+  scope :participatable, -> { where 'start IS NOT NULL AND coordinator_id IS NOT NULL AND events.status = ?', statuses[:approved] }
+  scope :not_cancelled, -> { where 'events.status != ?', statuses[:cancelled] }
+  scope :awaiting_approval, -> { not_past.where 'events.status = ? AND coordinator_id IS NOT NULL AND start IS NOT NULL', statuses[:proposed] }
   scope :in_month, ->(year, month) {
     month ||= ''
     year ||= ''
