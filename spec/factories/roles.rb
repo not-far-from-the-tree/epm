@@ -1,18 +1,20 @@
 FactoryGirl.define do
 
-  factory :admin_role, class: Role do
-    user
-    name Role.names[:admin]
-  end
+  factory :role do
+    association :user, factory: :roleless_user
 
-  factory :coordinator_role, class: Role do
-    user
-    name Role.names[:coordinator]
-  end
+    factory :admin_role do
+      name Role.names[:admin]
+    end
 
-  factory :participant_role, class: Role do
-    user
-    name Role.names[:participant]
+    factory :coordinator_role do
+      name Role.names[:coordinator]
+    end
+
+    factory :participant_role do
+      name Role.names[:participant]
+    end
+
   end
 
 end

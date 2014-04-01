@@ -10,6 +10,10 @@ FactoryGirl.define do
     end
     # password confirmation is only checked if a confirmation is attempted. decided this is okay
 
+    factory :roleless_user do
+      no_roles true
+    end
+
     factory :admin do
       roles_attributes [name: :admin]
     end

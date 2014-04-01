@@ -5,7 +5,7 @@ class Role < ActiveRecord::Base
   belongs_to :user
 
   enum name: [:admin, :coordinator, :participant]
-  # validates :name, uniqueness: { scope: :user_id } # broken in current version of rails https://github.com/rails/rails/issues/14172
+  validates :name, uniqueness: { scope: :user_id }
 
   default_scope { order :name }
 
