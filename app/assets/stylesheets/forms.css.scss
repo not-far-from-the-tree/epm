@@ -12,6 +12,9 @@ input, textarea, fieldset {
   width: 20em;
   height: 4em;
 }
+input[type="number"] {
+  width: 2em;
+}
 
 label, legend {
   font-weight: bold;
@@ -28,6 +31,17 @@ fieldset label {
 input[type="submit"] {
   font-weight: bold;
   cursor: pointer;
+}
+
+div.field_with_errors, #errors h2 {
+  display: inline;
+  border-bottom: 2px solid red;
+}
+div.field_with_errors {
+  padding-bottom: 4px;
+}
+#errors ul {
+  margin-top: 0.3em;
 }
 
 span.hint {

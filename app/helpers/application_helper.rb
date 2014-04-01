@@ -49,7 +49,7 @@ class StandardFormBuilder < ActionView::Helpers::FormBuilder
       args[0] = {} unless args.any?
       # smart length expands from default (up to a max) based on the content
       args[0][:size] = default_size unless args[0].has_key? :size
-      args[0][:size] = [[args[0][:size], @object[label].length].max, 100].min unless @object.new_record? || @object[label].nil?
+      args[0][:size] = [[args[0][:size], @object[label].to_s.length].max, 100].min unless @object.new_record? || @object[label].nil?
       args[0]['data-default_size'] = default_size unless args[0].has_key? :maxlength
       super(label, *args)
     end

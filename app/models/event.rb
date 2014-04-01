@@ -37,6 +37,17 @@ class Event < ActiveRecord::Base
     event.lng = nil if event.lat.blank?
   end
 
+  def min=(val)
+    val = 0 if val.blank?
+    super(val)
+  end
+  validate :max_must_be_at_least_min
+  def max_must_be_at_least_min
+    if max.present? && max < min
+      errors.add(:max, 'must be greater than the minimum, or blank')
+    end
+  end
+
   # allow for adding a reason for cancelling an event, with separate fields for admin/coordinator and participants
   attr_accessor :cancel_notes, :cancel_description
   def cancel_notes=(str)
@@ -98,6 +109,7 @@ class Event < ActiveRecord::Base
   attr_accessor :time_error
   before_validation do |event|
     errors.add(:base, 'Start time must be in the format ##:##') if event.time_error
+    # todo. this should be added to start_time_12 rather than :base, but that's no good as "start time 12" is a poor name for users. fix
   end
   def assign_attributes(attrs)
     # if inputing start in parts (day and time), then combine them
@@ -115,7 +127,7 @@ class Event < ActiveRecord::Base
     self.duration = dur
   end
   def start_time_12 # start time using 12-hour clock
-    start.present? ? start.strftime('%l:%M') : nil
+    start.present? ? start.strftime('%l:%M').strip : nil
   end
   def start_time_p
     start.present? ? start.strftime('%p') : nil

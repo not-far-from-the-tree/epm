@@ -58,6 +58,10 @@ describe Event do
       expect(build :event, start: Time.zone.now, finish: nil).not_to be_valid
     end
 
+    it "is invalid with a maximum below the minimum" do
+      expect(build :event, min: 10, max: 5).not_to be_valid
+    end
+
     it "is valid with a latitude in range" do
       expect(build :event, lat: 40, lng: -80).to be_valid
     end

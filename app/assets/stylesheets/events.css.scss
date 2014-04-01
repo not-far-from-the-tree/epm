@@ -188,6 +188,10 @@ html.js #event_start_day {
 fieldset#coordinators label {
   display: block;
 }
+fieldset#coordinators label:hover {
+  background-color: #eee;
+  border-radius: 10px;
+}
 fieldset#coordinators .user {
   margin-left: 1.6em;
   margin-top: -1em;

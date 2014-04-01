@@ -34,6 +34,15 @@
     <%= f.text_area :notes %>
   </div>
 
+  <fieldset>
+    <legend>Number of Participants</legend>
+    <%= f.label :min %>
+    <%= f.number_field :min, min: 0 %><br>
+    <%= f.label :max %>
+    <%= f.number_field :max, min: 0 %>
+    <span class="hint">leave blank for unlimited participants</span>
+  <fieldset>
+
   <% coordinators = current_user.has_role?(:admin) ? User.coordinators : User.coordinators.where(id: current_user.id) %>
   <fieldset id="coordinators">
     <legend>Coordinator</legend>
@@ -76,7 +85,7 @@
 
     <div class="field">
       <%= f.label :start_time_12, 'Time' %>
-      <%= f.text_field :start_time_12, size: 5, class: 'time', value: (@event.start.present? ? @event.start_time_12 : '12:00') %>
+      <%= f.text_field :start_time_12, size: 5, maxlength: 5, class: 'time', value: (@event.start.present? ? @event.start_time_12 : '12:00') %>
       <%= f.select :start_time_p, options_for_select(['AM', 'PM'], @event.start_time_p) %>
     </div>
     <div class="field">

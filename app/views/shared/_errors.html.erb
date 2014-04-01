@@ -1,6 +1,6 @@
 <% if thing.errors.any? %>
   <div id="errors">
-    <%= pluralize(thing.errors.count, 'Problem') %>:
+    <h2><%= pluralize(thing.errors.count, 'Problem') %></h2>
     <ul>
       <% thing.errors.full_messages.each do |msg| %>
         <li><%= msg %></li>

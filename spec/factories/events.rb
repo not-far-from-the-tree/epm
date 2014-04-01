@@ -24,6 +24,8 @@ FactoryGirl.define do
       address { "#{Faker::Address.street_address}\n#{Faker::Address.city}, #{Faker::Address.country}" }
       lat { Faker::Address.latitude }
       lng { Faker::Address.longitude }
+      min { rand(0..10) }
+      max { rand(0..20)==20 ? nil : min + rand(0..20) }
     end
 
   end
