@@ -155,16 +155,6 @@ describe User do
 
   context "events" do
 
-    it "lists events a user is participating in" do
-      u = create :participant
-      e1 = create :participatable_event
-      e1.event_users.create user: u
-      e2 = create :participatable_event
-      e2.event_users.create user: u
-      create :participatable_event # event 3, not participating
-      expect(u.participating_events.length).to eq 2
-    end
-
     it "lists events a user is coordinating" do
       u = create :coordinator
       create :event, coordinator: u
@@ -174,15 +164,54 @@ describe User do
     end
 
     it "lists events a user is involved with" do
+      # user is a coordinator and participant
       u = create :coordinator
-      create :participatable_event, coordinator: u
       u.roles.create name: :participant
-      e1 = create :participatable_event
-      e1.event_users.create user: u
-      e2 = create :participatable_event
-      e2.event_users.create user: u
-      create :participatable_event # event 4, not coording or participating
+      c = create :coordinator
+      # 1 - is coordinator
+      e_coordinating = create :participatable_event, coordinator: u
+      # 2 - is a participant
+      e_participating = create :participatable_event, coordinator: c
+      e_participating.attend u
+      # 3 - is a participant
+      e_participating_past = create :participatable_event, coordinator: c
+      e_participating_past.attend u
+      e_participating_past.update(start: 1.month.ago, duration: 1.hour)
+      # not counted - attending a cancelled event
+      e_cancelled = create :participatable_event, coordinator: c
+      e_cancelled.attend u
+      e_cancelled.update(status: Event.statuses[:cancelled])
+      # not counted - on the waitlist for an event
+      e_waitlisted = create :participatable_event, max: 1, coordinator: c
+      e_waitlisted.attend create :participant
+      e_waitlisted.attend u
+      # not counted - not participating in this event
+      e_not_attending = create :participatable_event, coordinator: c
       expect(u.events.length).to eq 3
+      expect(u.events).to include e_coordinating
+      expect(u.events).to include e_participating
+      expect(u.events).to include e_participating_past
+    end
+
+    it "lists events a user might be attending" do
+      # todo: also test for event_user status :requested
+      p1 = create :participant
+      p2 = create :participant
+      c = create :coordinator
+      e_attending = create :participatable_event, coordinator: c
+      e_attending.attend p1
+      e_waitlisted = create :participatable_event, max: 1, coordinator: c
+      e_waitlisted.attend p2
+      e_waitlisted.attend p1
+      e_waitlisted_past = create :participatable_event, max: 1, coordinator: c
+      e_waitlisted_past.attend p2
+      e_waitlisted_past.attend p1
+      e_waitlisted_past.update(start: 1.month.ago, duration: 1.hour)
+      e_cancelled = create :participatable_event, max: 1, coordinator: c
+      e_cancelled.attend p2
+      e_cancelled.attend p1
+      e_cancelled.update(status: Event.statuses[:cancelled])
+      expect(p1.potential_events).to eq [e_waitlisted]
     end
 
   end

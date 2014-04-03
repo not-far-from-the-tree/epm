@@ -181,20 +181,110 @@ describe Event do
       expect(e.participatable_by? u).to be_false
     end
 
+    # todo: test that not participatable when a user has been denied for the event
+    # denied feature not yet implemented
+
   end
 
   context "users" do
 
-    it "has an list of participants when there are none" do
+    it "adds a participant" do
       e = create :participatable_event
-      expect(e.participants.length).to eq 0
+      p = create :participant
+      e.attend p
+      expect(e.event_users.count).to eq 1
+      eu = e.event_users.first
+      expect(eu.user).to eq p
+      expect(eu.status).to eq 'attending'
     end
 
-    it "has a list of participants when there are some" do
+    it "adds a participant to the waitlist" do
+      e = create :participatable_event, max: 1
+      e.attend create :participant
+      p = create :participant
+      e.attend p
+      expect(e.event_users.length).to eq 2
+      eu = e.event_users.last
+      expect(eu.user).to eq p
+      expect(eu.status).to eq 'waitlisted'
+    end
+
+    it "cancels participation" do
       e = create :participatable_event
+      p = create :participant
+      e.attend p
+      e.unattend p
+      expect(e.event_users.count).to eq 1
+      eu = e.event_users.first
+      expect(eu.user).to eq p
+      expect(eu.status).to eq 'cancelled'
+    end
+
+    it "withdraws from waitlist" do
+      e = create :participatable_event, max: 1
+      e.attend create :participant
+      p = create :participant
+      e.attend p
+      e.unattend p
+      expect(e.event_users.count).to eq 2
+      eu = e.event_users.last
+      expect(eu.user).to eq p
+      expect(eu.status).to eq 'withdrawn'
+    end
+
+    it "returns the number of participants needed when there is no min" do
+      e = create :participatable_event, min: 0
+      expect(e.participants_needed).to eq 0
+    end
+
+    it "returns the number of participants needed when there is a min" do
+      e = create :participatable_event, min: 1
+      expect(e.participants_needed).to eq 1
+      e.attend create :participant
+      expect(e.participants_needed).to eq 0
+    end
+
+    it "returns the number of remaining spots when there is no max" do
+      e = create :participatable_event, max: nil
+      expect(e.remaining_spots).to be_nil
+    end
+
+    it "returns the number of remaining spots when there is a max" do
+      e = create :participatable_event, max: 1
+      expect(e.remaining_spots).to eq 1
+      e.attend create :participant
+      expect(e.remaining_spots).to eq 0
+    end
+
+    it "returns whether an event is full when there is no max" do
+      e = create :participatable_event, max: nil
+      expect(e.full?).to be_false
+      e.attend create :participant
+      expect(e.full?).to be_false
+    end
+
+    it "returns whether an event is full when there is a max" do
+      e = create :participatable_event, max: 1
+      expect(e.full?).to be_false
+      e.attend create :participant
+      expect(e.full?).to be_true
+    end
+
+    it "has an list of participants" do
+      e = create :participatable_event
+      expect(e.participants.length).to eq 0
       participant = create :participant
-      e.event_users.create user: participant
-      expect(e.participants).to eq [participant]
+      e.attend participant
+      expect(e.participants.reload).to eq [participant]
+    end
+
+    it "has a list of waitlisted users" do
+      e = create :participatable_event, max: 1
+      e.attend create :participant
+      expect(e.waitlisted.count).to eq 0
+      participant = create :participant
+      e.attend participant
+      expect(e.waitlisted).to eq [participant]
     end
 
     it "lists coordinator as user when there are no participants" do
@@ -206,7 +296,7 @@ describe Event do
     it "lists coordinator and participants as users" do
       e = create :participatable_event, coordinator: create(:coordinator)
       participant = create :participant
-      e.event_users.create user: participant
+      e.attend participant
       expect(e.users.length).to eq 2
       expect(e.users).to include participant
     end
@@ -249,7 +339,7 @@ describe Event do
       event1 = create :participatable_event
       event2 = create :participatable_event
       user = create :user
-      event2.event_users.create user: user
+      event2.attend user
       events = Event.not_attended_by user
       expect(events).to eq [event1]
     end

@@ -68,9 +68,10 @@ class Event < ActiveRecord::Base
   attr_accessor :notify_of_changes # setting to false allows supressing email notifications; todo: move to controller
 
   has_many :event_users, dependent: :destroy
-  has_many :participants, -> { where "event_users.status = ?", EventUser.statuses[:attending] }, through: :event_users, source: :user
+  has_many :participants, -> { where 'event_users.status' => EventUser.statuses[:attending] }, through: :event_users, source: :user
+  has_many :waitlisted, -> { where 'event_users.status' => EventUser.statuses[:waitlisted] }, through: :event_users, source: :user
   belongs_to :coordinator, class_name: 'User'
-  def users
+  def users # i.e. participants and the coordinator
     people = participants.to_a
     people << coordinator if coordinator
     people
@@ -163,8 +164,10 @@ class Event < ActiveRecord::Base
     '(untitled event)'
   end
 
+  # indicates whether a user *could* participate in the event, ignoring whether the event is full
   def participatable_by?(user)
-    can_have_participants? && !past? && (user != coordinator) && user.has_role?(:participant) && status == 'approved'
+    can_have_participants? && !past? && (user != coordinator) && status == 'approved' &&
+      user.has_role?(:participant) && !event_users.find_or_initialize_by(user_id: user.id).denied?
   end
 
   def can_have_participants?
@@ -198,14 +201,34 @@ class Event < ActiveRecord::Base
       vevent.status = 'TENTATIVE'
     end
     vevent.add_contact(coordinator.name) if coordinator # todo: replace with organizer property?
-    # vevent.geo = "#{lat},#{lng}" if lat && lng
-    # vevent.location = address if address
+    vevent.geo = coords.join(',') if coords
+    vevent.location = address if address
     vevent
   end
 
   # this method identical to that in model user.rb
   def coords
     (lat.present? && lng.present?) ? [lat, lng] : nil
+  end
+
+  def participants_needed
+    # this number should never be less than zero anyway, but the .max ensures that
+    [min - participants.count, 0].max
+  end
+  def remaining_spots
+    return nil unless max
+    # this number should never be less than zero anyway, but the .max ensures that
+    [max - participants.count, 0].max
+  end
+  def full?
+    max.present? && participants.reload.length >= max
+  end
+
+  def attend(user)
+    event_users.where(user_id: user.id).first_or_initialize.attend
+  end
+  def unattend(user)
+    event_users.where(user_id: user.id).first_or_initialize.unattend
   end
 
   private

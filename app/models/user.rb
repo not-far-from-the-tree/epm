@@ -38,10 +38,14 @@ class User < ActiveRecord::Base
   scope :participants, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:participant]}").distinct }
 
   has_many :event_users, dependent: :destroy
-  has_many :participating_events, -> { where("event_users.status = ?", EventUser.statuses[:attending]) }, through: :event_users, source: :event
   has_many :coordinating_events, class_name: 'Event', foreign_key: 'coordinator_id'
-  def events # events where the user is a participant or the coordinator
-    Event.joins("LEFT JOIN event_users ON events.id = event_users.event_id").where("events.coordinator_id = ? OR event_users.user_id = ?", id, id).distinct
+  # events where the user is a participant (will attend or did attend) or the coordinator
+  def events
+    Event.not_cancelled.joins("LEFT JOIN event_users ON events.id = event_users.event_id AND event_users.status IN (#{EventUser.statuses[:attending]}, #{EventUser.statuses[:attended]})").where("events.coordinator_id = ? OR event_users.user_id = ?", id, id).distinct
+  end
+  # events where the participant is on the waitlist or has requested to attend
+  def potential_events
+    Event.not_past.not_cancelled.joins(:event_users).where('event_users.status' => [EventUser.statuses[:waitlisted], EventUser.statuses[:requested]])
   end
 
 

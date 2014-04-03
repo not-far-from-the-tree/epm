@@ -155,7 +155,7 @@ describe "Events" do
           @coordinator = create :coordinator
           @participant = create :participant
           @e = create :participatable_event, coordinator: @coordinator
-          @e.event_users.create user: @participant
+          @e.attend @participant
         end
 
         it "separately emails coordinator and participants upon significantly changing an event" do
@@ -215,9 +215,10 @@ describe "Events" do
         end
 
         it "does not email attendees of changes to past events" do
-          @e.update(start: 1.month.ago, duration: 2.hours)
+          e = create :participatable_past_event
+          e.attend @participant
           login_as @admin
-          visit edit_event_path @e
+          visit edit_event_path e
           fill_in 'Name', with: 'some new name'
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
         end
@@ -583,7 +584,7 @@ describe "Events" do
         admins = User.admins
         e = create :participatable_event
         participant = create :participant
-        e.event_users.create user: participant
+        e.attend participant
         login_as @admin
         visit event_path e
         click_link 'Cancel'
@@ -594,7 +595,7 @@ describe "Events" do
         coordinator = create :coordinator
         e = create :participatable_event, coordinator: coordinator
         participant = create :participant
-        e.event_users.create user: participant
+        e.attend participant
         login_as coordinator
         visit event_path e
         click_link 'Cancel'
@@ -620,7 +621,7 @@ describe "Events" do
     it "lets admins see attendees' profiles" do
       login_as @admin
       e = create :participatable_event
-      e.event_users.create user: @participant
+      e.attend @participant
       visit event_path(e)
       click_link @participant.display_name
       expect(current_path).to eq user_path(@participant)
@@ -628,7 +629,7 @@ describe "Events" do
 
     it "does not let participants see attendees' profiles" do
       e = create :participatable_event
-      e.event_users.create user: create(:participant)
+      e.attend create(:participant)
       login_as @participant
       visit event_path(e)
       expect(all('#participants a').length).to eq 0
@@ -663,7 +664,7 @@ describe "Events" do
 
       it "does not show notes to participant" do
         e = create :participatable_event, notes: 'Some note'
-        e.event_users.create user: create(:participant)
+        e.attend create(:participant)
         login_as e.participants.first
         visit event_path e
         expect(page).not_to have_content 'Some note'

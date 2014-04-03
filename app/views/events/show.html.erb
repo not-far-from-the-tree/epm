@@ -14,16 +14,22 @@
   <%= link_to 'Cancel', cancel_event_path(@event) %>
 <% end %>
 
-<% if @event.participatable_by? current_user %>
-  <p><strong>
-    <% if @event.participants.include? current_user %>
-      <%= link_to 'Cancel RSVP', unattend_event_path(@event), method: :patch %>
-    <% else %>
-      <%= link_to 'Join', attend_event_path(@event), method: :patch %>
+<% if current_user.has_role?(:participant) || current_user.has_role?(:coordinator) || @buttons.any? %>
+  <%= clear %>
+  <div id="rsvp">
+    <%= @attend_str %>
+    <% if @buttons.any? %>
+      <% @buttons.each do |type, label| %>
+        <%= button_to label, send("#{type}_event_path", @event), method: :patch %>
+      <% end %>
+      <% if @buttons[:attend] && @event.participants_needed > 0 %>
+        <br><%= pluralize @event.participants_needed, 'participant' %> still needed!
+      <% end %>
     <% end %>
-  </strong></p>
+  </div>
 <% end %>
 
+<%# todo: better division of cola vs colb, depending on what stuff there is %>
 <%= start_cols %>
 
 <% if @event.notes.present? && can?(:read_notes, @event) %>
@@ -78,16 +84,41 @@
   <% end %>
 
   <% if @event.can_have_participants? %>
-    <h2>Participants</h2>
-    <% if @event.participants.any? %>
-      <ul id="participants" class="users">
-        <% @event.participants.each do |user| %>
-          <%= render 'users/user', user: user, tag: 'li' %>
+
+    <div id="participants">
+      <h2>
+        <%= pluralize @event.participants.count, 'Participant' %>
+        &ndash;
+        <% if @event.participants_needed > 0 %>
+          <%= @event.participants_needed %> more needed
+        <% elsif @event.full? %>
+          full
+        <% else %>
+          <%= pluralize @event.remaining_spots || 'unlimited', 'spot' %> left
         <% end %>
-      </ul>
-    <% else %>
-      <p>None yet.</p>
+      </h2>
+      <% if @event.participants.any? %>
+        <ul class="users">
+          <% @event.participants.each do |user| %>
+            <%= render 'users/user', user: user, tag: 'li' %>
+          <% end %>
+        </ul>
+      <% else %>
+        <p>None yet.</p>
+      <% end %>
+    </div>
+
+    <% if (current_user.has_role?(:admin) || current_user == @event.coordinator) && @event.approved? && !@event.past? && @event.waitlisted.any? %>
+      <div id="waitlisted">
+        <h2><%= @event.waitlisted.count %> Waitlisted</h2>
+        <ul class="users">
+          <% @event.waitlisted.each do |user| %>
+            <%= render 'users/user', user: user, tag: 'li' %>
+          <% end %>
+        </ul>
+      </div>
     <% end %>
+
   <% end %>
 
 </section>

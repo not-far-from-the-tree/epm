@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
   factory :event do
-    start { rand(100).days.from_now.change hour: rand(7..19) }
+    start { rand(1..100).days.from_now.change hour: rand(7..19) }
     duration { rand(1..5).hours }
     status Event.statuses[:approved]
 
@@ -45,6 +45,7 @@ FactoryGirl.define do
 
     factory :participatable_past_event do
       coordinator
+      status Event.statuses[:approved]
     end
 
   end

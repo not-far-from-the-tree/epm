@@ -33,6 +33,40 @@ class EventsController < ApplicationController
   end
 
   def show
+    eu = @event.event_users.find_or_initialize_by(user_id: current_user.id)
+
+    # determine what string to use to describe the existing rsvp
+    @attend_str = nil
+    if current_user.has_role?(:participant) || eu.status || current_user == @event.coordinator
+      @attend_str = 'You '
+      if @event.past?
+        @attend_str += (eu.attending? || eu.attended? || @event.coordinator == current_user) ? 'attended' : 'did not attend'
+      elsif eu.waitlisted?
+        @attend_str += 'are on the waitlist for'
+      elsif eu.requested?
+        @attend_str += 'have requested to attend'
+      elsif eu.attending? || @event.coordinator == current_user
+        @attend_str += 'are attending'
+      else
+        @attend_str += 'are not attending'
+      end
+      @attend_str += ' this event.'
+    end
+
+    # determine what buttons to show to change rsvp
+    @buttons = {}
+    if @event.participatable_by? current_user
+      if [nil, 'not_attending', 'withdrawn', 'cancelled', 'invited'].include? eu.status
+        # todo: this does not handle events where a participant must first request to join if they haven't been invited, which would change the 'attend' text for statuses that are not :invited
+        @buttons[:attend] = @event.full? ? 'Add To Waitlist' : 'Attend'
+        @buttons[:unattend] = 'Will Not Attend' if eu.invited?
+      elsif eu.waitlisted? || eu.requested?
+        @buttons[:unattend] = 'Withdraw Request'
+      elsif eu.attending?
+        @buttons[:unattend] = 'Cancel'
+      end
+    end
+
   end
 
   def new
@@ -129,21 +163,15 @@ class EventsController < ApplicationController
   end
 
   def attend
-    eu = @event.event_users.find_or_create_by user_id: current_user.id
-    if eu.update status: :attending
-      EventMailer.attend(@event, current_user).deliver
-      flash[:notice] = 'You are now attending this event.'
-    end
+    eu = @event.attend current_user
+    EventMailer.attend(@event, current_user).deliver if eu.attending?
+    # note: no need for flash messages as that is redundant with the rsvp text in events#show
     redirect_to @event
   end
 
   def unattend
-    eu = @event.event_users.find_by user_id: current_user.id
-    if eu
-      if eu.update status: :cancelled
-        flash[:notice] = 'You are no longer attending this event.'
-      end
-    end
+    @event.unattend current_user
+    # note: no need for flash messages as that is redundant with the rsvp text in events#show
     redirect_to @event
   end
 
