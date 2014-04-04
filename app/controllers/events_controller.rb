@@ -37,15 +37,16 @@ class EventsController < ApplicationController
 
     # determine what string to use to describe the existing rsvp
     @attend_str = nil
-    if current_user.has_role?(:participant) || eu.status || current_user == @event.coordinator
+    is_the_coordinator = current_user == @event.coordinator
+    if current_user.has_role?(:participant) || current_user.has_role?(:coordinator) || eu.status
       @attend_str = 'You '
       if @event.past?
-        @attend_str += (eu.attending? || eu.attended? || @event.coordinator == current_user) ? 'attended' : 'did not attend'
+        @attend_str += (eu.attending? || eu.attended? || is_the_coordinator) ? 'attended' : 'did not attend'
       elsif eu.waitlisted?
         @attend_str += 'are on the waitlist for'
       elsif eu.requested?
         @attend_str += 'have requested to attend'
-      elsif eu.attending? || @event.coordinator == current_user
+      elsif eu.attending? || is_the_coordinator
         @attend_str += 'are attending'
       else
         @attend_str += 'are not attending'

@@ -12,6 +12,26 @@ describe "Event Attendance" do
     Warden.test_reset!
   end
 
+  it "describes the coordinator as attending" do
+    e = create :participatable_event
+    login_as e.coordinator
+    visit event_path e
+    within '#rsvp' do
+      expect(page).to have_content 'You are attending'
+      expect(all("input[type='submit']").length).to eq 0
+    end
+  end
+
+  it "does not describes a coordinator as attending when they are not on this event" do
+    e = create :participatable_event
+    login_as create :coordinator
+    visit event_path e
+    within '#rsvp' do
+      expect(page).to have_content 'You are not attending'
+      expect(all("input[type='submit']").length).to eq 0
+    end
+  end
+
   it "joins an event" do
     e = create :participatable_event
     login_as @participant
