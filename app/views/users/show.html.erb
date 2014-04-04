@@ -4,18 +4,19 @@
   title tit
 %>
 
-<% if can? :update, @user %>
-  <%= link_to 'Edit', edit_user_path(@user) %>
-<% end %>
-<% if @user.id == current_user.id %>
-  <%= link_to 'Change my password', edit_user_registration_path %>
-  <% if @user.roles.any? && can?(:deactivate, @user) %>
-    <%= link_to 'Deactivate my account', deactivate_user_path(current_user), method: :patch, data: {confirm: 'Are you sure you want to deactivate your account?'} %>
+<% content_for :header do %>
+  <% if can? :update, @user %>
+    <%= link_to 'Edit', edit_user_path(@user) %>
+  <% end %>
+  <% if @user.id == current_user.id %>
+    <%= link_to 'Change my password', edit_user_registration_path %>
+    <% if @user.roles.any? && can?(:deactivate, @user) %>
+      <%= link_to 'Deactivate my account', deactivate_user_path(current_user), method: :patch, data: {confirm: 'Are you sure you want to deactivate your account?'} %>
+    <% end %>
   <% end %>
 <% end %>
 
-<%= clear %>
-<%= image_tag @user.avatar('large'), size: '80x80', alt: 'profile photo', style: 'margin-top:1em' %>
+<%= image_tag @user.avatar('large'), size: '80x80', alt: 'profile photo' %>
 
 <%= paragraphs @user.description if @user.description.present? %>
 

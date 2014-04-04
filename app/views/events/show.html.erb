@@ -4,14 +4,16 @@
   title tit
 %>
 
-<% if can? :update, @event %>
-  <%= link_to 'Edit', edit_event_path(@event) %>
-<% end %>
-<% if can?(:approve, @event) && @event.proposed? %>
-  <%= link_to 'Approve', approve_event_path(@event), method: :patch %>
-<% end %>
-<% if can?(:cancel, @event) && !@event.cancelled? %>
-  <%= link_to 'Cancel', cancel_event_path(@event) %>
+<% content_for :header do %>
+  <% if can? :update, @event %>
+    <%= link_to 'Edit', edit_event_path(@event) %>
+  <% end %>
+  <% if can?(:approve, @event) && @event.proposed? %>
+    <%= link_to 'Approve', approve_event_path(@event), method: :patch %>
+  <% end %>
+  <% if can?(:cancel, @event) && !@event.cancelled? %>
+    <%= link_to 'Cancel', cancel_event_path(@event) %>
+  <% end %>
 <% end %>
 
 <% if current_user.has_role?(:participant) || current_user.has_role?(:coordinator) || @buttons.any? %>

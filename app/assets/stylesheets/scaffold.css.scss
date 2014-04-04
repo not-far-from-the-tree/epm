@@ -1,43 +1,21 @@
 html {
-  font-family: Helvetica, sans-serif;
   background-color: white;
-}
-textarea  {
-  font-family: Helvetica, sans-serif;
 }
 body {
   margin: 0;
   padding-bottom: 2em;
 }
-body, input, textarea, select {
-  font-size: 1.1em;
-}
-a img {
-  border: 0;
-}
-a {
-  color: $link_colour;
-}
-a:visited, a:active {
-  color: $link_colour_visited;
-}
-p {
-  max-width: 35em;
-}
 
-h1, h2 {
-  margin: 0;
-  font-size: 1.1em;
-}
+$header_padding: 0.3em;
+
 header {
   background-color: black;
   color: white;
   position: relative;
-  padding: 0 0.3em;
-  margin-bottom: 1em;
+  padding: 0 $header_padding; /* the top and bottom padding is added *within* the links */
   h1, li, #account {
-    padding-top: 0.3em;
-    padding-bottom: 0.3em;
+    padding-top: $header_padding;
+    padding-bottom: $header_padding;
   }
   a, a:visited, a:hover {
     color: white;
@@ -60,7 +38,7 @@ header {
   }
   li {
     float: left;
-    margin: 0 0.3em;
+    margin: 0 $header_padding;
   }
   li.active {
     background-color: #6B6B6B;
@@ -69,95 +47,42 @@ header {
 #account {
   position: absolute;
   top: 0;
-  right: 0.3em;
+  right: $header_padding;
 }
-@media (max-width: 400px) {
+@media (max-width: 450px) {
   nav ul {
     padding-top: 1.8em;
     margin-left: 0;
   }
 }
 
+#flash, #header {
+  border-bottom: 1px solid black;
+  padding: $header_padding ($header_padding + 0.4em);
+}
 
-#main, #flash {
-  margin: 0.3em;
-}
-@media (min-width: 500px) {
-  #main, #flash {
-    margin: 1em;
-  }
-}
 #flash {
   font-style: italic;
 }
+
+#header {
+  background-color: #ddd;
+  h1 + div {
+    margin-top: $header_padding;
+  }
+  a {
+    margin-right: 1em;
+  }
+}
+
 #main {
-  h1, h2 {
+  margin: 0.3em;
+  h2 {
     margin-bottom: 0.3em;
   }
 }
-
-.clearfix:before,
-.clearfix:after {
-    content: " ";
-    display: table;
-}
-.clearfix:after {
-    clear: both;
-}
-
-.cols .colA, .cols .colB {
-  width: 46%;
-  float: left;
-}
-.cols .colA {
-  margin-right: 3%;
-}
-@media (max-width: $col_limit) {
-  .cols .colA, .cols .colB {
-    width: 100%;
-    float: none;
+@media (min-width: 500px) {
+  #main {
+    margin: 1em;
   }
-  .cols .colA {
-    margin-right: 0;
-  }
-}
-
-
-h2 {
-  margin-top: 1.2em;
-}
-dt {
-  font-weight: bold;
-}
-ul, ol {
-  margin: 0;
-  padding-left: 1.3em;
-}
-
-.loading {
-  background: white image-url('loading.gif') right top no-repeat;
-}
-
-#map {
-  height: 23em;
-}
-#instruction {
-  text-align: right;
-  font-style: italic;
-}
-
-#map .me {
-  border: 2px solid blue;
-  border-radius: 20px;
-  padding: 5px;
-}
-#map .me .inner {
-  width: 100%;
-  height: 100%;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 0 2px 4px blue inset;
-}
-.leaflet-popup-content {
-  font-size: 1.4em;
 }

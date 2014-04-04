@@ -47,10 +47,14 @@
     <%= content_tag :div, msg, class: name, id: 'flash' %>
   <% end -%>
 
-  <div id="main">
-    <%= content_tag(:h1, yield(:title)) if content_for :title %>
-    <%= yield %>
-  </div>
+  <% if content_for(:title) || content_for(:header) %>
+    <div id="header">
+      <%= content_tag(:h1, yield(:title)) if content_for :title %>
+      <%= content_tag(:div, yield(:header)) if content_for :header %>
+    </div>
+  <% end %>
+
+  <div id="main"><%= yield %></div>
 
 </body>
 </html>

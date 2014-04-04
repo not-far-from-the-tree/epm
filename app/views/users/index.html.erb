@@ -1,5 +1,9 @@
 <% title 'Find Users' %>
 
+<% content_for :header do %>
+  <%= link_to 'Export these users', users_path(format: 'csv' ) %>
+<% end %>
+
 <%= form_tag users_path, method: :get do %>
   <%= select_tag :role, options_for_select(Role.names.map{|n, v| n.pluralize.capitalize}.unshift(['Everyone', nil]), @role) %>
   <% content_for :js_ready do %>
@@ -13,7 +17,6 @@
 
 <% if @users.any? %>
   <h2><%= pluralize @users.total_count, 'User' %></h2>
-  <p><%= link_to 'Export these users', users_path(format: 'csv' ) %></p>
   <%= paginate @users %>
   <% switch_col = (@users.count/2) if @users.count > 5 %>
   <%= start_cols %>

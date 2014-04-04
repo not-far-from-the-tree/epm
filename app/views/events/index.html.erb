@@ -1,9 +1,10 @@
-<% if can? :calendar, Event %>
-  <p><strong><%= link_to 'Monthly Calendar', calendar_events_path %></strong></p>
-<% end %>
-
-<% if can? :create, Event %>
-  <p><strong><%= link_to 'Add New Event', new_event_path %></strong></p>
+<% content_for :header  do %>
+  <% if can? :calendar, Event %>
+    <%= link_to 'Monthly Calendar', calendar_events_path %>
+  <% end %>
+  <% if can? :create, Event %>
+    <%= link_to 'Add New Event', new_event_path %>
+  <% end %>
 <% end %>
 
 <% events_shown = false %>
