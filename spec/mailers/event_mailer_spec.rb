@@ -51,18 +51,34 @@ describe EventMailer do
 
   end
 
-  it "sends correct attend emails" do
+  it "sends correct attend emails to a single participant" do
     participant = create :participant
     mail = EventMailer.attend(@event, participant)
-    expect(mail.to.length).to eq 1
-    expect(mail.to.first).to match participant.email
-    expect(mail.subject).to eq 'You have joined an event'
+    expect(mail.bcc.length).to eq 1
+    expect(mail.bcc.first).to eq participant.email
+    expect(mail.subject).to eq 'You are attending an event'
     # checks that there is both email and plain text, and they both have the right content
     expect(mail.body.parts.length).to eq 2
     mail.body.parts.each do |part|
       expect(part.to_s).to match event_url(@event)
     end
   end
+
+  it "sends correct attend emails to multiple participants" do
+    participant = create :participant
+    participant2 = create :participant
+    mail = EventMailer.attend(@event, [participant, participant2])
+    expect(mail.bcc.length).to eq 2
+    expect(mail.bcc).to include participant.email
+    expect(mail.bcc).to include participant2.email
+    expect(mail.subject).to eq 'You are attending an event'
+    # checks that there is both email and plain text, and they both have the right content
+    expect(mail.body.parts.length).to eq 2
+    mail.body.parts.each do |part|
+      expect(part.to_s).to match event_url(@event)
+    end
+  end
+
 
   it "sends correct emails when a coordinator is assigned" do
     mail = EventMailer.coordinator_assigned(@event)

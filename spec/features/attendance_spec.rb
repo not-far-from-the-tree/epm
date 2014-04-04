@@ -55,7 +55,7 @@ describe "Event Attendance" do
     login_as @participant
     visit event_path e
     expect { click_button 'Attend' }.to change{ActionMailer::Base.deliveries.size}.by 1
-    expect(last_email.to).to eq [@participant.email]
+    expect(last_email.bcc).to eq [@participant.email]
   end
 
   it "only allows participants to join events" do

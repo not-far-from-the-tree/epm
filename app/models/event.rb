@@ -69,7 +69,7 @@ class Event < ActiveRecord::Base
 
   has_many :event_users, dependent: :destroy
   has_many :participants, -> { where 'event_users.status' => EventUser.statuses[:attending] }, through: :event_users, source: :user
-  has_many :waitlisted, -> { where 'event_users.status' => EventUser.statuses[:waitlisted] }, through: :event_users, source: :user
+  has_many :waitlisted, -> { where('event_users.status' => EventUser.statuses[:waitlisted]).order('event_users.updated_at DESC') }, through: :event_users, source: :user
   belongs_to :coordinator, class_name: 'User'
   def users # i.e. participants and the coordinator
     people = participants.to_a
@@ -150,6 +150,9 @@ class Event < ActiveRecord::Base
   def past?
     finish.present? ? finish < Time.zone.now : nil
   end
+  def time_until
+    start.present? ? start - Time.zone.now : nil
+  end
 
   def awaiting_approval?
     !past? && proposed? && coordinator && start
@@ -166,7 +169,7 @@ class Event < ActiveRecord::Base
 
   # indicates whether a user *could* participate in the event, ignoring whether the event is full
   def participatable_by?(user)
-    can_have_participants? && !past? && (user != coordinator) && status == 'approved' &&
+    can_have_participants? && (time_until > 2.hours) && (user != coordinator) && status == 'approved' && # todo: allow configurability of time_until threshhold
       user.has_role?(:participant) && !event_users.find_or_initialize_by(user_id: user.id).denied?
   end
 
@@ -211,17 +214,37 @@ class Event < ActiveRecord::Base
     (lat.present? && lng.present?) ? [lat, lng] : nil
   end
 
+  # participant methods
   def participants_needed
     # this number should never be less than zero anyway, but the .max ensures that
     [min - participants.count, 0].max
   end
   def remaining_spots
-    return nil unless max
+    return true unless max
     # this number should never be less than zero anyway, but the .max ensures that
     [max - participants.count, 0].max
   end
   def full?
     max.present? && participants.reload.length >= max
+  end
+
+  def add_from_waitlist
+    return false if past? || cancelled?
+    spots = remaining_spots
+    return false if !remaining_spots || remaining_spots == 0
+    eus = event_users.where(status: EventUser.statuses[:waitlisted]).order('event_users.updated_at DESC')
+    eus = eus.limit(spots) if spots.is_a?(Integer)
+    eus.select!{|eu| participatable_by? eu.user } # checks that for instance, user's role of 'participant' hasn't been lost since getting on the waitlist
+    if eus.any?
+      eus.each {|eu| eu.update status: EventUser.statuses[:attending] }
+      EventMailer.attend(self, eus.map{|eu| eu.user}).deliver
+    end
+  end
+  def remove_excess_participants
+    return false unless max
+    excess = participants.count - max
+    return false unless excess > 0
+    # todo
   end
 
   def attend(user)

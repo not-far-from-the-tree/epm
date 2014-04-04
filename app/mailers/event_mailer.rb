@@ -2,10 +2,15 @@ class EventMailer < ActionMailer::Base
 
   default from: "#{Configurable.title} <#{Configurable.email}>"
 
-  def attend(event, user)
+  # in many of these methods, @user is for checking permissions -
+  #   usually passing in an array of users who all have the same permissions so can just use the first
+
+  def attend(event, users)
+    users = [*users] # enables inputting a single user or array of users
     @event = event
-    @user = user
-    mail to: to(user), subject: 'You have joined an event'
+    # users are all participants, but as some could be an admin, need to do this for permissions:
+    @user = users.find{|u| u.ability.cannot?(:read_notes, event)} || users.first
+    mail bcc: users.map{|u| to(u)}, subject: 'You are attending an event'
   end
 
   def coordinator_assigned(event)
@@ -15,24 +20,18 @@ class EventMailer < ActionMailer::Base
 
   def cancel(event, users)
     @event = event
-    # @user is for checking permissions -
-    #   can pass in the first user 'cause we're passing in users who all have the same permissions
     @user = users.first
     mail bcc: users.map{|u| to(u)}, subject: "#{@event.display_name} has been cancelled"
   end
 
   def change(event, users)
     @event = event
-    # @user is for checking permissions -
-    #   can pass in the first user 'cause we're passing in users who all have the same permissions
     @user = users.first
     mail bcc: users.map{|u| to(u)}, subject: 'Changes to an event you are attending'
   end
 
   def awaiting_approval(event, users)
     @event = event
-    # @user is for checking permissions -
-    #   can pass in the first user 'cause we're passing in users who all have the same permissions
     @user = users.first
     mail bcc: users.map{|u| to(u)}, subject: 'An event is awaiting approval'
   end

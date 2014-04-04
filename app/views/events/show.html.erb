@@ -95,7 +95,11 @@
         <% elsif @event.full? %>
           full
         <% else %>
-          <%= pluralize @event.remaining_spots || 'unlimited', 'spot' %> left
+          <%
+            spots = @event.remaining_spots
+            spots = 'unlimited' if spots == true
+          %>
+          <%= pluralize spots, 'spot' %> left
         <% end %>
       </h2>
       <% if @event.participants.any? %>

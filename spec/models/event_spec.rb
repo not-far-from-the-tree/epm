@@ -110,10 +110,31 @@ describe Event do
 
   end
 
-  it "responds properly to past? method" do
-    expect(build(:event).past?).to be_false
-    expect(build(:past_event).past?).to be_true
-    expect(build(:event, start: nil).past?).to be_nil
+  context "time methods" do
+
+    it "responds properly to past? method" do
+      expect(build(:event).past?).to be_false
+      expect(build(:past_event).past?).to be_true
+      expect(build(:event, start: nil).past?).to be_nil
+    end
+
+    it "sets finish when given a duration" do
+      now = Time.zone.now
+      expect(build(:event, start: now, duration: 1.hour).finish).to eq (now + 1.hour)
+      expect(build(:event, start: now, duration: 8.hours).finish).to eq (now + 8.hours)
+    end
+
+    it "properly calculates duration" do
+      expect(build(:event, start: Time.zone.now, duration: nil, finish: Time.zone.now + 1.hour).duration).to eq 1.hour.to_i
+      expect(build(:event, start: Time.zone.now, duration: nil, finish: Time.zone.now + 8.hours).duration).to eq 8.hours.to_i
+    end
+
+    it "properly calculates time until" do
+      expect(build(:event, start: nil).time_until).to be_nil
+      expect(build(:event, start: 1.month.from_now).time_until).to be_within(1.minute).of(1.month)
+      expect(build(:event, start: 2.weeks.ago).time_until).to be_within(1.minute).of(- 2.weeks)
+    end
+
   end
 
   it "responds properly to awaiting_approval? method" do
@@ -125,16 +146,6 @@ describe Event do
     expect(create(:event, status: :proposed, coordinator: c, start: nil, name: 'foo').awaiting_approval?).to be_false
   end
 
-  it "sets finish when given a duration" do
-    now = Time.zone.now
-    expect(build(:event, start: now, duration: 1.hour).finish).to eq (now + 1.hour)
-    expect(build(:event, start: now, duration: 8.hours).finish).to eq (now + 8.hours)
-  end
-
-  it "properly calculates duration" do
-    expect(build(:event, start: Time.zone.now, duration: nil, finish: Time.zone.now + 1.hour).duration).to eq 1.hour.to_i
-    expect(build(:event, start: Time.zone.now, duration: nil, finish: Time.zone.now + 8.hours).duration).to eq 8.hours.to_i
-  end
 
   context "participatable_by?" do
 
@@ -246,7 +257,7 @@ describe Event do
 
     it "returns the number of remaining spots when there is no max" do
       e = create :participatable_event, max: nil
-      expect(e.remaining_spots).to be_nil
+      expect(e.remaining_spots).to be_true
     end
 
     it "returns the number of remaining spots when there is a max" do
@@ -299,6 +310,43 @@ describe Event do
       e.attend participant
       expect(e.users.length).to eq 2
       expect(e.users).to include participant
+    end
+
+    context "waitlist" do
+
+      it "adds participants from the waitlist" do
+        e = create :participatable_event
+        participant = create :participant
+        # artificially place someone on the waiting list even though they could just be attending
+        e.event_users.create user: participant, status: EventUser.statuses[:waitlisted]
+        expect(e.participants.length).to eq 0
+        e.add_from_waitlist
+        expect(e.participants.reload.length).to eq 1
+        expect(last_email.subject).to match 'are attending'
+        expect(last_email.bcc).to eq [participant.email]
+      end
+
+      it "does not add participants from the waitlist for cancelled events" do
+        e = create :participatable_event
+        participant = create :participant
+        # artificially place someone on the waiting list even though they could just be attending
+        e.event_users.create user: participant, status: EventUser.statuses[:waitlisted]
+        e.status = :cancelled
+        e.add_from_waitlist
+        expect(e.participants.reload.length).to eq 0
+      end
+
+      it "does not add participants from the waitlist for past events" do
+        e = create :participatable_event
+        participant = create :participant
+        # artificially place someone on the waiting list even though they could just be attending
+        e.event_users.create user: participant, status: EventUser.statuses[:waitlisted]
+        e.start = 1.month.ago
+        e.finish = 1.week.ago
+        e.add_from_waitlist
+        expect(e.participants.reload.length).to eq 0
+      end
+
     end
 
   end
