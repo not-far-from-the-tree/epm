@@ -20,14 +20,14 @@
 
 <%= paragraphs @user.description if @user.description.present? %>
 
-<div style="margin:1em 0">
+<div id="roles">
   <%= 'Role'.pluralize @user.roles.count %>:
   <% if @user.roles.any? %>
     <%=
       @user.roles.map do |role|
         outp = role.name.capitalize
         if can?(:destroy, role) && current_user.has_role?(:admin)
-          outp += ' ' + link_to('x', role, method: :delete, title: 'remove this role', data: {confirm: 'Are you sure you want to remove this role?'})
+          outp += content_tag(:sup, link_to('x', role, method: :delete, title: 'remove this role', data: {confirm: 'Are you sure you want to remove this role?'}))
         end
         outp
       end.to_sentence.html_safe

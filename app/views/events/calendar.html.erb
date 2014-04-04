@@ -2,7 +2,9 @@
 
 <% now = Time.zone.now %>
 <% if params['month'].present? && !(params['month'].to_i == now.month && params['year'].to_i == now.year) %>
-  <p><%= link_to "Back to #{now.strftime('%B, %Y')}", calendar_events_path %></p>
+  <% content_for :header do %>
+    <%= link_to "Back to #{now.strftime('%B, %Y')}", calendar_events_path %>
+  <% end %>
 <% end %>
 
 <%= month_calendar @events do |event| %>
