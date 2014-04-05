@@ -1,16 +1,21 @@
 class Event < ActiveRecord::Base
 
   strip_attributes
-  def self.significant_attributes
-    # i.e. if any of these attributes change, attendees should be notified and may need to cancel
-    [:start, :finish, :name, :description, :address, :lat, :lng]
-  end
+
   def changed_significantly?
-    self.class.significant_attributes.each do |attr|
-      self.send("#{attr}=", nil) if self.send(attr).blank? # this is needed because strip_attributes nullifies, but only before validation
-      return true if self.send("#{attr}_changed?")
+    # todo: remove lat+lng from this and test separataly via removal or addition of coords or distance change > n
+    ['start', 'finish', 'name', 'description', 'address', 'lat', 'lng'].each do |attr|
+      return true if self.send(attr) != prior[attr]
     end
     false
+  end
+
+  attr_accessor :prior
+  def track
+    self.prior = attributes
+    ['past?', 'awaiting_approval?'].each do |meth|
+      self.prior[meth] = send(meth)
+    end
   end
 
   enum status: [:proposed, :approved, :cancelled]
@@ -65,6 +70,7 @@ class Event < ActiveRecord::Base
     end
   end
 
+  # todo : move this out of model into just view and controller
   attr_accessor :notify_of_changes # setting to false allows supressing email notifications; todo: move to controller
 
   has_many :event_users, dependent: :destroy

@@ -139,4 +139,23 @@ describe "Event Attendance" do
     expect(page).not_to have_link e.display_name
   end
 
+  it "adds users on a waitlist when a participant cancels" do
+    e = create :participatable_event, max: 1
+    p1 = create :participant
+    e.attend p1
+    p2 = create :participant
+    e.attend p2
+    expect(e.participants).to eq [p1]
+    login_as p1
+    visit event_path e
+    within '#rsvp' do
+      click_button 'Cancel'
+    end
+    within '#participants' do
+      expect(page).to have_content p2.display_name
+    end
+    expect(last_email.bcc).to eq [p2.email]
+    expect(last_email.subject).to match 'are attending'
+  end
+
 end

@@ -93,18 +93,13 @@ class EventsController < ApplicationController
   end
 
   def update
-    event_was_past = @event.past?
-    event_was_awaiting_approval = @event.awaiting_approval?
-    @event.assign_attributes event_params
-    users = @event.users.reject{|u| u == current_user}
-    new_coordinator = @event.coordinator_id_changed? && @event.coordinator
-    changed_significantly = @event.changed_significantly?
-    notes_changed = @event.notes_changed?
-    if @event.save
+    @event.track
+    if @event.update event_params
       # send email notifications if appropriate
       unless @event.cancelled?
+        users = @event.users.reject{|u| u == current_user}
         # alert admins if it's ready for approval
-        if !event_was_awaiting_approval && @event.awaiting_approval?
+        if !@event.prior['awaiting_approval?'] && @event.awaiting_approval?
           admins = User.admins.reject{|u| u == current_user}
           if admins.any?
             users.reject!{|u| admins.include? u} # prevents emailing an admin twice if they are also a coordinator or a participant of this event
@@ -112,14 +107,15 @@ class EventsController < ApplicationController
           end
         end
         # alert coordinator being assigned
-        if new_coordinator && @event.coordinator != current_user
+        if @event.coordinator && (@event.coordinator_id != @event.prior['coordinator_id']) && (@event.coordinator != current_user)
           users.reject!{|u| u == @event.coordinator} # prevents emailing a coordinator twice when they are assigned an event which has significant changes
           EventMailer.coordinator_assigned(@event).deliver
         end
         # alert other attendees
-        if @event.notify_of_changes.present? && !(@event.past? && event_was_past) && users.any?
+        if @event.notify_of_changes.present? && !(@event.past? && @event.prior['past?']) && users.any?
           users = users.partition{|u| u.ability.can?(:read_notes, @event)} # .first can read the note, .last can't
-          if (changed_significantly || notes_changed) && users.first.any?
+          changed_significantly = @event.changed_significantly?
+          if (changed_significantly || (@event.notes != @event.prior['notes'])) && users.first.any?
             EventMailer.change(@event, users.first).deliver
           end
           if changed_significantly && users.last.any?

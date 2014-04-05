@@ -8,24 +8,17 @@ describe Event do
 
   context "significant attributes" do
 
-    it "has significant attributes" do
-      [:name, :description, :start, :finish, :address, :lat, :lng].each do |attr|
-        expect(Event.significant_attributes).to include attr
-      end
-      [:coordinator_id, :fake_attribute].each do |attr|
-        expect(Event.significant_attributes).not_to include attr
-      end
-    end
-
     it "is significantly changed when changing the start time" do
       e = create :event
-      e.start = e.start - 1.hour
+      e.track
+      e.update start: e.start - 1.hour
       expect(e.changed_significantly?).to be_true
     end
 
     it "is not significantly changed when changing the coordinator" do
       e = create :event
-      e.coordinator = create :coordinator
+      e.track
+      e.update coordinator_id: create(:coordinator).id
       expect(e.changed_significantly?).to be_false
     end
 
