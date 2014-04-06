@@ -251,6 +251,7 @@ class Event < ActiveRecord::Base
     end
   end
 
+  # in these two methods, need to .to_a the sql results so that after we change the records, the query isn't re-executed when we want to email those we just changed
   def add_from_waitlist
     return false if past? || cancelled?
     spots = remaining_spots
@@ -264,9 +265,9 @@ class Event < ActiveRecord::Base
     end
   end
   def remove_excess_participants # assumes there is an excess, so doesn't check that
-    eus = event_users.where(status: EventUser.statuses[:attending]).order('event_users.updated_at DESC').limit(participants.count - max)
-    eus.update_all status: EventUser.statuses[:waitlisted]
-    # todo: inform them by email
+    eus = event_users.where(status: EventUser.statuses[:attending]).order('event_users.updated_at DESC').limit(participants.count - max).to_a
+    EventUser.where(id: eus.map{|eu| eu.id}).update_all status: EventUser.statuses[:waitlisted]
+    EventMailer.unattend(self, eus.map{|eu| eu.user}, 'max_changed').deliver
   end
 
   def attend(user)

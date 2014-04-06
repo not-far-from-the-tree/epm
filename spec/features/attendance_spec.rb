@@ -160,4 +160,22 @@ describe "Event Attendance" do
     expect(last_email.subject).to match 'are attending'
   end
 
+  it "removes participants when the max is decreased" do
+    e = create :participatable_event, max: 2
+    p1 = create :participant
+    e.attend p1
+    p2 = create :participant
+    e.attend p2
+    login_as @admin
+    visit edit_event_path e
+    fill_in 'Max', with: 1
+    click_button 'Save'
+    within '#participants' do
+      expect(page).to have_link p1.display_name
+      expect(page).not_to have_link p2.display_name
+    end
+    expect(last_email.subject).to match 'no longer attending'
+    expect(last_email.bcc).to eq [p2.email]
+  end
+
 end

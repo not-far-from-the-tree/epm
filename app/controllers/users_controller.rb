@@ -2,6 +2,10 @@ class UsersController < ApplicationController
 
   load_and_authorize_resource :user
 
+  def me
+    redirect_to current_user
+  end
+
   def index
     @users = User.by_name
     @q = params['q'] ? params['q'].strip : nil

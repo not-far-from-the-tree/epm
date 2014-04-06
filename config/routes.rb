@@ -7,6 +7,7 @@ Epm::Application.routes.draw do
     resources :roles, only: [:create, :destroy], shallow: true
     patch 'deactivate', on: :member
   end
+  get 'me', to: 'users#me'
 
   resources :events, except: :destroy do
     get 'calendar', on: :collection

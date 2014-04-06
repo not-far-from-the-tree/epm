@@ -8,9 +8,15 @@ class EventMailer < ActionMailer::Base
   def attend(event, users)
     users = [*users] # enables inputting a single user or array of users
     @event = event
-    # users are all participants, but as some could be an admin, need to do this for permissions:
+    # users are all participants, but as some could also be admins, need to do this for permissions:
     @user = users.find{|u| u.ability.cannot?(:read_notes, event)} || users.first
-    mail bcc: users.map{|u| to(u)}, subject: 'You are attending an event'
+    mail bcc: to(users), subject: 'You are attending an event'
+  end
+
+  def unattend(event, users, reason)
+    @event = event
+    @reason = reason
+    mail bcc: to(users), subject: 'You are no longer attending an event'
   end
 
   def coordinator_assigned(event)
@@ -21,19 +27,19 @@ class EventMailer < ActionMailer::Base
   def cancel(event, users)
     @event = event
     @user = users.first
-    mail bcc: users.map{|u| to(u)}, subject: "#{@event.display_name} has been cancelled"
+    mail bcc: to(users), subject: "#{@event.display_name} has been cancelled"
   end
 
   def change(event, users)
     @event = event
     @user = users.first
-    mail bcc: users.map{|u| to(u)}, subject: 'Changes to an event you are attending'
+    mail bcc: to(users), subject: 'Changes to an event you are attending'
   end
 
   def awaiting_approval(event, users)
     @event = event
     @user = users.first
-    mail bcc: users.map{|u| to(u)}, subject: 'An event is awaiting approval'
+    mail bcc: to(users), subject: 'An event is awaiting approval'
   end
 
   def approve(event)
@@ -43,8 +49,9 @@ class EventMailer < ActionMailer::Base
 
   private
 
-    def to(user)
-      user.name.present? ? "#{user.name} <#{user.email}>" : user.email
+    def to(users)
+      return users.map{|u| to(u)} unless users.is_a? User
+      users.name.present? ? "#{users.name} <#{users.email}>" : users.email
     end
 
 end

@@ -79,6 +79,20 @@ describe EventMailer do
     end
   end
 
+  it "sends correct unattend emails" do
+    participant = create :participant
+    mail = EventMailer.unattend(@event, [participant], 'max_changed')
+    expect(mail.bcc).to eq [participant.email]
+    expect(mail.subject).to eq 'You are no longer attending an event'
+    # checks that there is both email and plain text, and they both have the right content
+    expect(mail.body.parts.length).to eq 2
+    mail.body.parts.each do |part|
+      expect(part.to_s.downcase).to match 'sorry'
+      expect(part.to_s).to match event_url(@event)
+      expect(part.to_s).to match 'maximum'
+    end
+  end
+
 
   it "sends correct emails when a coordinator is assigned" do
     mail = EventMailer.coordinator_assigned(@event)

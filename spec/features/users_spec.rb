@@ -100,6 +100,11 @@ describe "Users" do
       expect(page).to have_content @participant.display_name
     end
 
+    it "can access profile page from /me" do
+      visit me_path
+      expect(current_path).to eq user_path @participant
+    end
+
     it "edits own profile" do
       visit user_path(@participant)
       click_link 'Edit'
