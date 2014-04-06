@@ -307,14 +307,15 @@ describe Event do
 
     context "waitlist" do
 
-      it "adds participants from the waitlist" do
-        e = create :participatable_event
+      it "adds participants from the waitlist, in the correct order" do
+        e = create :participatable_event, max: 1
         participant = create :participant
-        # artificially place someone on the waiting list even though they could just be attending
+        # artificially place two people on the waiting list even though they could just be attending
         e.event_users.create user: participant, status: EventUser.statuses[:waitlisted]
+        e.event_users.create user: create(:participant), status: EventUser.statuses[:waitlisted]
         expect(e.participants.length).to eq 0
         e.add_from_waitlist
-        expect(e.participants.reload.length).to eq 1
+        expect(e.participants.reload).to eq [participant]
         expect(last_email.subject).to match 'are attending'
         expect(last_email.bcc).to eq [participant.email]
       end
@@ -338,6 +339,71 @@ describe Event do
         e.finish = 1.week.ago
         e.add_from_waitlist
         expect(e.participants.reload.length).to eq 0
+      end
+
+      it "adds participants from the waitlist when increasing the max" do
+        e = create :participatable_event, max: 1
+        p1 = create :participant
+        e.attend p1
+        p2 = create :participant
+        e.attend p2
+        expect(e.participants.reload).to eq [p1]
+        e.update max: 100
+        expect(e.participants.reload.length).to eq 2
+      end
+
+      it "adds participants from the waitlist when eliminiating the max" do
+        e = create :participatable_event, max: 1
+        p1 = create :participant
+        e.attend p1
+        p2 = create :participant
+        e.attend p2
+        expect(e.participants.reload).to eq [p1]
+        e.update max: nil
+        expect(e.participants.reload.length).to eq 2
+      end
+
+      it "removes participants to the waitlist when adding a max" do
+        e = create :participatable_event
+        p1 = create :participant
+        e.attend p1
+        p2 = create :participant
+        e.attend p2
+        expect(e.participants.reload.length).to eq 2
+        e.update max: 1
+        expect(e.participants.reload).to eq [p1]
+        expect(e.waitlisted).to eq [p2]
+      end
+
+      it "removes participants to the waitlist when decreasing the max" do
+        e = create :participatable_event, max: 2
+        p1 = create :participant
+        e.attend p1
+        p2 = create :participant
+        e.attend p2
+        expect(e.participants.reload.length).to eq 2
+        e.update max: 1
+        expect(e.participants.reload).to eq [p1]
+        expect(e.waitlisted).to eq [p2]
+      end
+
+      it "does not change the participants when not changing the max" do
+        e = create :participatable_event, max: 1, name: 'foo'
+        p1 = create :participant
+        e.attend p1
+        e.attend create :participant
+        e.update name: 'bar'
+        expect(e.participants.reload).to eq [p1]
+      end
+
+      it "does not change the participants when changing the max for a cancelled event" do
+        e = create :participatable_event, max: 1, name: 'foo'
+        p1 = create :participant
+        e.attend p1
+        e.attend create :participant
+        e.update status: :cancelled
+        e.update max: :nil
+        expect(e.participants.reload).to eq [p1]
       end
 
     end

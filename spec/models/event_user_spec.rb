@@ -44,7 +44,7 @@ describe EventUser do
       waitlisted = create :event_user, event: event, user: create(:participant), status: :waitlisted
       will_withdraw = create :event_user, event: event, user: create(:participant), status: :waitlisted
       will_withdraw.unattend
-      expect(event.participants).to eq [attending.user]
+      expect(event.participants.reload).to eq [attending.user]
     end
 
   end

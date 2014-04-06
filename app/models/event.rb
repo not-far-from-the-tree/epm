@@ -75,7 +75,7 @@ class Event < ActiveRecord::Base
 
   has_many :event_users, dependent: :destroy
   has_many :participants, -> { where 'event_users.status' => EventUser.statuses[:attending] }, through: :event_users, source: :user
-  has_many :waitlisted, -> { where('event_users.status' => EventUser.statuses[:waitlisted]).order('event_users.updated_at DESC') }, through: :event_users, source: :user
+  has_many :waitlisted, -> { where('event_users.status' => EventUser.statuses[:waitlisted]).order('event_users.updated_at') }, through: :event_users, source: :user
   belongs_to :coordinator, class_name: 'User'
   def users # i.e. participants and the coordinator
     people = participants.to_a
@@ -173,14 +173,15 @@ class Event < ActiveRecord::Base
     '(untitled event)'
   end
 
-  # indicates whether a user *could* participate in the event, ignoring whether the event is full
-  def participatable_by?(user)
-    can_have_participants? && (time_until > 2.hours) && (user != coordinator) && status == 'approved' && # todo: allow configurability of time_until threshhold
-      user.has_role?(:participant) && !event_users.find_or_initialize_by(user_id: user.id).denied?
-  end
-
   def can_have_participants?
-    start.present? && coordinator.present? && status != 'proposed'
+    start.present? && coordinator.present? && !proposed?
+  end
+  # next two methods: whether a participant *could* participate in the event, ignoring whether the event is full
+  def can_accept_participants?
+    can_have_participants? && approved? && (time_until > 2.hours) # todo: allow configurability of time_until threshhold
+  end
+  def participatable_by?(user)
+    can_accept_participants? && (user != coordinator) && user.has_role?(:participant) && !event_users.find_or_initialize_by(user_id: user.id).denied?
   end
 
   def self.ical_date(datetime)
@@ -221,6 +222,7 @@ class Event < ActiveRecord::Base
   end
 
   # participant methods
+
   def participants_needed
     # this number should never be less than zero anyway, but the .max ensures that
     [min - participants.count, 0].max
@@ -234,23 +236,37 @@ class Event < ActiveRecord::Base
     max.present? && participants.reload.length >= max
   end
 
+  attr_accessor :max_was_changed
+  before_save do |event|
+    event.max = nil if event.max.blank?
+    event.max_was_changed = event.max_changed?
+    true
+  end
+  after_save :check_against_max, if: "max_was_changed && :can_accept_participants?"
+  def check_against_max
+    if !full? && waitlisted.any?
+      add_from_waitlist
+    elsif max && participants.count > max
+      remove_excess_participants
+    end
+  end
+
   def add_from_waitlist
     return false if past? || cancelled?
     spots = remaining_spots
     return false if !remaining_spots || remaining_spots == 0
-    eus = event_users.where(status: EventUser.statuses[:waitlisted]).order('event_users.updated_at DESC')
+    eus = event_users.where(status: EventUser.statuses[:waitlisted]).order('event_users.updated_at')
     eus = eus.limit(spots) if spots.is_a?(Integer)
-    eus.select!{|eu| participatable_by? eu.user } # checks that for instance, user's role of 'participant' hasn't been lost since getting on the waitlist
+    eus = eus.to_a.select{|eu| participatable_by? eu.user } # checks that for instance, user's role of 'participant' hasn't been lost since getting on the waitlist
     if eus.any?
-      eus.each {|eu| eu.update status: EventUser.statuses[:attending] }
+      EventUser.where(id: eus.map{|eu| eu.id}).update_all status: EventUser.statuses[:attending]
       EventMailer.attend(self, eus.map{|eu| eu.user}).deliver
     end
   end
-  def remove_excess_participants
-    return false unless max
-    excess = participants.count - max
-    return false unless excess > 0
-    # todo
+  def remove_excess_participants # assumes there is an excess, so doesn't check that
+    eus = event_users.where(status: EventUser.statuses[:attending]).order('event_users.updated_at DESC').limit(participants.count - max)
+    eus.update_all status: EventUser.statuses[:waitlisted]
+    # todo: inform them by email
   end
 
   def attend(user)
