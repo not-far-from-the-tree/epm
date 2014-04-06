@@ -53,7 +53,7 @@ class EventUser < ActiveRecord::Base
       self.status = :withdrawn
     end
     if self.status # i.e. don't need to save if trying to unattend when there was no record of attendance anyway
-      if save && was_attending && cancelled? && ( event.time_until > 5.hours ) # todo: allow configurability of this number
+      if save && was_attending && !attending? && ( event.time_until > 5.hours ) # todo: allow configurability of this number
         event.add_from_waitlist
       end
     end
