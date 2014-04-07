@@ -2,7 +2,6 @@ source 'https://rubygems.org'
 
 gem 'rails', "4.1.0.rc2"
 
-gem 'pg' #
 gem 'strip_attributes'
 
 # assets
@@ -30,16 +29,22 @@ gem 'simple_calendar'
 gem 'kaminari' # pagination
 
 group :production do
+  # Heroku
+  gem 'pg'
   gem 'rails_12factor'
+
+  # Dreamhost Shared Hosting
+  # gem 'mysql2'
+  # gem 'fcgi'
+  # gem 'therubyracer'
 end
 
-# normally these are just used in development and test;
-# included for production here as well, as production now is a demo using demo data generated from factories
-gem 'factory_girl_rails'
-gem 'faker'
-
 group :development, :test do
+  gem 'pg'
+
   gem 'rspec-rails'
+  gem 'factory_girl_rails'
+  gem 'faker'
   gem 'letter_opener'
 end
 

@@ -10,5 +10,6 @@ test:
 
 production:
   adapter: postgresql
+  # adapter: mysql2
   database: epm_production
   host: localhost
