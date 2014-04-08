@@ -43,10 +43,12 @@ group :development, :test do
   gem 'pg'
 
   gem 'rspec-rails'
-  gem 'factory_girl_rails'
-  gem 'faker'
   gem 'letter_opener'
 end
+
+# should be in dev/test group but currently used for production demo
+gem 'factory_girl_rails'
+gem 'faker'
 
 group :test do
   gem 'capybara'
