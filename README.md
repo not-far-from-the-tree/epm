@@ -1,10 +1,12 @@
 # Event-Participant Manager
 
 ## Deploying
-This to modify
-* config/database.yml
-* Gemfile - Depending on where you are deploying, you'll probably need to modify the  :production group in the Gemfile. The comments there should help with that.
+Things to modify
+* Gemfile :production group
+* config/database.yml production
+* config/environments/production.rb , the mailer config options
 
-## Tests
+
+## Testing
 
 Test by running 'rspec'.

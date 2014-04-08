@@ -13,6 +13,7 @@ require 'csv'
 Bundler.require(:default, Rails.env)
 
 module Epm
+
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -37,11 +38,12 @@ module Epm
     end
 
     # enables using view helpers in mailer views
-     config.to_prepare do
+    config.to_prepare do
       ActionMailer::Base.helper 'application'
       ActionMailer::Base.helper 'events'
       ActionMailer::Base.helper 'users'
     end
 
   end
+
 end
