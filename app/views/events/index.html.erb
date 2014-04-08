@@ -44,7 +44,7 @@
 <% if (!events_shown || current_user.has_role?(:admin)) && Event.past.any? %>
   <% events_shown = true %>
   <div id="past">
-    <h2>Most Recent Events</h2>
+    <h2>Past Events</h2>
     <%= render 'events', events: Event.past.limit(10) %>
   </div>
 <% end %>
