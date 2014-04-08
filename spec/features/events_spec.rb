@@ -300,7 +300,11 @@ describe "Events" do
 
       it "allows coordinator to set an event's coordinator only to his/herself" do
         coordinator2 = create :coordinator
-        e = create :event, name: 'event with no coordinator'
+        login_as @admin
+        visit new_event_path
+        fill_in 'Name', with: 'event with no coordinator'
+        click_button 'Save'
+        logout
         login_as @coordinator
         visit root_path
         click_link 'event with no coordinator'

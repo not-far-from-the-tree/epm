@@ -2,6 +2,12 @@ class Event < ActiveRecord::Base
 
   strip_attributes
 
+  def coordinator_id=(val)
+    # this was needed due to radio button converting 'nil' value to 'on' to 0
+    val = nil unless val.to_i > 0
+    super val
+  end
+
   def changed_significantly?
     # todo: remove lat+lng from this and test separataly via removal or addition of coords or distance change > n
     ['start', 'finish', 'name', 'description', 'address', 'lat', 'lng'].each do |attr|
