@@ -58,9 +58,16 @@ describe "Event Attendance" do
     expect(last_email.bcc).to eq [@participant.email]
   end
 
-  it "only allows participants to join events" do
-    login_as @admin
+  it "does not allow admins to attend events" do
     e = create :participatable_event
+    login_as @admin
+    visit event_path e
+    expect(page).not_to have_button 'Attend'
+  end
+
+  it "does not allow coordinators to participate in events" do
+    e = create :participatable_event
+    login_as create :coordinator
     visit event_path e
     expect(page).not_to have_button 'Attend'
   end
@@ -176,6 +183,63 @@ describe "Event Attendance" do
     end
     expect(last_email.subject).to match 'no longer attending'
     expect(last_email.bcc).to eq [p2.email]
+  end
+
+  it "allows coordinators to invite users to an event" do
+    e = create :participatable_event
+    login_as e.coordinator
+    visit event_path e
+    within '#invite' do
+      fill_in 'number', with: '1'
+      click_button 'Invite'
+    end
+    expect(page).to have_content 'invitation sent'
+  end
+
+  it "does not allow participants to invite users to an event" do
+    e = create :participatable_event
+    login_as @participant
+    visit event_path e
+    expect(all('#invite').length).to eq 0
+  end
+
+  # also tests that admins can invite users
+  it "invites people to an event, one accepts and one declines" do
+    3.times { create :participant }
+    e = create :participatable_event
+    login_as @admin
+    visit event_path e
+    within '#invite' do
+      fill_in 'number', with: '2'
+      click_button 'Invite'
+    end
+    expect(current_path).to eq event_path e
+    expect(page).to have_content '2 invitations sent'
+    expect(last_email.subject).to match 'invited'
+    email_addresses = last_email.bcc
+    expect(email_addresses.length).to eq 2
+    logout
+    login_as User.find_by email: email_addresses.first
+    visit event_path e
+    within '#rsvp' do
+      expect(page).to have_content 'been invited'
+      click_button 'Attend'
+    end
+    expect(current_path).to eq event_path e
+    within "#rsvp" do
+      expect(page).to have_content 'are attending'
+    end
+    logout
+    login_as User.find_by email: email_addresses.last
+    visit event_path e
+    within '#rsvp' do
+      expect(page).to have_content 'been invited'
+      click_button 'Will Not Attend'
+    end
+    expect(current_path).to eq event_path e
+    within "#rsvp" do
+      expect(page).to have_content 'are not attending'
+    end
   end
 
 end

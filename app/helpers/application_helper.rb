@@ -33,9 +33,11 @@ module ApplicationHelper
     super(name, *(args << options.merge(:builder => StandardFormBuilder)), &block)
   end
   def text_field_tag(name, value = nil, options = {})
-    options[:size] = 25 unless options.has_key? :size
-    options[:size] = [[options[:size], value.length].max, 100].min unless value.nil?
-    options['data-default_size'] = 25 unless options.has_key? :maxlength
+    if options['type'] != 'number'
+      options[:size] = 25 unless options.has_key? :size
+      options[:size] = [[options[:size], value.to_s.length].max, 100].min unless value.nil?
+      options['data-default_size'] = 25 unless options.has_key? :maxlength
+    end
     super(name, value, options)
   end
 

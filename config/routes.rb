@@ -17,6 +17,7 @@ Epm::Application.routes.draw do
       patch 'approve'
       patch 'attend'
       patch 'unattend'
+      patch 'invite'
     end
   end
 

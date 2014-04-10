@@ -33,9 +33,9 @@ class User < ActiveRecord::Base
     where("users.email LIKE ? OR users.name #{like} ?", "%#{q}%", "%#{q}%")
   }
   # todo: consider refactoring these to automatically have a scope for every role
-  scope :admins, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:admin]}").distinct }
-  scope :coordinators, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:coordinator]}").distinct }
-  scope :participants, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:participant]}").distinct }
+  scope :admins, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:admin]}") }
+  scope :coordinators, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:coordinator]}") }
+  scope :participants, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:participant]}") }
 
   has_many :event_users, dependent: :destroy
   has_many :coordinating_events, class_name: 'Event', foreign_key: 'coordinator_id'

@@ -1,11 +1,11 @@
-<% user ||= User.new -%><%= "Description: #{with_br event.description}" if event.description -%>
+<% user ||= User.new -%><%= "Description: #{event.description}" if event.description -%>
 
-<%= "Notes for admins and coordinators: #{with_br event.notes}" if event.notes && user.ability.can?(:read_notes, event) -%>
+<%= "Notes for admins and coordinators: #{event.notes}" if event.notes && user.ability.can?(:read_notes, event) -%>
 
 When: <% if event.start %><%= date event.start %>, <%= time event.start %> to <%= time event.finish %> (<%= pluralize event.duration_hours, 'hour' %>)<% else %>Date not set<% end %>
 
 <% if event.address || event.coords %>
-Where: <%= event.address ? with_br(event.address) : event.coords.join(', ') %>
+Where: <%= event.address ? event.address : event.coords.join(', ') %>
 <% end %>
 
 <%= "Coordinator: #{event.coordinator.display_name}" if event.coordinator %>

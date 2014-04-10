@@ -139,58 +139,57 @@ describe Event do
     expect(create(:event, status: :proposed, coordinator: c, start: nil, name: 'foo').awaiting_approval?).to be_false
   end
 
-
-  context "participatable_by?" do
-
-    it "can join an event if there is nothing preventing it" do
-      u = create :participant
-      e = create :participatable_event
-      expect(e.participatable_by? u).to be_true
-    end
-
-    it "cannot be joined if in the past" do
-      u = create :participant
-      e = create :participatable_past_event
-      expect(e.participatable_by? u).to be_false
-    end
-
-    it "cannot be joined by non-participants" do
-      u = create :coordinator
-      e = create :participatable_event
-      expect(e.participatable_by? u).to be_false
-    end
-
-    it "cannot be joined by someone who is already coordinating it" do
-      u = create :coordinator
-      u.roles.create name: :participant
-      e = create :event, coordinator: u
-      expect(e.participatable_by? u).to be_false
-    end
-
-    it "cannot be joined if there is no coordinator" do
-      u = create :participant
-      e = create :participatable_event, coordinator: nil
-      expect(e.participatable_by? u).to be_false
-    end
-
-    it "cannot be joined if it has no dates" do
-      u = create :participant
-      e = create :participatable_event, start: nil, name: 'foo'
-      expect(e.participatable_by? u).to be_false
-    end
-
-    it "cannot be joined if it has been cancelled" do
-      u = create :participant
-      e = create :participatable_event, status: :cancelled
-      expect(e.participatable_by? u).to be_false
-    end
-
-    # todo: test that not participatable when a user has been denied for the event
-    # denied feature not yet implemented
-
-  end
-
   context "users" do
+
+    context "participatable_by?" do
+
+      it "can join an event if there is nothing preventing it" do
+        u = create :participant
+        e = create :participatable_event
+        expect(e.participatable_by? u).to be_true
+      end
+
+      it "cannot be joined if in the past" do
+        u = create :participant
+        e = create :participatable_past_event
+        expect(e.participatable_by? u).to be_false
+      end
+
+      it "cannot be joined by non-participants" do
+        u = create :coordinator
+        e = create :participatable_event
+        expect(e.participatable_by? u).to be_false
+      end
+
+      it "cannot be joined by someone who is already coordinating it" do
+        u = create :coordinator
+        u.roles.create name: :participant
+        e = create :event, coordinator: u
+        expect(e.participatable_by? u).to be_false
+      end
+
+      it "cannot be joined if there is no coordinator" do
+        u = create :participant
+        e = create :participatable_event, coordinator: nil
+        expect(e.participatable_by? u).to be_false
+      end
+
+      it "cannot be joined if it has no dates" do
+        u = create :participant
+        e = create :participatable_event, start: nil, name: 'foo'
+        expect(e.participatable_by? u).to be_false
+      end
+
+      it "cannot be joined if it has been cancelled" do
+        u = create :participant
+        e = create :participatable_event, status: :cancelled
+        expect(e.participatable_by? u).to be_false
+      end
+
+      # todo: test that not participatable when a user has been denied for the event
+      # denied feature not yet implemented
+
+    end
 
     it "adds a participant" do
       e = create :participatable_event
@@ -236,73 +235,174 @@ describe Event do
       expect(eu.status).to eq 'withdrawn'
     end
 
-    it "returns the number of participants needed when there is no min" do
-      e = create :participatable_event, min: 0
-      expect(e.participants_needed).to eq 0
+    context "invitations" do
+
+      it "has a maximum number of invitees of 50" do
+        expect(Event.max_invitable).to eq 50
+      end
+
+      it "suggests number of invitations for a participtable event" do
+        create :participant
+        expect(build(:participatable_event).suggested_invitations).to be > 0
+      end
+
+      it "suggests zero invitations for a non-participtable event" do
+        create :participant
+        expect(build(:participatable_event, status: :proposed).suggested_invitations).to eq 0
+        expect(build(:participatable_event, start: 1.month.ago).suggested_invitations).to eq 0
+      end
+
+      it "suggests zero invitations for full events" do
+        create :participant
+        e = create :participatable_event, max: 1
+        e.attend create :participant
+        expect(e.suggested_invitations).to eq 0
+      end
+
+      it "has invitable participants" do
+        participant = create :participant
+        e = create :participatable_event
+        expect(e.invitable_participants).to include participant
+      end
+
+      it "excludes event coordinator from invitable participants" do
+        c = create :coordinator
+        c.roles.create name: :participant
+        participant = create :participant
+        e = create :participatable_event, coordinator: c
+        expect(e.invitable_participants).to include participant
+        expect(e.invitable_participants).not_to include c
+      end
+
+      it "excludes existing invitees and attendees from invitable participants" do
+        e = create :participatable_event
+        attending = create :participant
+        e.attend attending
+        invited = create :participant
+        e.event_users.create user: invited, status: :invited
+        p3 = create :participant
+        p4 = create :participant
+        invitable = e.invitable_participants
+        expect(invitable).to include p3
+        expect(invitable).to include p4
+        expect(invitable).not_to include attending
+        expect(invitable).not_to include invited
+      end
+
+      it "has invitable participants for geocoded events, closest first" do
+        e = create :participatable_event, lat: 50, lng: 50
+        near = create :participant, lat: 51, lng: 51
+        far = create :participant, lat: 60, lng: 60
+        invitable = e.invitable_participants
+        expect(invitable.index near).to be < invitable.index(far)
+      end
+
+      it "says an event is invitable when nobody has been invited yet" do
+        create :participant
+        expect(create(:participatable_event).invitable?).to be_true
+      end
+
+      it "says an event is not invitable when an event is past" do
+        create :participant
+        expect(create(:participatable_past_event).invitable?).to be_false
+      end
+
+      it "says an event is not invitable when someone has been invited already" do
+        create :participant
+        e = create :participatable_event
+        e.event_users.create user: create(:participant), status: :invited
+        expect(e.invitable?).to be_false
+      end
+
+      it "says an event is not invitable when someone is already attending" do
+        create :participant
+        e = create :participatable_event
+        e.attend create :participant
+        expect(e.invitable?).to be_false
+      end
+
+      it "says an event is not invitable when there is nobody to invite" do
+        User.participants.destroy_all # todo: should be handled by database cleaner...
+        expect(create(:participatable_event).invitable?).to be_false
+      end
+
     end
 
-    it "returns the number of participants needed when there is a min" do
-      e = create :participatable_event, min: 1
-      expect(e.participants_needed).to eq 1
-      e.attend create :participant
-      expect(e.participants_needed).to eq 0
+    context "number of participants/spots" do
+
+      it "returns the number of participants needed when there is no min" do
+        e = create :participatable_event, min: 0
+        expect(e.participants_needed).to eq 0
+      end
+
+      it "returns the number of participants needed when there is a min" do
+        e = create :participatable_event, min: 1
+        expect(e.participants_needed).to eq 1
+        e.attend create :participant
+        expect(e.participants_needed).to eq 0
+      end
+
+      it "returns the number of remaining spots when there is no max" do
+        e = create :participatable_event, max: nil
+        expect(e.remaining_spots).to be_true
+      end
+
+      it "returns the number of remaining spots when there is a max" do
+        e = create :participatable_event, max: 1
+        expect(e.remaining_spots).to eq 1
+        e.attend create :participant
+        expect(e.remaining_spots).to eq 0
+      end
+
+      it "returns whether an event is full when there is no max" do
+        e = create :participatable_event, max: nil
+        expect(e.full?).to be_false
+        e.attend create :participant
+        expect(e.full?).to be_false
+      end
+
+      it "returns whether an event is full when there is a max" do
+        e = create :participatable_event, max: 1
+        expect(e.full?).to be_false
+        e.attend create :participant
+        expect(e.full?).to be_true
+      end
+
     end
 
-    it "returns the number of remaining spots when there is no max" do
-      e = create :participatable_event, max: nil
-      expect(e.remaining_spots).to be_true
-    end
+    context "list" do
 
-    it "returns the number of remaining spots when there is a max" do
-      e = create :participatable_event, max: 1
-      expect(e.remaining_spots).to eq 1
-      e.attend create :participant
-      expect(e.remaining_spots).to eq 0
-    end
+      it "has an list of participants" do
+        e = create :participatable_event
+        expect(e.participants.length).to eq 0
+        participant = create :participant
+        e.attend participant
+        expect(e.participants.reload).to eq [participant]
+      end
 
-    it "returns whether an event is full when there is no max" do
-      e = create :participatable_event, max: nil
-      expect(e.full?).to be_false
-      e.attend create :participant
-      expect(e.full?).to be_false
-    end
+      it "has a list of waitlisted users" do
+        e = create :participatable_event, max: 1
+        e.attend create :participant
+        expect(e.waitlisted.count).to eq 0
+        participant = create :participant
+        e.attend participant
+        expect(e.waitlisted).to eq [participant]
+      end
 
-    it "returns whether an event is full when there is a max" do
-      e = create :participatable_event, max: 1
-      expect(e.full?).to be_false
-      e.attend create :participant
-      expect(e.full?).to be_true
-    end
+      it "lists coordinator as user when there are no participants" do
+        coordinator = create :coordinator
+        e = create :participatable_event, coordinator: coordinator
+        expect(e.users).to eq [coordinator]
+      end
 
-    it "has an list of participants" do
-      e = create :participatable_event
-      expect(e.participants.length).to eq 0
-      participant = create :participant
-      e.attend participant
-      expect(e.participants.reload).to eq [participant]
-    end
+      it "lists coordinator and participants as users" do
+        e = create :participatable_event, coordinator: create(:coordinator)
+        participant = create :participant
+        e.attend participant
+        expect(e.users.length).to eq 2
+        expect(e.users).to include participant
+      end
 
-    it "has a list of waitlisted users" do
-      e = create :participatable_event, max: 1
-      e.attend create :participant
-      expect(e.waitlisted.count).to eq 0
-      participant = create :participant
-      e.attend participant
-      expect(e.waitlisted).to eq [participant]
-    end
-
-    it "lists coordinator as user when there are no participants" do
-      coordinator = create :coordinator
-      e = create :participatable_event, coordinator: coordinator
-      expect(e.users).to eq [coordinator]
-    end
-
-    it "lists coordinator and participants as users" do
-      e = create :participatable_event, coordinator: create(:coordinator)
-      participant = create :participant
-      e.attend participant
-      expect(e.users.length).to eq 2
-      expect(e.users).to include participant
     end
 
     context "waitlist" do

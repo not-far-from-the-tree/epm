@@ -283,6 +283,34 @@ class Event < ActiveRecord::Base
     event_users.where(user_id: user.id).first_or_initialize.unattend
   end
 
+  def invitable_participants
+    # todo: take into account those who haven't been to any events yet
+    invitable = User.participants
+    if self.coords
+      invitable = invitable.where.not(lat: nil).by_distance(origin: self.coords)
+    else
+      invitable = invitable.order('created_at DESC') # i.e. newest participants
+    end
+    exclude = []
+    exclude << coordinator.id if coordinator
+    event_users.select{|eu| eu.persisted?}.each{|eu| exclude << eu.user_id}
+    invitable = invitable.where.not(id: exclude) if exclude.any?
+    invitable
+  end
+  def self.max_invitable
+    50
+  end
+  def suggested_invitations # number of people that should be invited
+    return 0 if full? || !can_accept_participants?
+    num = invitable_participants.limit(self.class.max_invitable).count
+    num = [num, (max * 2)].min if max
+    num
+  end
+  def invitable?
+    can_accept_participants? && event_users.select{|eu| eu.persisted?}.none? && suggested_invitations > 0
+  end
+
+
   private
 
     # this method identical to that in model user.rb

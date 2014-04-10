@@ -1,0 +1,5 @@
+<p>You are invited to attend <%= link_to @event.display_name, event_url(@event) %>.<p>
+
+<%= render 'event', event: @event, user: @user %>
+
+<p>Please visit the <%= link_to 'event page', event_url(@event) %> to RSVP, even if you are not planning to attend.</p>

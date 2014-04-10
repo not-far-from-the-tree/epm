@@ -5,6 +5,7 @@
 %>
 
 <% content_for :header do %>
+
   <% if can? :update, @event %>
     <%= link_to 'Edit', edit_event_path(@event) %>
   <% end %>
@@ -14,6 +15,16 @@
   <% if can?(:cancel, @event) && !@event.cancelled? %>
     <%= link_to 'Cancel', cancel_event_path(@event) %>
   <% end %>
+
+  <% if can?(:invite, @event) && @event.invitable? %>
+    <%= form_for @event, url: invite_event_path(@event), method: :patch, html: {id: 'invite'} do |f| %>
+      <label>
+        Invite <%= number_field_tag 'number', @event.suggested_invitations, min: 1, max: Event.max_invitable %> participants
+      </label>
+      <%= f.submit 'Invite' %>
+    <% end %>
+  <% end %>
+
 <% end %>
 
 <% if current_user.has_role?(:participant) || current_user.has_role?(:coordinator) || @buttons.any? %>

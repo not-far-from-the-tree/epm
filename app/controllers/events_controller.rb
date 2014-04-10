@@ -48,6 +48,8 @@ class EventsController < ApplicationController
         @attend_str += 'have requested to attend'
       elsif eu.attending? || is_the_coordinator
         @attend_str += 'are attending'
+      elsif eu.invited?
+        @attend_str += 'have been invited to attend'
       else
         @attend_str += 'are not attending'
       end
@@ -169,6 +171,22 @@ class EventsController < ApplicationController
   def unattend
     @event.unattend current_user
     # note: no need for flash messages as that is redundant with the rsvp text in events#show
+    redirect_to @event
+  end
+
+  include ActionView::Helpers::TextHelper # needed for pluralize()
+  def invite
+    num =  params['number'].to_i
+    people = @event.invitable_participants.limit([num, Event.max_invitable].min)
+    if num > 0 && people.any?
+      people.each do |participant|
+        @event.event_users.create user: participant, status: :invited
+      end
+      EventMailer.invite(@event, people).deliver
+      flash[:notice] = "#{pluralize people.length, 'invitation'} sent."
+    else
+      flash[:notice] = 'No invitations sent.'
+    end
     redirect_to @event
   end
 

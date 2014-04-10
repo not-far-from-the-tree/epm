@@ -70,9 +70,12 @@ header {
   h1 + div {
     margin-top: $header_padding;
   }
-  a {
+  a, form {
     margin-right: 1em;
     white-space: nowrap;
+  }
+  form {
+    display: inline;
   }
 }
 
