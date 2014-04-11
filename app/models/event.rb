@@ -80,7 +80,7 @@ class Event < ActiveRecord::Base
   attr_accessor :notify_of_changes # setting to false allows supressing email notifications; todo: move to controller
 
   has_many :event_users, dependent: :destroy
-  has_many :participants, -> { where 'event_users.status' => EventUser.statuses[:attending] }, through: :event_users, source: :user
+  has_many :participants, -> { where 'event_users.status' => [EventUser.statuses[:attending], EventUser.statuses[:attended]] }, through: :event_users, source: :user
   has_many :waitlisted, -> { where('event_users.status' => EventUser.statuses[:waitlisted]).order('event_users.updated_at') }, through: :event_users, source: :user
   belongs_to :coordinator, class_name: 'User'
   def users # i.e. participants and the coordinator
@@ -100,7 +100,11 @@ class Event < ActiveRecord::Base
   scope :with_date, -> { where 'start IS NOT NULL AND finish IS NOT NULL' }
   scope :past, -> { where('finish < ?', Time.zone.now).reorder('finish DESC') }
   scope :not_past, -> { where 'start IS NULL OR finish > ?', Time.zone.now }
-  scope :not_attended_by, ->(user) { joins('LEFT JOIN event_users ON events.id = event_users.event_id').where("events.id NOT IN (SELECT event_id FROM event_users WHERE user_id = ?) AND coordinator_id != ?", user.id, user.id).distinct }
+  scope :not_attended_by, ->(user) {
+    joins('LEFT JOIN event_users ON events.id = event_users.event_id')
+    .where("events.id NOT IN (SELECT event_id FROM event_users WHERE user_id = ? AND status IN (#{EventUser.statuses[:attending]},#{EventUser.statuses[:attended]})) AND coordinator_id != ?", user.id, user.id)
+    .distinct
+  }
   scope :coordinatorless, -> { where coordinator: nil }
   scope :dateless, -> { where start: nil }
   scope :participatable, -> { where 'start IS NOT NULL AND coordinator_id IS NOT NULL AND events.status = ?', statuses[:approved] }
@@ -171,10 +175,12 @@ class Event < ActiveRecord::Base
   end
 
   include ActionView::Helpers::TextHelper # needed for truncate()
-  def display_name
+  def display_name(user = nil)
     return name if name.present?
     return truncate(description, length: 50, separator: ' ') if description.present?
-    return truncate(address, length: 50, separator: ' ') if address.present?
+    if address.present? && (!hide_specific_location || (user && user.ability.can?(:read_specific_location, self)) )
+      return truncate(address, length: 50, separator: ' ') if address.present?
+    end
     return start.strftime('%B %e %Y, %l:%M %p').gsub('  ', ' ') if start.present?
     '(untitled event)'
   end
@@ -222,9 +228,12 @@ class Event < ActiveRecord::Base
     vevent
   end
 
-  # this method identical to that in model user.rb
-  def coords
-    (lat.present? && lng.present?) ? [lat, lng] : nil
+  def coords(user = nil)
+    return nil if lat.blank? || lng.blank?
+    if !hide_specific_location || (user && user.ability.can?(:read_specific_location, self))
+      return [lat, lng]
+    end
+    [lat.round(2), lng.round(2)]
   end
 
   # participant methods

@@ -5,9 +5,9 @@
   <%= start_cols %>
 
   <% if @event.persisted? && @event.users.any? %>
-    <div class="field">
+    <div class="checkbox_field">
       <%= f.check_box :notify_of_changes, {}, true, false %>
-      <%= f.label :notify_of_changes, 'Notify attendees of changes', style: 'font-weight:normal' %>
+      <%= f.label :notify_of_changes, 'Notify attendees of changes' %>
     </div>
   <% end %>
 
@@ -95,6 +95,11 @@
   </fieldset>
 
   <%= render 'shared/address_form', f: f %>
+
+  <div class="checkbox_field">
+    <%= f.check_box :hide_specific_location %>
+    <%= f.label :hide_specific_location, 'Hide specific location for non-attendees' %>
+  </div>
 
   <%= end_cols %>
 

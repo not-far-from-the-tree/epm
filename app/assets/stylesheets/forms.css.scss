@@ -2,7 +2,7 @@ form.button_to, form.button_to div {
   display: inline;
 }
 
-form .field, form fieldset {
+form .field, form .checkbox_field, form fieldset {
   margin: 1em 0;
 }
 textarea {
@@ -22,6 +22,9 @@ input[type="number"] {
 
 label, legend {
   font-weight: bold;
+}
+.checkbox_field label {
+  font-weight: normal;
 }
 fieldset {
   border-width: 0;

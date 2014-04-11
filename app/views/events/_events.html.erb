@@ -1,7 +1,7 @@
 <ol class="events">
   <% events.each do |event| %>
     <li>
-      <%= link_to event.display_name, event %>
+      <%= link_to event.display_name(current_user), event %>
       <% if event.start.present? %>
         <small><%= 'in ' if !event.past? %><%= time_ago_in_words(event.start) %><%= ' ago' if event.past? %></small>
       <% end %>

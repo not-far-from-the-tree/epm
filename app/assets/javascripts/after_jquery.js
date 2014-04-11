@@ -46,11 +46,13 @@ function show_map(html_points) {
   if (editing) {
     $(markers).each(function(){ this.on('dragend', marker_dragged); });
   }
-  if (!$('body').hasClass('users-edit') && !$('body').hasClass('users-show')) {
+  if (!$('body').hasClass('users-edit')) {
     L.marker(me, {icon: L.divIcon({className: 'me', html: '<div class="inner"></div>', iconSize: L.point(15, 15)})}).addTo(map);
     points.push(me);
   }
-  if (points.length > 1) { map.fitBounds(points); }
+  if (points.length > 1) {
+    setTimeout(function(){ map.fitBounds(points); }, 0); // https://github.com/Leaflet/Leaflet/issues/2021
+  }
 }
 
 $(function(){

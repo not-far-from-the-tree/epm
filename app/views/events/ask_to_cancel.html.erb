@@ -1,4 +1,4 @@
-<% title "Cancel #{@event.display_name}" %>
+<% title "Cancel ‘#{@event.display_name(current_user)}’" %>
 
 <%= form_for @event, url: cancel_event_path(@event), method: :patch do |f| %>
 

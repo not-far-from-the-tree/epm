@@ -17,15 +17,9 @@
       Date not set.
     <% end %>
   </dd>
-  <% if event.address || event.coords %>
+  <% if event.address && user.ability.can?(:read_specific_location, event) %>
     <dt>Where</dt>
-    <dd>
-      <% if event.address %>
-        <%= with_br event.address %>
-      <% else %>
-        <%= event.coords.join ', ' %>
-      <% end %>
-    </dd>
+    <dd><%= with_br event.address if event.address %></dd>
   <% end %>
   <% if event.coordinator %>
     <dt>Coordinator</dt>

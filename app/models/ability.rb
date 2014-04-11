@@ -14,8 +14,8 @@ class Ability
       can :me, User
       can [:show, :update], User, id: user.id
       can :destroy, Role, user_id: user.id
-      can :deactivate, User do |user|
-        user.roles.reject{|r| user.ability.can?(:destroy, r)}.empty?
+      can :deactivate, User do |u|
+        u.roles.reject{|r| can? :destroy, r }.empty?
       end
 
       if user.has_role? :admin
@@ -25,12 +25,17 @@ class Ability
 
       if user.has_role? :coordinator
         can :read, Event
-        can [:update, :ask_to_cancel, :cancel, :read_notes, :invite], Event, coordinator_id: user.id
-        can :update, Event, coordinator_id: nil
+        can [:update, :read_notes, :read_specific_location], Event do |event|
+          !event.coordinator || (event.coordinator == user)
+        end
+        can [:ask_to_cancel, :cancel, :invite], Event, coordinator_id: user.id
       end
 
       if user.has_role? :participant
         can [:attend, :unattend], Event
+        can :read_specific_location, Event do |event|
+          !event.hide_specific_location || event.participants.include?(user)
+        end
       end
 
     end
