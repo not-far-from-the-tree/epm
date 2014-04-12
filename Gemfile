@@ -2,8 +2,6 @@ source 'https://rubygems.org'
 
 gem 'rails', '4.1.0'
 
-gem 'strip_attributes'
-
 # assets
 gem 'sass-rails'
 gem 'uglifier'
@@ -14,10 +12,6 @@ gem 'jquery-ui-rails'
 gem 'devise'
 gem 'cancancan'
 
-gem 'configurable_engine' # site-wide config
-
-gem 'icalendar'
-
 # geo stuff
 gem 'geokit-rails'
 gem 'geokit-nominatim'
@@ -27,6 +21,12 @@ gem 'leaflet-rails'
 gem 'rinku' # URL auto-linking
 gem 'simple_calendar'
 gem 'kaminari' # pagination
+
+# misc gems
+gem 'strip_attributes' # clean form input
+gem 'configurable_engine' # site-wide config
+gem 'icalendar' # export
+gem 'whenever', :require => false # cron
 
 group :production do
   # Heroku

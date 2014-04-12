@@ -199,4 +199,21 @@ describe EventMailer do
     end
   end
 
+  it "sends correct reminder emails" do
+    mail = EventMailer.remind(@event)
+    expect(mail.bcc).to eq [@event.coordinator.email] # no participants so sent just to coordinator
+    expect(mail.subject).to match 'Reminder'
+    # checks that there is both email and plain text, and they both have the right content
+    expect(mail.body.parts.length).to eq 2
+    mail.body.parts.each do |part|
+      expect(part.to_s).to match event_url(@event)
+    end
+  end
+
+  it "sends reminder emails to the specified recipients" do
+    p = create :participant
+    mail = EventMailer.remind(@event, [p])
+    expect(mail.bcc).to eq [p.email]
+  end
+
 end

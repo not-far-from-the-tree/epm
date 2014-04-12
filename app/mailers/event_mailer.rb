@@ -54,6 +54,14 @@ class EventMailer < ActionMailer::Base
     mail bcc: to(users), subject: 'You are invited to an event'
   end
 
+  include ActionView::Helpers::TextHelper # needed for pluralize()
+  def remind(event, users = nil)
+    @event = event
+    users ||= @event.users
+    @user = users.find{|u| u.ability.cannot?(:read_notes, event)} || users.first
+    mail bcc: to(users), subject: "Reminder: #{event.display_name} is in #{pluralize event.hours_until, 'hour'}"
+  end
+
   private
 
     def to(users)

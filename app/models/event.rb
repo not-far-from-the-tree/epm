@@ -121,6 +121,10 @@ class Event < ActiveRecord::Base
     finish = month.to_i < 12 ? start.change(month: (start.month + 1)) : start.change(month: 1, year: (start.year + 1))
     where("start >= ? AND start < ?", start, finish)
   }
+  scope :will_happen_in_two_days, -> {
+    next_day = Time.zone.now + 1.day
+    participatable.where('start > ? AND start < ?', next_day, (next_day + 1.day))
+  }
 
   attr_reader :start_day, :start_time_12, :start_time_p
   attr_accessor :time_error
@@ -168,6 +172,9 @@ class Event < ActiveRecord::Base
   end
   def time_until
     start.present? ? start - Time.zone.now : nil
+  end
+  def hours_until
+    start.present? ? (time_until / 1.hour).round : nil
   end
 
   def awaiting_approval?

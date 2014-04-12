@@ -192,6 +192,12 @@ describe Event do
       expect(build(:event, start: 2.weeks.ago).time_until).to be_within(1.minute).of(- 2.weeks)
     end
 
+    it "properly calculates hours until" do
+      expect(build(:event, start: nil).hours_until).to be_nil
+      expect(build(:event, start: 1.hour.from_now).hours_until).to eq 1
+      expect(build(:event, start: 1.day.from_now).hours_until).to eq 24
+    end
+
   end
 
   it "responds properly to awaiting_approval? method" do
@@ -577,7 +583,7 @@ describe Event do
   context "multiple events" do
 
     before :each do
-      # argh gotta use db cleaner instead
+      # todo: figure out why database cleaner isn't handling this
       Event.destroy_all
     end
 
@@ -607,13 +613,14 @@ describe Event do
     end
 
     it "lists only events not attended by a user" do
+      c = create :coordinator
       participant = create :participant
-      not_involved = create :participatable_event
-      attending = create :participatable_event
+      not_involved = create :participatable_event, coordinator: c
+      attending = create :participatable_event, coordinator: c
       attending.attend participant
-      invited = create :participatable_event
+      invited = create :participatable_event, coordinator: c
       invited.event_users.create user: participant, status: :invited
-      cancelled = create :participatable_event
+      cancelled = create :participatable_event, coordinator: c
       cancelled.attend participant
       cancelled.unattend participant
       events = Event.not_attended_by participant
@@ -677,6 +684,16 @@ describe Event do
       expect(events.length).to eq 2
       expect(events).to include e1
       expect(events).to include e2
+    end
+
+    it "lists events which will begin in two days" do # used for sending reminders
+      c = create :coordinator
+      now = Time.zone.now
+      early  = create :participatable_event, start: now , coordinator: c
+      late = create :participatable_event, start: now + 5.days, coordinator: c
+      in_day = create :participatable_event, start: now + 2.days, coordinator: c
+      in_day_proposed = create :participatable_event, start: now + 2.days, status: :proposed, coordinator: c
+      expect(Event.will_happen_in_two_days).to eq [in_day]
     end
 
   end
