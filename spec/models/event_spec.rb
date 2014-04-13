@@ -478,16 +478,34 @@ describe Event do
     context "waitlist" do
 
       it "adds participants from the waitlist, in the correct order" do
+        # create an event with one person who will cancel, and a waitlist of three people
+        #   one 'newbie' who hasn't been to any events and two others
+        other_event = create :participatable_event
+        p1 = create :participant
+        other_event.attend p1
+        p2 = create :participant
+        other_event.attend p2
+        newbie = create :participant
         e = create :participatable_event, max: 1
-        participant = create :participant
-        # artificially place two people on the waiting list even though they could just be attending
-        e.event_users.create user: participant, status: EventUser.statuses[:waitlisted]
-        e.event_users.create user: create(:participant), status: EventUser.statuses[:waitlisted]
-        expect(e.participants.length).to eq 0
-        e.add_from_waitlist
-        expect(e.participants.reload).to eq [participant]
+        will_cancel = create :participant
+        e.attend will_cancel
+        # on the waitlist:
+        e.attend p1
+        e.attend p2
+        e.attend newbie
+        expect(e.participants.reload).to eq [will_cancel]
+        # first person cancells, should bump up newbie
+        e.unattend will_cancel
+        expect(e.participants.reload).to eq [newbie]
         expect(last_email.subject).to match 'are attending'
-        expect(last_email.bcc).to eq [participant.email]
+        expect(last_email.bcc).to eq [newbie.email]
+        # further cancellations
+        e.waitlisted.reload
+        e.unattend newbie
+        expect(e.participants.reload).to eq [p1]
+        e.waitlisted.reload
+        e.unattend p1
+        expect(e.participants.reload).to eq [p2]
       end
 
       it "does not add participants from the waitlist for cancelled events" do

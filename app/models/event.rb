@@ -278,12 +278,17 @@ class Event < ActiveRecord::Base
     return false if past? || cancelled?
     spots = remaining_spots
     return false if !remaining_spots || remaining_spots == 0
-    eus = event_users.where(status: EventUser.statuses[:waitlisted]).order('event_users.updated_at')
-    eus = eus.limit(spots) if spots.is_a?(Integer)
-    eus = eus.to_a.select{|eu| participatable_by? eu.user } # checks that for instance, user's role of 'participant' hasn't been lost since getting on the waitlist
-    if eus.any?
-      EventUser.where(id: eus.map{|eu| eu.id}).update_all status: EventUser.statuses[:attending]
-      EventMailer.attend(self, eus.map{|eu| eu.user}).deliver
+    people = waitlisted.to_a
+    if spots.is_a?(Integer) && people.length > spots # can't add in everyone, must choose
+      # putting people who have no other events first while preserving the existing order as a secondary order
+      people = people.partition{|u| u.events.none? }
+      people = people.first + people.second
+    end
+    people.reject!{|u| !participatable_by? u} # checks that for instance, user's role of 'participant' hasn't been lost since getting on the waitlist
+    people = people[0..(spots-1)] if spots.is_a?(Integer)
+    if people.any?
+      event_users.where(user_id: people.map{|u| u.id}).update_all status: EventUser.statuses[:attending]
+      EventMailer.attend(self, people).deliver
     end
   end
   def remove_excess_participants # assumes there is an excess, so doesn't check that
