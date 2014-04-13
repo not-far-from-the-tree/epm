@@ -44,8 +44,10 @@ describe "Event Attendance" do
     expect(current_path).to eq event_path e
     expect(page).to have_content 'You are attending'
     expect(page).to have_content @participant.display_name
-    click_link 'My Profile'
-    within '#upcoming' do
+    within 'header' do
+      click_link 'Events'
+    end
+    within '#own_upcoming' do
       expect(page).to have_link e.display_name
     end
   end
@@ -123,7 +125,9 @@ describe "Event Attendance" do
     end
     expect(current_path).to eq event_path e
     expect(page).to have_content 'You are on the waitlist'
-    click_link 'My Profile'
+    within 'header' do
+      click_link 'Events'
+    end
     within '#potential' do
       expect(page).to have_link e.display_name
     end
@@ -204,6 +208,7 @@ describe "Event Attendance" do
   end
 
   # also tests that admins can invite users
+  # and that invitations are shown on the home page
   it "invites people to an event, one accepts and one declines" do
     3.times { create :participant }
     e = create :participatable_event
@@ -220,7 +225,10 @@ describe "Event Attendance" do
     expect(email_addresses.length).to eq 2
     logout
     login_as User.find_by email: email_addresses.first
-    visit event_path e
+    visit root_path
+    within '#invited' do
+      click_link e.display_name
+    end
     within '#rsvp' do
       expect(page).to have_content 'been invited'
       click_button 'Attend'

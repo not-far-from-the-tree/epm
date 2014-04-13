@@ -198,8 +198,9 @@ describe User do
       p1 = create :participant
       p2 = create :participant
       c = create :coordinator
-      e_attending = create :participatable_event, coordinator: c
+      e_attending = create :participatable_event, max: 1, coordinator: c
       e_attending.attend p1
+      e_attending.attend p2 # p2 waitlisted
       e_waitlisted = create :participatable_event, max: 1, coordinator: c
       e_waitlisted.attend p2
       e_waitlisted.attend p1
@@ -212,6 +213,25 @@ describe User do
       e_cancelled.attend p1
       e_cancelled.update(status: Event.statuses[:cancelled])
       expect(p1.potential_events).to eq [e_waitlisted]
+    end
+
+    it "lists upcoming events the user has been invited to" do
+      p1 = create :participant
+      p2 = create :participant
+      c = create :coordinator
+      e_attending = create :participatable_event, coordinator: c
+      e_attending.attend p1
+      e_invited = create :participatable_event, coordinator: c
+      e_invited.event_users.create user: p1, status: :invited
+      e_cancelled = create :participatable_event, coordinator: c
+      e_cancelled.event_users.create user: p1, status: :invited
+      # using update_attribute rather than update as it skips validations
+      #   - for some reason this seems to be validating the associated event_user record as well, so it fails
+      # todo: figure this out
+      e_cancelled.update_attribute :status, :cancelled
+      e_p2_invited = create :participatable_event, coordinator: c
+      e_p2_invited.event_users.create user: p2, status: :invited
+      expect(p1.open_invites).to eq [e_invited]
     end
 
   end

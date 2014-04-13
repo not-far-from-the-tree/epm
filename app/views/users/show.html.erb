@@ -61,21 +61,6 @@
   <% end %>
 </div>
 
-
-<% if @upcoming.any? %>
-  <div id="upcoming">
-    <h2>Upcoming Events</h2>
-    <%= render 'events/events', events: @upcoming %>
-  </div>
-<% end %>
-
-<% if @maybe.any? %>
-  <div id="potential">
-    <h2>Potential Events</h2>
-    <%= render 'events/events', events: @maybe %>
-  </div>
-<% end %>
-
 <% if @past.any? %>
   <div id="past">
     <h2>Past Events</h2>

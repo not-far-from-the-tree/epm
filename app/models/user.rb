@@ -43,9 +43,20 @@ class User < ActiveRecord::Base
   def events
     Event.not_cancelled.joins("LEFT JOIN event_users ON events.id = event_users.event_id AND event_users.status IN (#{EventUser.statuses[:attending]}, #{EventUser.statuses[:attended]})").where("events.coordinator_id = ? OR event_users.user_id = ?", id, id).distinct
   end
-  # events where the participant is on the waitlist or has requested to attend
-  def potential_events
-    Event.not_past.not_cancelled.joins(:event_users).where('event_users.status' => [EventUser.statuses[:waitlisted], EventUser.statuses[:requested]])
+
+  def open_invites # upcoming events the user has been invited to
+    Event.not_past.not_cancelled.joins(:event_users)
+      .where(
+        'event_users.status' => EventUser.statuses[:invited],
+        'event_users.user_id' => id
+      )
+  end
+  def potential_events # upcoming events where waitlisted or requested to attend
+    Event.not_past.not_cancelled.joins(:event_users)
+      .where(
+        'event_users.status' => [EventUser.statuses[:waitlisted], EventUser.statuses[:requested]],
+        'event_users.user_id' => id
+      )
   end
 
 

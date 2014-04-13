@@ -25,12 +25,29 @@
   </div>
 <% end %>
 
-<% if current_user.events.not_past.any? %>
+<% if (current_user.has_role?(:participant) || current_user.has_role?(:coordinator)) && current_user.events.not_past.any? %>
   <% events_shown = true %>
-  <div>
+  <div id="own_upcoming">
     <h2>My Upcoming Events</h2>
     <%= render 'events', events: current_user.events.not_past %>
   </div>
+<% end %>
+
+<% if current_user.has_role? :participant %>
+  <% if current_user.open_invites.any? %>
+    <% events_shown = true %>
+    <div id="invited">
+      <h2>Invitations</h2>
+      <%= render 'events', events: current_user.open_invites %>
+    </div>
+  <% end %>
+  <% if current_user.potential_events.any? %>
+    <% events_shown = true %>
+    <div id="potential">
+      <h2>Potential Events</h2>
+      <%= render 'events/events', events: current_user.potential_events %>
+    </div>
+  <% end %>
 <% end %>
 
 <% if @joinable.any? %>
