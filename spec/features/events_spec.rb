@@ -658,6 +658,22 @@ describe "Events" do
       expect(all('#participants a').length).to eq 0
     end
 
+    it "shows events with missing info to admins" do
+      c = create :coordinator
+      no_coordinator = create :full_event, coordinator: nil
+      no_date = create :full_event, coordinator: c, start: nil
+      no_location = create :full_event, coordinator: c, lat: nil, no_geocode: true
+      okay = create :full_event, coordinator: c
+      login_as @admin
+      visit root_path
+      within '#missing' do
+        expect(page).to have_link no_coordinator.display_name
+        expect(page).to have_link no_date.display_name
+        expect(page).to have_link no_location.display_name
+        expect(page).not_to have_link okay.display_name
+      end
+    end
+
     context "notes" do
 
       # the first test creates the note through the ui to test that, the others don't need to

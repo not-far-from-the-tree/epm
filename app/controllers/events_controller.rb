@@ -9,8 +9,8 @@ class EventsController < ApplicationController
           @awaiting_approval = Event.awaiting_approval
         end
         if current_user.has_role? :admin
-          @missing_title = 'Events with No Date or No Coordinator'
-          @missing_parts = Event.not_past.not_cancelled.where('coordinator_id IS NULL OR start IS NULL')
+          @missing_title = 'Events Missing a Date, Coordinator, or Location'
+          @missing_parts = Event.not_past.not_cancelled.where('coordinator_id IS NULL OR start IS NULL OR lat IS NULL')
         elsif current_user.has_role? :coordinator
           @missing_title = 'Events with No Coordinator'
           @missing_parts = Event.not_past.not_cancelled.where('coordinator_id IS NULL')

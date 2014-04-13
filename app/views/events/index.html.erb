@@ -19,7 +19,7 @@
 
 <% if defined?(@missing_parts) && @missing_parts.any? %>
   <% events_shown = true %>
-  <div>
+  <div id="missing">
     <h2><%= @missing_title %></h2>
       <%= render 'events', events: @missing_parts %>
   </div>
