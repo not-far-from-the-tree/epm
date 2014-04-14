@@ -78,6 +78,12 @@ header {
     display: inline;
   }
 }
+@media (max-width: 450px) {
+  #header form { /* needed specifically for the form on users/index */
+    white-space: normal;
+    display: block;
+  }
+}
 
 #main {
   margin: $header_padding;

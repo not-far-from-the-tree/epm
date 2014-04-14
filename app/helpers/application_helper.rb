@@ -26,6 +26,19 @@ module ApplicationHelper
     "</div></div>#{clear}".html_safe
   end
 
+  def submit(str = 'Save', html_options = {})
+    content_tag :button, html_options.merge!(type: 'submit', name: 'commit', value: str) do
+      str
+    end
+  end
+
+  # overwrite to force using <button> instead of <input type="submit">
+  def button_to(name = nil, options = nil, html_options = nil, &block)
+    super(options, html_options) do
+      name
+    end
+  end
+
   # overwrite form helpers to have inputs auto-size to their content
   def form_for(name, *args, &block)
     options = args.extract_options!
@@ -35,7 +48,7 @@ module ApplicationHelper
   def text_field_tag(name, value = nil, options = {})
     if options['type'] != 'number'
       options[:size] = 25 unless options.has_key? :size
-      options[:size] = [[options[:size], value.to_s.length].max, 100].min unless value.nil?
+      options[:size] = [[options[:size], (value.to_s.length+3)].max, 100].min unless value.nil?
       options['data-default_size'] = 25 unless options.has_key? :maxlength
     end
     super(name, value, options)
@@ -51,7 +64,7 @@ class StandardFormBuilder < ActionView::Helpers::FormBuilder
       args[0] = {} unless args.any?
       # smart length expands from default (up to a max) based on the content
       args[0][:size] = default_size unless args[0].has_key? :size
-      args[0][:size] = [[args[0][:size], @object[label].to_s.length].max, 100].min unless @object.new_record? || @object[label].nil?
+      args[0][:size] = [[args[0][:size], (@object[label].to_s.length+3)].max, 100].min unless @object.new_record? || @object[label].nil?
       args[0]['data-default_size'] = default_size unless args[0].has_key? :maxlength
       super(label, *args)
     end

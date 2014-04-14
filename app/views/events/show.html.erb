@@ -21,7 +21,7 @@
       <label>
         Invite <%= number_field_tag 'number', @event.suggested_invitations, min: 1, max: Event.max_invitable %> participants
       </label>
-      <%= f.submit 'Invite' %>
+      <%= submit 'Invite' %>
     <% end %>
   <% end %>
 

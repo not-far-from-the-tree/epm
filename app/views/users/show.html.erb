@@ -40,7 +40,7 @@
     <% if other_roles.any? %>
       <%= form_for [@user, @user.roles.build], html: {style: 'display:inline'} do |f| %>
         <%= f.select :name, options_for_select(other_roles.map{|n,v|[n.capitalize, n]}.unshift(['Add Role', nil])) %>
-        <%= f.submit 'Add' %>
+        <%= submit 'Add' %>
       <% end %>
     <% end %>
   <% end %>

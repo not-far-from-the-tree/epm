@@ -1,3 +1,7 @@
+input, textarea, select, button {
+  font-size: 0.9em;
+}
+
 form.button_to, form.button_to div {
   display: inline;
 }
@@ -6,7 +10,7 @@ form .field, form .checkbox_field, form fieldset {
   margin: 1em 0;
 }
 textarea {
-  width: 25em;
+  width: 35em;
   height: 7em;
 }
 input, textarea, fieldset {
@@ -23,7 +27,7 @@ input[type="number"] {
 label, legend {
   font-weight: bold;
 }
-.checkbox_field label {
+.checkbox_field label, #header label {
   font-weight: normal;
 }
 fieldset {
@@ -35,9 +39,36 @@ fieldset label {
   font-weight: normal;
 }
 
-input[type="submit"] {
-  font-weight: bold;
+button, form[method='post'] button.default {
+  border-radius: 5px;
+  background-color: white;
+  padding: 0.2em 0.8em;
+  border: 1px solid #aaa;
   cursor: pointer;
+  color: black;
+  &:hover, &:active, &:focus {
+    color: #333;
+    background-color: #ebebeb;
+    border-color: #adadad;
+  }
+}
+
+form[method='post'] button {
+  color: white;
+  background-color: #428bca;
+  border-color: #357ebd;
+  &:hover, &:active, &:focus {
+    background-color: #3276b1;
+    border-color: #285e8e;
+  }
+  &.danger {
+    background-color: #d9534f;
+    border-color: #d43f3a;
+    &:hover, &:active, &:focus {
+      background-color: #d2322d;
+      border-color: #ac2925;
+    }
+  }
 }
 
 div.field_with_errors, #errors h2 {

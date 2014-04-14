@@ -1,19 +1,22 @@
 <% title 'Find Users' %>
 
 <% content_for :header do %>
+
+  <%= form_tag users_path, method: :get do %>
+    <%= select_tag :role, options_for_select(Role.names.map{|n, v| n.pluralize.capitalize}.unshift(['Everyone', nil]), @role) %>
+    <% content_for :js_ready do %>
+      $('select').change(function(){
+        $(this).closest('form').submit();
+      });
+    <% end %>
+    <%= text_field_tag :q, @q, placeholder: 'Name or email' %>
+    <%= submit 'Search' %>
+  <% end %>
+
   <%= link_to 'Export these users', users_path(format: 'csv' ) %>
+
 <% end %>
 
-<%= form_tag users_path, method: :get do %>
-  <%= select_tag :role, options_for_select(Role.names.map{|n, v| n.pluralize.capitalize}.unshift(['Everyone', nil]), @role) %>
-  <% content_for :js_ready do %>
-    $('select').change(function(){
-      $(this).closest('form').submit();
-    });
-  <% end %>
-  <%= text_field_tag :q, @q, placeholder: 'Name or email' %>
-  <%= submit_tag 'Search' %>
-<% end %>
 
 <% if @users.any? %>
   <h2><%= pluralize @users.total_count, 'User' %></h2>

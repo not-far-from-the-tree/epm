@@ -18,7 +18,7 @@ describe "Event Attendance" do
     visit event_path e
     within '#rsvp' do
       expect(page).to have_content 'You are attending'
-      expect(all("input[type='submit']").length).to eq 0
+      expect(all('button').length).to eq 0
     end
   end
 
@@ -28,7 +28,7 @@ describe "Event Attendance" do
     visit event_path e
     within '#rsvp' do
       expect(page).to have_content 'You are not attending'
-      expect(all("input[type='submit']").length).to eq 0
+      expect(all('button').length).to eq 0
     end
   end
 
@@ -38,7 +38,7 @@ describe "Event Attendance" do
     visit event_path e
     within '#rsvp' do
       expect(page).to have_content 'You are not attending'
-      expect(all("input[type='submit']").length).to eq 1
+      expect(all('button').length).to eq 1
       click_button 'Attend'
     end
     expect(current_path).to eq event_path e
@@ -81,7 +81,7 @@ describe "Event Attendance" do
     visit event_path e
     within '#rsvp' do
       expect(page).to have_content 'You are attending'
-      expect(all("input[type='submit']").length).to eq 1
+      expect(all('button').length).to eq 1
       click_button 'Cancel'
     end
     expect(current_path).to eq event_path e
@@ -97,7 +97,7 @@ describe "Event Attendance" do
     visit event_path e
     expect(page).to have_content 'You did not attend'
     within '#rsvp' do
-      expect(all("input[type='submit']").length).to eq 0
+      expect(all('button').length).to eq 0
     end
   end
 
@@ -109,7 +109,7 @@ describe "Event Attendance" do
     visit event_path e
     within '#rsvp' do
       expect(page).to have_content 'You attended'
-      expect(all("input[type='submit']").length).to eq 0
+      expect(all('button').length).to eq 0
     end
   end
 
@@ -120,7 +120,7 @@ describe "Event Attendance" do
     visit event_path e
     within '#rsvp' do
       expect(page).to have_content 'You are not attending'
-      expect(all("input[type='submit']").length).to eq 1
+      expect(all('button').length).to eq 1
       click_button 'Add To Waitlist'
     end
     expect(current_path).to eq event_path e
@@ -141,7 +141,7 @@ describe "Event Attendance" do
     visit event_path e
     within '#rsvp' do
       expect(page).to have_content 'You are on the waitlist'
-      expect(all("input[type='submit']").length).to eq 1
+      expect(all('button').length).to eq 1
       click_button 'Withdraw Request'
     end
     expect(current_path).to eq event_path e
