@@ -11,9 +11,14 @@ class UsersController < ApplicationController
     @q = params['q'] ? params['q'].strip : nil
     @users = @users.search(@q) if @q.present?
     role = params['role']
-    if role.present? && User.respond_to?(role.downcase)
-      @role = role
-      @users = @users.send(role.downcase)
+    if role.present?
+      if role == 'none'
+        @role = role
+        @users = @users.roleless
+      elsif User.respond_to?(role.downcase)
+        @role = role
+        @users = @users.send(role.downcase)
+      end
     end
 
     respond_to do |format|

@@ -123,6 +123,8 @@ describe User do
       p1.roles.create name: :coordinator
       p2 = create :participant
       p3 = create :participant
+      bad_user = create :participant
+      bad_user.roles.destroy_all
       participants = User.participants
       expect(participants.length).to eq 3
       expect(participants).to include p1
@@ -135,6 +137,8 @@ describe User do
       admins = User.admins
       expect(admins.length).to eq 1
       expect(admins.first).to eq a
+      nobodies = User.roleless
+      expect(nobodies).to eq [bad_user]
     end
 
     it "searches for users" do

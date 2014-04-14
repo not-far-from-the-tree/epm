@@ -32,6 +32,7 @@ class User < ActiveRecord::Base
     like = Rails.configuration.database_configuration[Rails.env]["adapter"] == 'postgresql' ? 'ILIKE' : 'LIKE'
     where("users.email LIKE ? OR users.name #{like} ?", "%#{q}%", "%#{q}%")
   }
+  scope :roleless, -> { where 'users.id NOT IN (SELECT DISTINCT user_id FROM roles)' }
   # todo: consider refactoring these to automatically have a scope for every role
   scope :admins, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:admin]}") }
   scope :coordinators, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:coordinator]}") }
