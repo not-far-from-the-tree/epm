@@ -186,7 +186,7 @@ class Event < ActiveRecord::Base
     return name if name.present?
     return truncate(description, length: 50, separator: ' ') if description.present?
     if address.present? && (!hide_specific_location || (user && user.ability.can?(:read_specific_location, self)) )
-      return truncate(address, length: 50, separator: ' ') if address.present?
+      return truncate(address.gsub(/(\n|\r)+/, ', '), length: 50, separator: ' ') if address.present?
     end
     return start.strftime('%B %e %Y, %l:%M %p').gsub('  ', ' ') if start.present?
     '(untitled event)'
