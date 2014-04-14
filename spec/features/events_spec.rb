@@ -641,23 +641,6 @@ describe "Events" do
 
   context "admin and coordinator features" do
 
-    it "lets admins see attendees' profiles" do
-      login_as @admin
-      e = create :participatable_event
-      e.attend @participant
-      visit event_path(e)
-      click_link @participant.display_name
-      expect(current_path).to eq user_path(@participant)
-    end
-
-    it "does not let participants see attendees' profiles" do
-      e = create :participatable_event
-      e.attend create(:participant)
-      login_as @participant
-      visit event_path(e)
-      expect(all('#participants a').length).to eq 0
-    end
-
     it "shows events with missing info to admins" do
       c = create :coordinator
       no_coordinator = create :full_event, coordinator: nil

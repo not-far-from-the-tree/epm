@@ -43,7 +43,7 @@ describe "Event Attendance" do
     end
     expect(current_path).to eq event_path e
     expect(page).to have_content 'You are attending'
-    expect(page).to have_content @participant.display_name
+    expect(page).to have_link @participant.display_name
     within 'header' do
       click_link 'Events'
     end
@@ -86,7 +86,7 @@ describe "Event Attendance" do
     end
     expect(current_path).to eq event_path e
     expect(page).to have_content 'You are not attending'
-    expect(page).not_to have_content @participant.email
+    expect(page).not_to have_link @participant.email
     click_link 'My Profile'
     expect(page).not_to have_link e.display_name
   end
@@ -159,13 +159,13 @@ describe "Event Attendance" do
     login_as will_cancel
     visit event_path e
     within '#participants' do
-      expect(page).not_to have_content will_attend.display_name
+      expect(page).not_to have_link will_attend.display_name
     end
     within '#rsvp' do
       click_button 'Cancel'
     end
     within '#participants' do
-      expect(page).to have_content will_attend.display_name
+      expect(page).to have_link will_attend.display_name
     end
     expect(last_email.bcc).to eq [will_attend.email]
     expect(last_email.subject).to match 'are attending'

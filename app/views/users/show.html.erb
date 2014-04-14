@@ -18,8 +18,6 @@
 
 <%= image_tag @user.avatar('large'), size: '80x80', alt: 'profile photo' %>
 
-<%= paragraphs @user.description if @user.description.present? %>
-
 <div id="roles">
   <%= 'Role'.pluralize @user.roles.count %>:
   <% if @user.roles.any? %>
@@ -46,24 +44,30 @@
   <% end %>
 </div>
 
+<%= paragraphs @user.description if @user.description.present? %>
+
 <p>Joined <%= @user.created_at.strftime "%B %d %Y" %>.</p>
 
 <%= clear %>
 
-<div>
-  <h2>Contact Information</h2>
-  <%= link_to @user.email, "mailto:#{@user.email}" %>
-  <% if @user.phone %>
-    <br><%= link_to @user.phone, "tel:#{@user.phone}" %>
-  <% end %>
-  <% if @user == current_user && @user.address %>
-    <div><%= with_br(@user.address) if @user.address %></div>
-  <% end %>
-</div>
-
-<% if @past.any? %>
-  <div id="past">
-    <h2>Past Events</h2>
-    <%= render 'events/events', events: @past %>
+<% if can? :read_contact, @user %>
+  <div>
+    <h2>Contact Information</h2>
+    <%= mail_to @user.email %>
+    <% if @user.phone %>
+      <br><%= link_to @user.phone, "tel:#{@user.phone}" %>
+    <% end %>
+    <% if @user.address && can?(:read_address, @user) %>
+      <div><%= with_br(@user.address) if @user.address %></div>
+    <% end %>
   </div>
+<% end %>
+
+<% if can? :read_attendance, @user %>
+  <% if @past.any? %>
+    <div id="past">
+      <h2>Past Events</h2>
+      <%= render 'events/events', events: @past %>
+    </div>
+  <% end %>
 <% end %>

@@ -11,8 +11,8 @@ class Ability
       can :calendar, Event
       can :index, :geocode
 
-      can :me, User
-      can [:show, :update], User, id: user.id
+      can [:show, :me], User
+      can [:read_contact, :read_attendance, :read_address, :update], User, id: user.id
       can :destroy, Role, user_id: user.id
       can :deactivate, User do |u|
         u.roles.reject{|r| can? :destroy, r }.empty?
@@ -20,7 +20,7 @@ class Ability
 
       if user.has_role? :admin
         can :manage, [Event, Role, :setting]
-        can :read, User
+        can [:index, :read_contact, :read_attendance], User
       end
 
       if user.has_role? :coordinator
@@ -29,6 +29,7 @@ class Ability
           !event.coordinator || (event.coordinator == user)
         end
         can [:ask_to_cancel, :cancel, :invite], Event, coordinator_id: user.id
+        can :read_attendance, User
       end
 
       if user.has_role? :participant

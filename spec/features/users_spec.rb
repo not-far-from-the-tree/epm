@@ -127,6 +127,62 @@ describe "Users" do
 
   end
 
+  context "profile permissions" do
+
+    before :all do
+      @u = create :full_user, address: '123 Fake Street, City' # set address without newlines so we don't have to worry about matching that
+      @u.roles.create name: :participant
+      @e = create :participatable_event
+      @e.attend @u
+      @e.update(start: 1.month.ago, finish: 1.month.ago + 1.hour)
+    end
+
+    it "shows profile with all contact info and attendance history to self" do
+      login_as @u
+      visit user_path @u
+      expect(current_path).to eq user_path @u
+      expect(page).to have_content @u.display_name
+      expect(page).to have_link @u.email
+      expect(page).to have_link @u.phone
+      expect(page).to have_content @u.address
+      expect(page).to have_link @e.display_name
+    end
+
+    it "shows profile with contact info and attendance history to admins" do
+      login_as create :admin
+      visit user_path @u
+      expect(current_path).to eq user_path @u
+      expect(page).to have_content @u.display_name
+      expect(page).to have_link @u.email
+      expect(page).to have_link @u.phone
+      expect(page).not_to have_content @u.address
+      expect(page).to have_link @e.display_name
+    end
+
+    it "shows profile with attendance history but not contact info to coordinators" do
+      login_as create :coordinator
+      visit user_path @u
+      expect(current_path).to eq user_path @u
+      expect(page).to have_content @u.display_name
+      expect(page).not_to have_link @u.email
+      expect(page).not_to have_link @u.phone
+      expect(page).not_to have_content @u.address
+      expect(page).to have_link @e.display_name
+    end
+
+    it "shows profile without contact info and attendance history to participants" do
+      login_as create :participant
+      visit user_path @u
+      expect(current_path).to eq user_path @u
+      expect(page).to have_content @u.display_name
+      expect(page).not_to have_link @u.email
+      expect(page).not_to have_link @u.phone
+      expect(page).not_to have_content @u.address
+      expect(page).not_to have_link @e.display_name
+    end
+
+  end
+
   context "roles" do
 
     it "allows an admin to add a role" do
