@@ -5,6 +5,7 @@
     <span class="hint"><%= hint %></span>
   <% end %>
   <br>
+  <%= yield %>
   <%= f.text_area :address, placeholder: "123 Fake Street, City" %>
   <% content_for :js_ready do %>
     $('#address textarea').after('<div id="map_wrapper"><div id="instruction">drag marker to adjust</div><div id="map"></div></div>');
