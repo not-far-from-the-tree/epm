@@ -27,7 +27,7 @@
 
 <% end %>
 
-<% if current_user.has_role?(:participant) || current_user.has_role?(:coordinator) || @buttons.any? %>
+<% if current_user.has_any_role?(:participant, :coordinator) || @buttons.any? %>
   <div id="rsvp">
     <%= @attend_str %>
     <% if @buttons.any? %>

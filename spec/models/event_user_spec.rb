@@ -26,6 +26,12 @@ describe EventUser do
       expect(build :event_user, event: event).not_to be_valid
     end
 
+    it "can returns multiple status values" do
+      expect(EventUser.statuses_array :invited).to eq [EventUser.statuses[:invited]]
+      expect(EventUser.statuses_array :attending, :waitlisted).to eq [EventUser.statuses[:attending], EventUser.statuses[:waitlisted]]
+      expect(EventUser.statuses_array :requested, :attended, :no_show).to eq [EventUser.statuses[:requested], EventUser.statuses[:attended], EventUser.statuses[:no_show]]
+    end
+
   end
 
   context "cancelling" do

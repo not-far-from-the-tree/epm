@@ -39,12 +39,14 @@ class User < ActiveRecord::Base
   scope :participants, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:participant]}") }
 
   has_many :event_users, dependent: :destroy
-  has_many :coordinating_events, class_name: 'Event', foreign_key: 'coordinator_id'
-  # events where the user is a participant (will attend or did attend) or the coordinator
-  def events
-    Event.not_cancelled.joins("LEFT JOIN event_users ON events.id = event_users.event_id AND event_users.status IN (#{EventUser.statuses[:attending]}, #{EventUser.statuses[:attended]})").where("events.coordinator_id = ? OR event_users.user_id = ?", id, id).distinct
+  has_many :coordinating_events, -> { where.not(status: Event.statuses[:cancelled]) }, class_name: 'Event', foreign_key: 'coordinator_id'
+  has_many :participating_events, -> { where('event_users.status' => EventUser.statuses_array(:attending, :attended)).where('events.status = ?', Event.statuses[:approved])}, through: :event_users, source: :event
+  def events # where the user is a participant or the coordinator
+    Event.not_cancelled
+      .joins("LEFT JOIN event_users ON events.id = event_users.event_id AND event_users.status IN (#{EventUser.statuses_array(:attending, :attended).join(', ')})")
+      .where("events.coordinator_id = ? OR event_users.user_id = ?", id, id)
+      .distinct
   end
-
   def open_invites # upcoming events the user has been invited to
     Event.not_past.not_cancelled.joins(:event_users)
       .where(
@@ -55,11 +57,10 @@ class User < ActiveRecord::Base
   def potential_events # upcoming events where waitlisted or requested to attend
     Event.not_past.not_cancelled.joins(:event_users)
       .where(
-        'event_users.status' => [EventUser.statuses[:waitlisted], EventUser.statuses[:requested]],
+        'event_users.status' => EventUser.statuses_array(:waitlisted, :requested),
         'event_users.user_id' => id
       )
   end
-
 
   has_many :roles, dependent: :destroy
   accepts_nested_attributes_for :roles
@@ -74,6 +75,12 @@ class User < ActiveRecord::Base
   end
   def has_role?(role_name)
     !self.roles.find{|r| r.send "#{role_name}?" }.nil?
+  end
+  def has_any_role?(*roles)
+    roles.each do |role|
+      return true if has_role?(role)
+    end
+    false
   end
 
   def display_name

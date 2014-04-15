@@ -8,62 +8,14 @@
 <% end %>
 
 <% events_shown = false %>
-
-<% if defined?(@awaiting_approval) && @awaiting_approval.any? %>
-  <% events_shown = true %>
-  <div>
-    <h2>Events Awaiting Approval</h2>
-      <%= render 'events', events: @awaiting_approval %>
-  </div>
-<% end %>
-
-<% if defined?(@missing_parts) && @missing_parts.any? %>
-  <% events_shown = true %>
-  <div id="missing">
-    <h2><%= @missing_title %></h2>
-      <%= render 'events', events: @missing_parts %>
-  </div>
-<% end %>
-
-<% if (current_user.has_role?(:participant) || current_user.has_role?(:coordinator)) && current_user.events.not_past.any? %>
-  <% events_shown = true %>
-  <div id="own_upcoming">
-    <h2>My Upcoming Events</h2>
-    <%= render 'events', events: current_user.events.not_past %>
-  </div>
-<% end %>
-
-<% if current_user.has_role? :participant %>
-  <% if current_user.open_invites.any? %>
-    <% events_shown = true %>
-    <div id="invited">
-      <h2>Invitations</h2>
-      <%= render 'events', events: current_user.open_invites %>
-    </div>
-  <% end %>
-  <% if current_user.potential_events.any? %>
-    <% events_shown = true %>
-    <div id="potential">
-      <h2>Potential Events</h2>
-      <%= render 'events/events', events: current_user.potential_events %>
-    </div>
+<% @sections.each do |section| %>
+  <% if section[:q].any? %>
+    <section id="<%= section[:id] || section[:name].downcase.gsub(' ', '_') %>">
+      <% events_shown = true %>
+      <h2><%= section[:name] %></h2>
+      <%= render 'events', events: section[:q] %>
+    </section>
   <% end %>
 <% end %>
 
-<% if @joinable.any? %>
-  <div id="upcoming">
-    <h2><%= 'More ' if events_shown %>Upcoming Events</h2>
-    <% events_shown = true %>
-    <%= render 'events', events: @joinable %>
-  </div>
-<% end %>
-
-<% if (!events_shown || current_user.has_role?(:admin)) && Event.past.any? %>
-  <% events_shown = true %>
-  <div id="past">
-    <h2>Past Events</h2>
-    <%= render 'events', events: Event.past.limit(10) %>
-  </div>
-<% end %>
-
-<%= '<p>There are no events yet.</p>'.html_safe unless events_shown %>
+<%= content_tag(:p, 'There are no events yet.') unless events_shown %>

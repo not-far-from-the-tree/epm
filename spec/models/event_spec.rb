@@ -275,22 +275,18 @@ describe Event do
       e = create :participatable_event, max: 1
       e.attend create :participant
       p = create :participant
-      e.attend p
+      eu = e.attend p
       expect(e.event_users.length).to eq 2
-      eu = e.event_users.last
-      expect(eu.user).to eq p
       expect(eu.status).to eq 'waitlisted'
     end
 
     it "cancels participation" do
       e = create :participatable_event
       p = create :participant
-      e.attend p
+      eu = e.attend p
       e.unattend p
       expect(e.event_users.count).to eq 1
-      eu = e.event_users.first
-      expect(eu.user).to eq p
-      expect(eu.status).to eq 'cancelled'
+      expect(eu.reload.status).to eq 'cancelled'
     end
 
     it "withdraws from waitlist" do
@@ -403,39 +399,59 @@ describe Event do
       it "returns the number of participants needed when there is no min" do
         e = create :participatable_event, min: 0
         expect(e.participants_needed).to eq 0
+        expect(e.below_min).to be_false
+        expect(e.reached_max).to be_false
       end
 
       it "returns the number of participants needed when there is a min" do
         e = create :participatable_event, min: 1
         expect(e.participants_needed).to eq 1
+        expect(e.below_min).to be_true
+        expect(e.reached_max).to be_false
         e.attend create :participant
-        expect(e.participants_needed).to eq 0
+        expect(e.reload.participants_needed).to eq 0
+        expect(e.reload.below_min).to be_false
+        expect(e.reached_max).to be_false
       end
 
       it "returns the number of remaining spots when there is no max" do
         e = create :participatable_event, max: nil
         expect(e.remaining_spots).to be_true
+        expect(e.below_min).to be_false
+        expect(e.reached_max).to be_false
       end
 
       it "returns the number of remaining spots when there is a max" do
         e = create :participatable_event, max: 1
         expect(e.remaining_spots).to eq 1
+        expect(e.below_min).to be_false
+        expect(e.reached_max).to be_false
         e.attend create :participant
         expect(e.remaining_spots).to eq 0
+        expect(e.reload.below_min).to be_false
+        expect(e.reached_max).to be_true
       end
 
       it "returns whether an event is full when there is no max" do
         e = create :participatable_event, max: nil
         expect(e.full?).to be_false
+        expect(e.below_min).to be_false
+        expect(e.reached_max).to be_false
         e.attend create :participant
         expect(e.full?).to be_false
+        expect(e.reload.below_min).to be_false
+        expect(e.reached_max).to be_false
       end
 
       it "returns whether an event is full when there is a max" do
         e = create :participatable_event, max: 1
         expect(e.full?).to be_false
+        expect(e.below_min).to be_false
+        expect(e.reached_max).to be_false
         e.attend create :participant
         expect(e.full?).to be_true
+        expect(e.reload.below_min).to be_false
+        expect(e.reached_max).to be_true
       end
 
     end
@@ -630,22 +646,60 @@ describe Event do
       expect(events).not_to include event2
     end
 
-    it "lists only events not attended by a user" do
+    it "lists only events a user can participate in" do
+      # ie testing scope participatable_by_user
+      #  which tests participatability of the user for the event, not the event itself
       c = create :coordinator
       participant = create :participant
       not_involved = create :participatable_event, coordinator: c
       attending = create :participatable_event, coordinator: c
       attending.attend participant
+      waitlisted = create :participatable_event, max: 1, coordinator: c
+      waitlisted.attend create :participant
+      waitlisted.attend participant
       invited = create :participatable_event, coordinator: c
       invited.event_users.create user: participant, status: :invited
       cancelled = create :participatable_event, coordinator: c
       cancelled.attend participant
       cancelled.unattend participant
-      events = Event.not_attended_by participant
+      events = Event.participatable_by participant
       expect(events.length).to eq 3
       expect(events).to include not_involved
       expect(events).to include invited
       expect(events).to include cancelled
+    end
+
+    it "lists events needing participants" do
+      c = create :coordinator
+      p = create :participant
+      no_min = create :participatable_event, coordinator: c
+      no_min_attending = create :participatable_event, coordinator: c
+      no_min_attending.attend p
+      meets_min = create :participatable_event, max: 1, coordinator: c
+      meets_min.attend p
+      needs = create :participatable_event, min: 1, coordinator: c
+      needs_cancelled = create :participatable_event, min: 1, coordinator: c
+      needs_cancelled.update_attribute(:status, :cancelled) # todo: with .update()
+      needs_past = create :participatable_past_event, min: 1, coordinator: c
+      expect(Event.needing_participants).to eq [needs]
+    end
+
+    it "lists events which do not need but can take more participants" do
+      c = create :coordinator
+      p = create :participant
+      has_spots = create :participatable_event, coordinator: c
+      has_spots_with_max = create :participatable_event, max: 2, coordinator: c
+      has_spots_with_max.attend p
+      no_spots = create :participatable_event, max: 1, coordinator: c
+      no_spots.attend p
+      needs = create :participatable_event, min: 1, coordinator: c
+      has_spots_cancelled = create :participatable_event, coordinator: c
+      has_spots_cancelled.update_attribute(:status, :cancelled) # todo: with .update()
+      has_spots_past = create :participatable_past_event
+      events = Event.accepting_not_needing_participants
+      expect(events.length).to eq 2
+      expect(events).to include has_spots
+      expect(events).to include has_spots_with_max
     end
 
     it "lists events without a coordinator" do

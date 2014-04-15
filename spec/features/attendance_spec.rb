@@ -20,6 +20,10 @@ describe "Event Attendance" do
       expect(page).to have_content 'You are attending'
       expect(all('button').length).to eq 0
     end
+    visit root_path
+    within '#coordinating' do
+      expect(page).to have_link e.display_name
+    end
   end
 
   it "does not describes a coordinator as attending when they are not on this event" do
@@ -47,7 +51,7 @@ describe "Event Attendance" do
     within 'header' do
       click_link 'Events'
     end
-    within '#own_upcoming' do
+    within '#attending' do
       expect(page).to have_link e.display_name
     end
   end
@@ -87,8 +91,8 @@ describe "Event Attendance" do
     expect(current_path).to eq event_path e
     expect(page).to have_content 'You are not attending'
     expect(page).not_to have_link @participant.email
-    click_link 'My Profile'
-    expect(page).not_to have_link e.display_name
+    visit root_path
+    expect(all('#attending').length).to eq 0
   end
 
   it "prevents joining a past event" do
@@ -128,7 +132,7 @@ describe "Event Attendance" do
     within 'header' do
       click_link 'Events'
     end
-    within '#potential' do
+    within '#may_be_attending' do
       expect(page).to have_link e.display_name
     end
   end
@@ -147,7 +151,8 @@ describe "Event Attendance" do
     expect(current_path).to eq event_path e
     expect(page).to have_content 'You are not attending'
     click_link 'My Profile'
-    expect(page).not_to have_link e.display_name
+    visit root_path
+    expect(all('#may_be_attending').length).to eq 0
   end
 
   it "adds users on a waitlist when a participant cancels" do

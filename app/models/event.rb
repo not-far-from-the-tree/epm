@@ -80,7 +80,7 @@ class Event < ActiveRecord::Base
   attr_accessor :notify_of_changes # setting to false allows supressing email notifications; todo: move to controller
 
   has_many :event_users, dependent: :destroy
-  has_many :participants, -> { where 'event_users.status' => [EventUser.statuses[:attending], EventUser.statuses[:attended]] }, through: :event_users, source: :user
+  has_many :participants, -> { where 'event_users.status' => EventUser.statuses_array(:attending, :attended) }, through: :event_users, source: :user
   has_many :waitlisted, -> { where('event_users.status' => EventUser.statuses[:waitlisted]).order('event_users.updated_at') }, through: :event_users, source: :user
   belongs_to :coordinator, class_name: 'User'
   def users # i.e. participants and the coordinator
@@ -100,16 +100,18 @@ class Event < ActiveRecord::Base
   scope :with_date, -> { where 'start IS NOT NULL AND finish IS NOT NULL' }
   scope :past, -> { where('finish < ?', Time.zone.now).reorder('finish DESC') }
   scope :not_past, -> { where 'start IS NULL OR finish > ?', Time.zone.now }
-  scope :not_attended_by, ->(user) {
-    joins('LEFT JOIN event_users ON events.id = event_users.event_id')
-    .where("events.id NOT IN (SELECT event_id FROM event_users WHERE user_id = ? AND status IN (#{EventUser.statuses[:attending]},#{EventUser.statuses[:attended]})) AND coordinator_id != ?", user.id, user.id)
-    .distinct
+  scope :participatable_by, ->(user) { # checks user for participatablility, assumed already checking that the events for participatability
+    where.not("id IN (SELECT event_id FROM event_users WHERE user_id = ? AND status IN (?))", user.id, EventUser.statuses_array(:attending, :waitlisted, :requested, :denied))
+      .where.not(coordinator_id: user.id)
+      .distinct
   }
   scope :coordinatorless, -> { where coordinator: nil }
   scope :dateless, -> { where start: nil }
-  scope :participatable, -> { where 'start IS NOT NULL AND coordinator_id IS NOT NULL AND events.status = ?', statuses[:approved] }
+  scope :participatable, -> { where.not(start: nil).where.not(coordinator_id: nil).where('events.status = ?', statuses[:approved]) }
   scope :not_cancelled, -> { where 'events.status != ?', statuses[:cancelled] }
   scope :awaiting_approval, -> { not_past.where 'events.status = ? AND coordinator_id IS NOT NULL AND start IS NOT NULL', statuses[:proposed] }
+  scope :needing_participants, -> { participatable.not_past.where(below_min: true) }
+  scope :accepting_not_needing_participants, -> { participatable.not_past.where(below_min: false, reached_max: false) }
   scope :in_month, ->(year, month) { # can pass in integers or strings which are integers
     month ||= ''
     year ||= ''
@@ -258,19 +260,34 @@ class Event < ActiveRecord::Base
     max.present? && participants.reload.length >= max
   end
 
-  attr_accessor :max_was_changed
-  before_save do |event|
+  attr_accessor :max_was_changed, :min_was_changed
+  before_save do |event| # needed by after_save
     event.max = nil if event.max.blank?
     event.max_was_changed = event.max_changed?
+    event.min_was_changed = event.min_changed?
     true
   end
-  after_save :check_against_max, if: "max_was_changed && :can_accept_participants?"
-  def check_against_max
-    if !full? && waitlisted.any?
-      add_from_waitlist
-    elsif max && participants.count > max
-      remove_excess_participants
+  after_save do |event|
+    # check against max
+    if event.max_was_changed && event.can_accept_participants?
+      if !event.full? && event.waitlisted.any?
+        event.add_from_waitlist
+      elsif event.max && event.participants.count > event.max
+        event.remove_excess_participants
+      end
     end
+    # update cached participant info
+    if event.max_was_changed || event.min_was_changed
+      event.calculate_participants
+    end
+  end
+
+  def calculate_participants # two methods that cache info to make sql queries easier
+    has = event_users.where(status: EventUser.statuses_array(:attending, :attended)).reload.count
+    self.below_min = has < min
+    self.reached_max = max.present? && has >= max
+    # using update_columns to avoid doing validations and callbacks
+    update_columns(below_min: below_min, reached_max: reached_max) if changed?
   end
 
   # in these two methods, need to .to_a the sql results so that after we change the records, the query isn't re-executed when we want to email those we just changed

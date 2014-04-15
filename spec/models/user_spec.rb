@@ -101,6 +101,34 @@ describe User do
       expect(create(:user, roles_attributes: [name: role_name]).roles.where(name: Role.names[role_name]).count).to eq 1
     end
 
+    it "responds properly to has_role?" do
+      p = create :participant
+      expect(p.has_role? :participant).to be_true
+      expect(p.has_role? :coordinator).to be_false
+      expect(p.has_role? :admin).to be_false
+      p.roles.create name: :coordinator
+      expect(p.has_role? :participant).to be_true
+      expect(p.has_role? :coordinator).to be_true
+      expect(p.has_role? :admin).to be_false
+    end
+
+    it "response properly to has_any_role?" do
+      p = create :participant
+      expect(p.has_any_role? :participant).to be_true
+      expect(p.has_any_role? :coordinator).to be_false
+      expect(p.has_any_role? :participant, :coordinator).to be_true
+      expect(p.has_any_role? :participant, :coordinator, :admin).to be_true
+      expect(p.has_any_role? :coordinator, :admin).to be_false
+      expect(p.has_any_role? :admin).to be_false
+      p.roles.create name: :coordinator
+      expect(p.has_any_role? :participant).to be_true
+      expect(p.has_any_role? :coordinator).to be_true
+      expect(p.has_any_role? :participant, :coordinator).to be_true
+      expect(p.has_any_role? :participant, :coordinator, :admin).to be_true
+      expect(p.has_any_role? :coordinator, :admin).to be_true
+      expect(p.has_any_role? :admin).to be_false
+    end
+
   end
 
   context "multiple users" do
@@ -165,6 +193,18 @@ describe User do
       create :event, coordinator: u
       create :event # event 3, not coordinating
       expect(u.coordinating_events.length).to eq 2
+    end
+
+    it "lists events a user is participating in" do
+      p = create :participant
+      c = create :coordinator
+      e_not_participating = create :participatable_event, coordinator: c
+      e_participating = create :participatable_event, coordinator: c
+      e_participating.attend p
+      e_cancelled = create :participatable_event, coordinator: c
+      e_cancelled.attend p
+      e_cancelled.update_attribute(:status, :cancelled) # todo: should be able to just use .update()
+      expect(p.participating_events).to eq [e_participating]
     end
 
     it "lists events a user is involved with" do

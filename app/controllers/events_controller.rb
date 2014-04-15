@@ -5,17 +5,51 @@ class EventsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
+        @sections = []
+        max = 10 # used for sections which do not need to show all
         if current_user.has_role? :admin
-          @awaiting_approval = Event.awaiting_approval
+          @sections << { q: Event.awaiting_approval, name: 'Awaiting Approval' }
+        end
+        if current_user.has_role? :participant
+          @sections << { q: current_user.open_invites, name: 'Invited' }
+        end
+        if current_user.has_role? :coordinator
+          @sections << { q: current_user.coordinating_events.not_past, name: 'Coordinating' }
+        end
+        if current_user.has_role? :participant
+          @sections << { q: current_user.participating_events.not_past, name: 'Attending' }
+          @sections << { q: current_user.potential_events, name: 'May be Attending' }
+        end
+        if current_user.has_any_role? :coordinator, :admin
+          @sections << { q: Event.where(coordinator_id: nil).not_past.not_cancelled, name: 'Needing a Coordinator' }
         end
         if current_user.has_role? :admin
-          @missing_title = 'Events Missing a Date, Coordinator, or Location'
-          @missing_parts = Event.not_past.not_cancelled.where('coordinator_id IS NULL OR start IS NULL OR lat IS NULL')
-        elsif current_user.has_role? :coordinator
-          @missing_title = 'Events with No Coordinator'
-          @missing_parts = Event.not_past.not_cancelled.where('coordinator_id IS NULL')
+          @sections << { q: Event.where.not(coordinator_id: nil).where('start IS NULL OR lat IS NULL').not_past.not_cancelled, name: 'Missing a Date or Location' }
         end
-        @joinable = Event.participatable.not_past.not_attended_by(current_user).limit(10)
+        if current_user.has_any_role? :admin, :participant
+          q = Event.needing_participants
+          q = q.participatable_by(current_user) unless current_user.has_role? :admin
+          @sections << { q: q, name: 'Needing More Participants' }
+        end
+        if current_user.has_any_role? :admin, :participant
+          q = Event.accepting_not_needing_participants.limit(max)
+          q = q.participatable_by(current_user) unless current_user.has_role? :admin
+          @sections << { q: q, name: 'Accepting More Participants' }
+        end
+        if current_user.has_any_role? :admin, :participant
+          q = Event.participatable.not_past.where(reached_max: true).limit(max)
+          q = q.participatable_by(current_user) unless current_user.has_role? :admin
+          @sections << { q: q, name: 'Upcoming', id: 'full' }
+          @sections[0..-2].each do |section| # add the word 'more' to the name if there were any events already listed
+            if section[:q].any?
+              @sections.last[:name] = "More #{@sections.last[:name]}"
+              break
+            end
+          end
+        end
+        if current_user.has_role? :admin
+          @sections << { q: Event.participatable.past.limit(max) , name: 'Past' }
+        end
       end
       format.ics do
         # todo: implement access token https://blog.nop.im/entries/calendar-feed-with-rails
@@ -38,7 +72,7 @@ class EventsController < ApplicationController
     # determine what string to use to describe the existing rsvp
     @attend_str = nil
     is_the_coordinator = current_user == @event.coordinator
-    if current_user.has_role?(:participant) || current_user.has_role?(:coordinator) || eu.status
+    if current_user.has_any_role?(:participant, :coordinator) || eu.status
       @attend_str = 'You '
       if @event.past?
         @attend_str += (eu.attending? || eu.attended? || is_the_coordinator) ? 'attended' : 'did not attend'
