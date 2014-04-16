@@ -203,7 +203,7 @@ describe User do
       e_participating.attend p
       e_cancelled = create :participatable_event, coordinator: c
       e_cancelled.attend p
-      e_cancelled.update_attribute(:status, :cancelled) # todo: should be able to just use .update()
+      e_cancelled.update status: :cancelled
       expect(p.participating_events).to eq [e_participating]
     end
 
@@ -269,10 +269,7 @@ describe User do
       e_invited.event_users.create user: p1, status: :invited
       e_cancelled = create :participatable_event, coordinator: c
       e_cancelled.event_users.create user: p1, status: :invited
-      # using update_attribute rather than update as it skips validations
-      #   - for some reason this seems to be validating the associated event_user record as well, so it fails
-      # todo: figure this out
-      e_cancelled.update_attribute :status, :cancelled
+      e_cancelled.update status: :cancelled
       e_p2_invited = create :participatable_event, coordinator: c
       e_p2_invited.event_users.create user: p2, status: :invited
       expect(p1.open_invites).to eq [e_invited]

@@ -21,11 +21,6 @@ describe EventUser do
       expect(build :event_user, user: eu1.user, event: eu1.event).not_to be_valid
     end
 
-    it "does not allow attending a non-participatable event" do
-      event = create :event # not participatable
-      expect(build :event_user, event: event).not_to be_valid
-    end
-
     it "can returns multiple status values" do
       expect(EventUser.statuses_array :invited).to eq [EventUser.statuses[:invited]]
       expect(EventUser.statuses_array :attending, :waitlisted).to eq [EventUser.statuses[:attending], EventUser.statuses[:waitlisted]]

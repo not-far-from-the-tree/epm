@@ -11,6 +11,7 @@ class RolesController < ApplicationController
   end
 
   def destroy
+    @role.destroyed_by_self = @role.user == current_user
     if @role.destroy
       flash[:notice] = 'Role removed.'
     else

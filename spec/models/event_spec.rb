@@ -679,7 +679,7 @@ describe Event do
       meets_min.attend p
       needs = create :participatable_event, min: 1, coordinator: c
       needs_cancelled = create :participatable_event, min: 1, coordinator: c
-      needs_cancelled.update_attribute(:status, :cancelled) # todo: with .update()
+      needs_cancelled.update status: :cancelled
       needs_past = create :participatable_past_event, min: 1, coordinator: c
       expect(Event.needing_participants).to eq [needs]
     end
@@ -694,7 +694,7 @@ describe Event do
       no_spots.attend p
       needs = create :participatable_event, min: 1, coordinator: c
       has_spots_cancelled = create :participatable_event, coordinator: c
-      has_spots_cancelled.update_attribute(:status, :cancelled) # todo: with .update()
+      has_spots_cancelled.update status: :cancelled
       has_spots_past = create :participatable_past_event
       events = Event.accepting_not_needing_participants
       expect(events.length).to eq 2

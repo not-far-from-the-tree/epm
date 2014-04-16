@@ -216,12 +216,18 @@ describe "Users" do
 
     it "allows an admin to remove a role" do
       participant = create :participant # don't pollute @participant
+      e = create :participatable_event
+      e.attend participant
       login_as @admin
       visit user_path participant
       click_link 'x' # user has only one role, so this is the right delete link
       expect(current_path).to eq user_path participant
       expect(page).to have_content 'Role removed'
-      expect(participant.reload.has_role? :participant).to be_false
+      within '#roles' do
+        expect(page).to have_content 'None'
+      end
+      visit event_path e
+      expect(page).not_to have_link participant.display_name
     end
 
     it "prevents non-admins from removing others' roles" do
@@ -236,12 +242,18 @@ describe "Users" do
 
     it "allows deactivating oneself" do
       participant = create :participant
+      e = create :participatable_event
+      e.attend participant
       login_as participant
       visit user_path participant
       click_link 'Deactivate'
       expect(current_path).to eq user_path participant
       expect(page).to have_content 'deactivated'
-      expect(participant.reload.has_role? :participant).to be_false
+      within '#roles' do
+        expect(page).not_to have_content 'Participant'
+      end
+      visit event_path e
+      expect(page).not_to have_link participant.display_name
     end
 
     it "does not allow deactivating another" do

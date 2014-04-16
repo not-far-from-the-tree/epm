@@ -522,6 +522,7 @@ describe "Events" do
     end
 
     it "shows a no-events message when there are no events" do
+      Event.destroy_all # todo: why is this not handled by database cleaner?
       login_as @admin
       visit root_path
       expect(page).to have_content 'no events'

@@ -22,4 +22,69 @@ describe Role do
     expect(admin.destroy).to be_false
   end
 
+  it "removes the user from events they are coordinating upon losing coordinator role" do
+    c = create :coordinator
+    e1 = create :past_event, coordinator: c
+    e2 = create :event, coordinator: c
+    e3 = create :event, coordinator: c, status: :cancelled
+    expect(Event.where(coordinator_id: c.id).length).to eq 3 # can't use c.coordinating_events as that excludes cancelled events
+    c.roles.destroy_all
+    events = Event.where(coordinator_id: c.id).reload
+    expect(events.length).to eq 2
+    expect(events).not_to include e2
+  end
+
+  it "adjusts event_users accordingly for users whos participant role is removed" do
+    p = create :participant
+    p2 = create :participant
+    c = create :coordinator
+    e_attending = create :participatable_event, coordinator: c
+    eu1 = e_attending.attend p
+    e_attending.attend p2
+    e_cancelled = create :participatable_event, coordinator: c
+    eu2 = e_cancelled.attend p
+    e_cancelled.update status: :cancelled
+    e_past = create :participatable_event, coordinator: c
+    eu3 = e_past.attend p
+    e_past.update start: 1.month.ago, finish: 1.week.ago
+    e_invited = create :participatable_event, coordinator: c
+    eu4 = e_invited.event_users.create user: p, status: :invited
+    e_waitlisted = create :participatable_event, coordinator: c, max: 0
+    eu5 = e_waitlisted.attend p
+    expect(p.event_users.length).to eq 5
+    p.roles.destroy_all
+    expect(eu1.reload.denied?).to be_true
+    expect(eu2.reload.attending?).to be_true
+    expect(eu3.reload.attending?).to be_true
+    expect(eu4.reload.denied?).to be_true
+    expect(eu5.reload.denied?).to be_true
+    expect(e_attending.participants).to eq [p2] # make sure we're not getting rid of other users's EventUser records
+  end
+
+  it "adjusts event_users accordingly for users whos participant role is removed by themselves" do
+    p = create :participant
+    c = create :coordinator
+    e_attending = create :participatable_event, coordinator: c
+    eu1 = e_attending.attend p
+    e_cancelled = create :participatable_event, coordinator: c
+    eu2 = e_cancelled.attend p
+    e_cancelled.update status: :cancelled
+    e_past = create :participatable_event, coordinator: c
+    eu3 = e_past.attend p
+    e_past.update start: 1.month.ago, finish: 1.week.ago
+    e_invited = create :participatable_event, coordinator: c
+    eu4 = e_invited.event_users.create user: p, status: :invited
+    e_waitlisted = create :participatable_event, coordinator: c, max: 0
+    eu5 = e_waitlisted.attend p
+    expect(p.event_users.length).to eq 5
+    role = p.roles.first
+    role.destroyed_by_self = true
+    role.destroy
+    expect(eu1.reload.cancelled?).to be_true
+    expect(eu2.reload.attending?).to be_true
+    expect(eu3.reload.attending?).to be_true
+    expect(eu4.reload.not_attending?).to be_true
+    expect(eu5.reload.withdrawn?).to be_true
+  end
+
 end

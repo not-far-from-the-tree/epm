@@ -5,12 +5,6 @@ class EventUser < ActiveRecord::Base
   validates :user_id, :event_id, presence: true
   validates :user_id, uniqueness: { scope: :event }
 
-  validate :event_must_accept_participant
-  def event_must_accept_participant
-    if event.present? && user.present? && !event.participatable_by?(user)
-      errors.add(:event, 'must accept participants')
-    end
-  end
 
   # note: :requested, :denied, :attended, and :no_show are largely unimplemented
   enum status: [
@@ -31,10 +25,6 @@ class EventUser < ActiveRecord::Base
   end
 
 
-  # for now these methods only handle actions by the user in question (i.e. not an admin or the event's coordinator)
-  # these methods are currently tested (only) through their equivalent methods in the event model;
-  #   will need to test separately when they are accessed separately (todo)
-
   def attend
     return false if event.past?
     # todo: does not handle :requested status
@@ -48,15 +38,15 @@ class EventUser < ActiveRecord::Base
     self
   end
 
-  def unattend
+  def unattend(action_by_self = true)
     return false if event.past?
     was_attending = attending?
     if invited?
-      self.status = :not_attending
+      self.status = action_by_self ? :not_attending : :denied
     elsif attending?
-      self.status = :cancelled
+      self.status = action_by_self ? :cancelled : :denied
     elsif waitlisted? || requested?
-      self.status = :withdrawn
+      self.status = action_by_self ? :withdrawn : :denied
     end
     if self.status && save && was_attending && !attending?
       event.add_from_waitlist if event.time_until > 5.hours # todo: allow configurability of this number

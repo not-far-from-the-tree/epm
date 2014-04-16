@@ -18,4 +18,21 @@ class Role < ActiveRecord::Base
     response
   end
 
+  attr_accessor :destroyed_by_self # boolean, set just before calling .destroy()
+  after_destroy do |role|
+    if role.name == 'coordinator'
+      events = role.user.coordinating_events.not_past.not_cancelled
+      if events.any?
+        events.update_all(coordinator_id: nil)
+      end
+    elsif role.name == 'participant'
+      Event.not_past.not_cancelled
+        .includes(:event_users).where(
+          'event_users.user_id' => role.user.id,
+          'event_users.status' => EventUser.statuses_array(:requested, :invited, :attending, :waitlisted)
+        )
+        .each{|e| e.event_users.first.unattend destroyed_by_self }
+    end
+  end
+
 end
