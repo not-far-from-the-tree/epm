@@ -29,3 +29,14 @@ img {
   text-decoration: none;
   font-weight: bold;
 }
+
+
+.pagination span {
+  margin-right: 0.3em;
+}
+.pagination .prev {
+  margin-right: 1em;
+}
+.pagination .next {
+  margin-left: 1em;
+}
