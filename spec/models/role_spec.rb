@@ -52,6 +52,7 @@ describe Role do
     e_waitlisted = create :participatable_event, coordinator: c, max: 0
     eu5 = e_waitlisted.attend p
     expect(p.event_users.length).to eq 5
+    ActionMailer::Base.deliveries.clear
     p.roles.destroy_all
     expect(eu1.reload.denied?).to be_true
     expect(eu2.reload.attending?).to be_true
@@ -59,6 +60,9 @@ describe Role do
     expect(eu4.reload.denied?).to be_true
     expect(eu5.reload.denied?).to be_true
     expect(e_attending.participants).to eq [p2] # make sure we're not getting rid of other users's EventUser records
+    expect(ActionMailer::Base.deliveries.size).to eq 1 # sent emails about the one event that was being attended and no longer is
+    expect(last_email.bcc).to include p.email
+    expect(last_email.subject.downcase).to match 'no longer attending'
   end
 
   it "adjusts event_users accordingly for users whos participant role is removed by themselves" do
@@ -77,6 +81,7 @@ describe Role do
     e_waitlisted = create :participatable_event, coordinator: c, max: 0
     eu5 = e_waitlisted.attend p
     expect(p.event_users.length).to eq 5
+    ActionMailer::Base.deliveries.clear
     role = p.roles.first
     role.destroyed_by_self = true
     role.destroy
@@ -85,6 +90,7 @@ describe Role do
     expect(eu3.reload.attending?).to be_true
     expect(eu4.reload.not_attending?).to be_true
     expect(eu5.reload.withdrawn?).to be_true
+    expect(ActionMailer::Base.deliveries.size).to eq 0 # no need to send emails when removing one's own role
   end
 
 end

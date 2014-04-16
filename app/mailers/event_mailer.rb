@@ -6,17 +6,17 @@ class EventMailer < ActionMailer::Base
   #   usually passing in an array of users who all have the same permissions so can just use the first
 
   def attend(event, users)
-    users = [*users] # enables inputting a single user or array of users
+    users = [*users]
     @event = event
     # users are all participants, but as some could also be admins, need to do this for permissions:
     @user = users.find{|u| u.ability.cannot?(:read_notes, event)} || users.first
     mail bcc: to(users), subject: 'You are attending an event'
   end
 
-  def unattend(event, users, reason)
+  def unattend(event, users, reason = nil)
     @event = event
     @reason = reason
-    mail bcc: to(users), subject: 'You are no longer attending an event'
+    mail bcc: to(users), subject: "You are no longer attending #{event.display_name}"
   end
 
   def coordinator_assigned(event)

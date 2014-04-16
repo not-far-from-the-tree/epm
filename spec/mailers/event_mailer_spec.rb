@@ -83,7 +83,7 @@ describe EventMailer do
     participant = create :participant
     mail = EventMailer.unattend(@event, [participant], 'max_changed')
     expect(mail.bcc).to eq [participant.email]
-    expect(mail.subject).to eq 'You are no longer attending an event'
+    expect(mail.subject.downcase).to match 'no longer attending'
     # checks that there is both email and plain text, and they both have the right content
     expect(mail.body.parts.length).to eq 2
     mail.body.parts.each do |part|
