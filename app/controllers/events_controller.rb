@@ -106,6 +106,9 @@ class EventsController < ApplicationController
 
   end
 
+  def who
+  end
+
   def new
     attrs = {}
     attrs[:start] = params['start_day'] if params['start_day']

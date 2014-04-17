@@ -283,7 +283,7 @@ describe "Events" do
         fill_in 'Name', with: 'some event'
         choose "event_coordinator_id_#{@coordinator.id}"
         click_button 'Save'
-        expect(current_path).to eq event_path(Event.order(:created_at).last)
+        click_link 'Who'
         expect(page).to have_content @coordinator.display_name
       end
 

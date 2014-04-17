@@ -8,6 +8,9 @@ class Ability
     if user.persisted?
 
       can :read, Event, can_have_participants?: true
+      can :who, Event do |event|
+        can? :read, event
+      end
       can :calendar, Event
       can :index, :geocode
 

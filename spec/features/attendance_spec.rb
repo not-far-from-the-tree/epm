@@ -47,10 +47,11 @@ describe "Event Attendance" do
     end
     expect(current_path).to eq event_path e
     expect(page).to have_content 'You are attending'
-    expect(page).to have_link @participant.display_name
-    within 'header' do
-      click_link 'Events'
+    click_link 'Who'
+    within '#participants' do
+      expect(page).to have_link @participant.display_name
     end
+    visit root_path
     within '#attending' do
       expect(page).to have_link e.display_name
     end
@@ -162,13 +163,15 @@ describe "Event Attendance" do
     will_attend = create :participant
     e.attend will_attend # gets onto waitlist
     login_as will_cancel
-    visit event_path e
+    visit who_event_path e
     within '#participants' do
       expect(page).not_to have_link will_attend.display_name
     end
+    click_link 'Event Details'
     within '#rsvp' do
       click_button 'Cancel'
     end
+    click_link 'Who'
     within '#participants' do
       expect(page).to have_link will_attend.display_name
     end
@@ -186,6 +189,7 @@ describe "Event Attendance" do
     visit edit_event_path e
     fill_in 'Max', with: 1
     click_button 'Save'
+    click_link 'Who'
     within '#participants' do
       expect(page).to have_link p1.display_name
       expect(page).not_to have_link p2.display_name

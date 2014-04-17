@@ -12,6 +12,7 @@ Epm::Application.routes.draw do
   resources :events, except: :destroy do
     get 'calendar', on: :collection
     member do
+      get 'who'
       get 'cancel', to: 'events#ask_to_cancel'
       patch 'cancel'
       patch 'approve'

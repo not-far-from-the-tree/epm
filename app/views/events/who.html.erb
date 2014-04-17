@@ -1,0 +1,67 @@
+<%
+  tit = 'Who'
+  if @event.cancelled?
+    tit += ' Would Have Come'
+  else
+    tit += @event.past? ? ' Went' : '’s Coming'
+  end
+  title "#{tit} to ‘#{@event.display_name(current_user)}’"
+%>
+
+<% content_for :header do %>
+  <%= link_to 'Event Details', @event %>
+  <%= render 'invite', event: @event %>
+<% end %>
+
+<section>
+  <h2>Coordinator</h2>
+  <% if @event.coordinator %>
+    <%= render 'users/user', user: @event.coordinator %>
+  <% else %>
+    None set.
+  <% end %>
+</section>
+
+<% if @event.can_have_participants? %>
+
+  <section id="participants">
+    <h2>
+      <%= pluralize @event.participants.count, 'Participant' %>
+      <% if @event.can_accept_participants? %>
+        &ndash;
+        <% if @event.participants_needed > 0 %>
+          <%= @event.participants_needed %> more needed
+        <% elsif @event.full? %>
+          full
+        <% else %>
+          <%
+            spots = @event.remaining_spots
+            spots = 'unlimited' if spots == true
+          %>
+          <%= pluralize spots, 'spot' %> left
+        <% end %>
+      <% end %>
+    </h2>
+    <% if @event.participants.any? %>
+      <ul class="users">
+        <% @event.participants.each do |user| %>
+          <%= render 'users/user', user: user, tag: 'li' %>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>None yet.</p>
+    <% end %>
+  </section>
+
+  <% if (current_user.has_role?(:admin) || current_user == @event.coordinator) && @event.approved? && !@event.past? && @event.waitlisted.any? %>
+    <section id="waitlisted">
+      <h2><%= @event.waitlisted.count %> Waitlisted</h2>
+      <ul class="users">
+        <% @event.waitlisted.each do |user| %>
+          <%= render 'users/user', user: user, tag: 'li' %>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+
+<% end %>

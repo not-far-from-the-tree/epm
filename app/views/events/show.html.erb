@@ -6,6 +6,14 @@
 
 <% content_for :header do %>
 
+  <%
+    who_link = 'Who'
+    unless @event.cancelled?
+      who_link += "#{@event.past? ? ' Went' : '’s Coming'} (#{@event.users.length})"
+    end
+  %>
+  <%= link_to who_link, who_event_path(@event) %>
+
   <% if can? :update, @event %>
     <%= link_to 'Edit', edit_event_path(@event) %>
   <% end %>
@@ -16,14 +24,7 @@
     <%= link_to 'Cancel', cancel_event_path(@event) %>
   <% end %>
 
-  <% if can?(:invite, @event) && @event.invitable? %>
-    <%= form_for @event, url: invite_event_path(@event), method: :patch, html: {id: 'invite'} do |f| %>
-      <label>
-        Invite <%= number_field_tag 'number', @event.suggested_invitations, min: 1, max: Event.max_invitable %> participants
-      </label>
-      <%= submit 'Invite' %>
-    <% end %>
-  <% end %>
+  <%= render 'invite', event: @event %>
 
 <% end %>
 
@@ -87,56 +88,3 @@
 <% end %>
 
 <%= end_cols %>
-
-<section>
-
-  <h2>Coordinator</h2>
-  <% if @event.coordinator %>
-    <%= render 'users/user', user: @event.coordinator %>
-  <% else %>
-    None set.
-  <% end %>
-
-  <% if @event.can_have_participants? %>
-
-    <div id="participants">
-      <h2>
-        <%= pluralize @event.participants.count, 'Participant' %>
-        &ndash;
-        <% if @event.participants_needed > 0 %>
-          <%= @event.participants_needed %> more needed
-        <% elsif @event.full? %>
-          full
-        <% else %>
-          <%
-            spots = @event.remaining_spots
-            spots = 'unlimited' if spots == true
-          %>
-          <%= pluralize spots, 'spot' %> left
-        <% end %>
-      </h2>
-      <% if @event.participants.any? %>
-        <ul class="users">
-          <% @event.participants.each do |user| %>
-            <%= render 'users/user', user: user, tag: 'li' %>
-          <% end %>
-        </ul>
-      <% else %>
-        <p>None yet.</p>
-      <% end %>
-    </div>
-
-    <% if (current_user.has_role?(:admin) || current_user == @event.coordinator) && @event.approved? && !@event.past? && @event.waitlisted.any? %>
-      <div id="waitlisted">
-        <h2><%= @event.waitlisted.count %> Waitlisted</h2>
-        <ul class="users">
-          <% @event.waitlisted.each do |user| %>
-            <%= render 'users/user', user: user, tag: 'li' %>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-
-  <% end %>
-
-</section>
