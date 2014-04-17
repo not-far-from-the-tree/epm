@@ -17,10 +17,3 @@
     <%= link_to event.display_name(current_user), event, ops %>
   <% end %>
 <% end %>
-
-<% if @events.find{|e| e.coords } %>
-  <% content_for :js_ready do %>
-    $('.month_calendar').append('<div id="map"></div>');
-    show_map($('.month_calendar .event[data-lat]'));
-  <% end %>
-<% end %>

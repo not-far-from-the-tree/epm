@@ -88,14 +88,14 @@ describe "Events" do
         e = create :full_event
         login_as @admin
         visit event_path e
-        expect(all('#map .leaflet-marker-icon').length).to eq 2 # self and geocoded location
+        expect(all('.map .leaflet-marker-icon').length).to eq 2 # self and geocoded location
       end
 
       it "shows no map when not geocoded", js: true do
         e = create :event
         login_as @admin
         visit event_path e
-        expect(all('#map').length).to eq 0
+        expect(all('.map').length).to eq 0
       end
 
       it "hides address for non-attendees when indicated", js: true do
@@ -391,14 +391,14 @@ describe "Events" do
         login_as @admin
         visit new_event_path
         fill_in 'Address', with: '1600 Pennsylvania Avenue, Washington, DC'
-        expect(all('#map').length).to eq 0
+        expect(all('.map').length).to eq 0
         find_field('Address').trigger('blur')
         Timeout.timeout(5) do
           loop until page.evaluate_script('jQuery.active').zero?
         end
         expect(find_field('Latitude', visible: false).value.to_i).to be_within(1).of(38)
         expect(find_field('Longitude', visible: false).value.to_i).to be_within(1).of(-77)
-        expect(all('#map .leaflet-marker-icon').length).to eq 2 # should show self and geocoded location
+        expect(all('.map .leaflet-marker-icon').length).to eq 2 # should show self and geocoded location
       end
 
       it "geocodes without javascript" do
@@ -433,7 +433,9 @@ describe "Events" do
         e = create :participatable_event, status: :proposed
         login_as @admin
         visit root_path
-        expect(page).to have_link e.display_name
+        within '#awaiting_approval' do
+          expect(page).to have_link e.display_name
+        end
       end
 
       it "does not show events awaiting approval to coordinators" do
@@ -521,6 +523,39 @@ describe "Events" do
 
     end
 
+    context "events page maps" do
+
+      it "shows one map for each section with a geocoded event", js: true do
+        c = create :coordinator
+        # three sections, two of whom have maps
+        e_needing = create :participatable_event, coordinator: c, lat: 50, lng: 50, min: 1
+        e_accepting = create :participatable_event, coordinator: c
+        e_full = create :participatable_event, lat: 50, lng: 50, coordinator: c, max: 1
+        e_full.attend create :participant
+        login_as @admin
+        visit root_path
+        within '#needing_more_participants' do
+          expect(all('.map').length).to eq 1
+        end
+        within '#accepting_more_participants' do
+          expect(all('.map').length).to eq 0
+        end
+        within '#full' do
+          expect(all('.map').length).to eq 1
+        end
+      end
+
+      it "shows the right number of things on a map", js: true do
+        create :event, lat: 30, lng: 30
+        create :event, lat: 20, lng: 20
+        create :event
+        login_as @admin
+        visit root_path
+        expect(all('.map .leaflet-marker-icon').length).to eq 3 # self and 2 geocoded events
+      end
+
+    end
+
     it "shows a no-events message when there are no events" do
       Event.destroy_all # todo: why is this not handled by database cleaner?
       login_as @admin
@@ -570,7 +605,7 @@ describe "Events" do
       create :full_event, start: Time.zone.now
       login_as @admin
       visit calendar_events_path
-      expect(all('#map .leaflet-marker-icon').length).to eq 2 # self and event
+      expect(all('.map .leaflet-marker-icon').length).to eq 2 # self and event
     end
 
   end

@@ -4,7 +4,7 @@ ol.events {
 ol.events li, .month_calendar .event {
   margin: 0.2em 0;
 }
-ol.events small {
+ol.events small, .leaflet-popup-content small {
   font-style: italic;
   color: #ccc;
 }

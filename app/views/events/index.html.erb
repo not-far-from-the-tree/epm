@@ -10,7 +10,8 @@
 <% events_shown = false %>
 <% @sections.each do |section| %>
   <% if section[:q].any? %>
-    <section id="<%= section[:id] || section[:name].downcase.gsub(' ', '_') %>">
+    <% section_id = section[:id] || section[:name].downcase.gsub(' ', '_') %>
+    <section id="<%= section_id %>"<%= ' data-map="side"'.html_safe if section[:q].find{|e|e.coords} %>>
       <% events_shown = true %>
       <h2><%= section[:name] %></h2>
       <%= render 'events', events: section[:q] %>

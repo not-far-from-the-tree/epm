@@ -73,15 +73,13 @@
 
 <% if @event.address || @event.coords %>
   <% coords = @event.coords(current_user) %>
-  <section id="where"<%= " data-lat=\"#{coords[0]}\" data-lng=\"#{coords[1]}\"".html_safe if coords %>>
+  <section id="where"<%= "data-map=\"true\" data-lat=\"#{coords[0]}\" data-lng=\"#{coords[1]}\"".html_safe if coords %>>
     <h2>Where</h2>
     <%= with_br(@event.address) if @event.address && can?(:read_specific_location, @event) %>
     <% if @event.coords %>
       <% content_for :js_ready do %>
-        $('#where').append('<div id="map"></div>');
-        show_map($('#where'));
         <% if cannot? :read_specific_location, @event %>
-          $('#map').before('note: exact location and address shown only to attendees');
+          $('.map').before('note: exact location and address shown only to attendees');
         <% end %>
       <% end %>
     <% end %>

@@ -9,7 +9,9 @@ module EventsHelper
   end
 
   def month_calendar(events)
-    content_tag 'section', class: 'month_calendar' do
+    html_options = { class: 'month_calendar' }
+    html_options[:data] = { map: true } if events.find{|e|e.coords}
+    content_tag 'section', html_options do
       # calls method from simple_calendar gem with particular options
       options = {
         time_selector: 'start',
