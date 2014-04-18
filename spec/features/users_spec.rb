@@ -106,7 +106,7 @@ describe "Users" do
     end
 
     it "edits own profile" do
-      visit user_path(@participant)
+      visit user_path @participant
       click_link 'Edit'
       expect(current_path).to eq edit_user_path @participant
       new_name = 'John Smith'
@@ -123,6 +123,15 @@ describe "Users" do
       visit edit_user_path(other_user)
       expect(current_path).to eq root_path
       expect(page).to have_content 'Sorry'
+    end
+
+    it "cancels editing one's profile" do
+      visit user_path @participant
+      click_link 'Edit'
+      fill_in 'Name', with: 'new name'
+      click_button 'Cancel'
+      expect(current_path).to eq user_path @participant
+      expect(page).not_to have_content 'new name'
     end
 
   end

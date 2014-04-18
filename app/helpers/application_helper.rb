@@ -26,8 +26,11 @@ module ApplicationHelper
     "</div></div>#{clear}".html_safe
   end
 
+  def cancel(str = 'Cancel', html_options = {})
+    submit str, html_options.merge(class: 'default')
+  end
   def submit(str = 'Save', html_options = {})
-    content_tag :button, html_options.merge!(type: 'submit', name: 'commit', value: str) do
+    content_tag :button, html_options.merge(type: 'submit', name: 'commit', value: str) do
       str
     end
   end

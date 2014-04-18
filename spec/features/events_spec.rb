@@ -135,8 +135,10 @@ describe "Events" do
         login_as @admin
         visit event_path e
         click_link 'Edit'
+        fill_in 'Name', with: 'new name'
         click_button 'Cancel'
         expect(current_path).to eq event_path e
+        expect(page).not_to have_content 'new name'
       end
 
       # consider separating out testing that the duration select is showing the right value
