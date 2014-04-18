@@ -4,18 +4,11 @@
 
   <%= start_cols %>
 
-  <% if @event.persisted? && @event.users.any? %>
-    <div class="checkbox_field">
-      <%= f.check_box :notify_of_changes, {}, true, false %>
-      <%= f.label :notify_of_changes, 'Notify attendees of changes' %>
-    </div>
-  <% end %>
-
   <% if @event.new_record? && can?(:approve, @event) %>
     <fieldset>
-      <legend>Status</legend>
-      <label><%= f.radio_button :status, :proposed %> Proposed</label><br>
-      <label><%= f.radio_button :status, :approved %> Approved</label>
+      <legend style="float:left">Status</legend>
+      <label style="margin:0 0.7em"><%= f.radio_button :status, :proposed %>Proposed</label>
+      <label><%= f.radio_button :status, :approved %>Approved</label>
     </fieldset>
   <% end %>
 
@@ -24,15 +17,57 @@
     <%= f.text_field :name %>
   </div>
 
-  <div class="field">
-    <%= f.label :description %><br>
-    <%= f.text_area :description %>
-  </div>
+  <fieldset id="when">
+    <div class="field">
+      <%= f.label :start_day, 'Date' %>
+      <%= f.date_field :start_day, value: @event.start ? @event.start.to_date.to_s : nil %>
+    </div>
+    <% content_for :js_ready do %>
+      $('#event_start_day').datepicker({
+        dateFormat: 'yy-mm-dd',
+        <%= "defaultDate: '#{@event.start.to_date}',".html_safe if @event.start  %>
+        nextText: '»',
+        prevText: '«',
+        showButtonPanel: true,
+        showOn: 'button',
+        closeText: 'Okay',
+        buttonText: '<%= @event.start ? date(@event.start) : 'Not set' %>',
+        onSelect: function(){
+          $('.ui-datepicker-trigger').text($.datepicker.formatDate('DD MM d, yy', $(this).datepicker('getDate')));
+          <%# js-formatted date above to be kept in same format as date() in helpers/events %>
+        }
+      });
+    <% end %>
+    <div class="field">
+      <%= f.label :start_time_12, 'Time' %>
+      <%= f.text_field :start_time_12, size: 5, maxlength: 5, class: 'time', value: (@event.start.present? ? @event.start_time_12 : '12:00') %>
+      <%= f.select :start_time_p, options_for_select(['AM', 'PM'], @event.start_time_p) %>
+
+      <%= f.label :duration, 'For', style: 'margin-left:0.7em' %>
+      <%= f.select :duration, options_for_select((1..6).map{|n| [pluralize(n, 'hour'), n.hours]}, @event.duration) %>
+    </div>
+  </fieldset>
 
   <div class="field">
     <%= f.label :notes %> <span class="hint">for Admins and Coordinators only</span><br>
     <%= f.text_area :notes %>
   </div>
+
+  <div class="field">
+    <%= f.label :description %><br>
+    <%= f.text_area :description %>
+  </div>
+
+  <%= next_col %>
+
+  <%= render layout: 'shared/address_form', locals: { f: f } do %>
+    <%= f.check_box :hide_specific_location %>
+    <%= f.label :hide_specific_location, 'Hide specific location for non-attendees', style: 'font-weight:normal' %><br>
+  <% end %>
+
+  <%= end_cols %>
+
+  <%= start_cols %>
 
   <fieldset>
     <legend>Number of Participants</legend>
@@ -43,8 +78,16 @@
     <span class="hint">leave blank for unlimited participants</span>
   <fieldset>
 
-  <% coordinators = current_user.has_role?(:admin) ? User.coordinators : User.coordinators.where(id: current_user.id) %>
-  <fieldset id="coordinators">
+  <%= next_col %>
+
+  <%
+    if current_user.has_role? :admin
+      coordinators = @event.coordinator ? User.coordinators.order("users.id = #{@event.coordinator_id} DESC") : User.coordinators
+    else
+      coordinators = User.coordinators.where(id: current_user.id)
+    end
+  %>
+  <fieldset id="coordinator">
     <legend>Coordinator</legend>
     <label style="margin-bottom:0.5em">
       <%= f.radio_button :coordinator_id, nil %>
@@ -61,46 +104,14 @@
     <% end %>
   </fieldset>
 
-  <%= next_col %>
-
-  <fieldset id="when" style="width:14em">
-    <legend>When</legend>
-    <%= f.label :start_day, 'Date' %><br>
-    <%= f.date_field :start_day, value: @event.start ? @event.start.to_date.to_s : nil %>
-    <% content_for :js_ready do %>
-      $('#event_start_day').after('<div id="datepicker"></div>')
-      $('#datepicker').datepicker({
-        dateFormat: 'yy-mm-dd',
-        <%= "defaultDate: '#{@event.start.to_date}',".html_safe if @event.start  %>
-        nextText: '»',
-        prevText: '«',
-        onSelect: function(dateText) {
-          $('#event_start_day').val(dateText);
-        }
-      });
-      if (!$('#event_start_day').val()) { // if there's no date, don't show today selected
-        $('#datepicker .ui-state-active').removeClass('ui-state-active');
-      }
-    <% end %>
-
-    <div class="field">
-      <%= f.label :start_time_12, 'Time' %>
-      <%= f.text_field :start_time_12, size: 5, maxlength: 5, class: 'time', value: (@event.start.present? ? @event.start_time_12 : '12:00') %>
-      <%= f.select :start_time_p, options_for_select(['AM', 'PM'], @event.start_time_p) %>
-    </div>
-    <div class="field">
-      <%= f.label :duration, 'For' %>
-      <%= f.select :duration, options_for_select((1..6).map{|n| [pluralize(n, 'hour'), n.hours]}, @event.duration) %>
-    </div>
-  </fieldset>
-
-  <%= render layout: 'shared/address_form', locals: { f: f } do %>
-    <%= f.check_box :hide_specific_location %>
-    <%= f.label :hide_specific_location, 'Hide specific location for non-attendees', style: 'font-weight:normal' %>
-  <% end %>
-
   <%= end_cols %>
 
-  <%= submit %>
+  <%= submit 'Cancel', class: 'default' %>
+  <% if @event.persisted? && @event.users.reject{|u|u==current_user}.any? %>
+    <%= submit 'Save & Notify of Changes', title: 'Note: Notifications will still only be sent if changes are made to the name, description, notes, or location.' %>
+    <%= submit 'Save Without Notifications' %>
+  <% else %>
+    <%= submit %>
+  <% end %>
 
 <% end %>

@@ -1,11 +1,17 @@
 module EventsHelper
 
   def date(datetime)
-    datetime.strftime '%B %e %Y'
+    # this method needs to be kept in synch with js-formatted date in events/_form.html.erb
+    datetime.strftime '%A %B %e, %Y'
   end
 
   def time(datetime)
     datetime.strftime('%l:%M %p').strip
+  end
+
+  def relative_time(event)
+    str = time_ago_in_words event.start
+    event.past? ? "#{str} ago" : "in #{str}"
   end
 
   def month_calendar(events)

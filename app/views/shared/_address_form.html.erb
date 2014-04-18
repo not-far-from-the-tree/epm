@@ -7,8 +7,9 @@
   <br>
   <%= yield %>
   <%= f.text_area :address, placeholder: "123 Fake Street, City" %>
+  <% drag_text = 'Drag marker to adjust.' %>
   <% content_for :js_ready do %>
-    $('#address textarea').after('<div id="map_wrapper"><div id="instruction">drag marker to adjust</div><div id="editable_map" class="map"></div></div>');
+    $('#address textarea').after('<div id="map_wrapper"><div id="editable_map" class="map"></div><div id="instruction"><%= drag_text %></div></div>');
     editable_map = make_map('editable_map', <%= (controller_name == 'users' && params['id'].to_i == current_user.id) %>);
     var points = [];
     if ($('#coords input:first').val()) {
@@ -16,7 +17,7 @@
       editable_marker = L.marker(points[points.length-1], {draggable: true}).addTo(editable_map).on('dragend', marker_dragged);
     }
     else {
-      $('#map_wrapper').hide();
+      $('#instruction').text('Enter an address to see it on the map.');
     }
     finish_map(editable_map, points);
   <% end %>
@@ -43,8 +44,7 @@
               editable_marker.setLatLng(ll);
             }
             else {
-              $('#map_wrapper').show();
-              editable_map.invalidateSize();
+              $('#instruction').text('<%= drag_text %>');
               editable_marker = L.marker(ll, {draggable: true}).addTo(editable_map).on('dragend', marker_dragged);
             }
             editable_map.panTo(ll);

@@ -76,9 +76,6 @@ class Event < ActiveRecord::Base
     end
   end
 
-  # todo : move this out of model into just view and controller
-  attr_accessor :notify_of_changes # setting to false allows supressing email notifications; todo: move to controller
-
   has_many :event_users, dependent: :destroy
   has_many :participants, -> { where 'event_users.status' => EventUser.statuses_array(:attending, :attended) }, through: :event_users, source: :user
   has_many :waitlisted, -> { where('event_users.status' => EventUser.statuses[:waitlisted]).order('event_users.updated_at') }, through: :event_users, source: :user

@@ -16,7 +16,7 @@
   <% end %>
 <% end %>
 
-<%= image_tag @user.avatar('large'), size: '80x80', alt: 'profile photo' %>
+<%= image_tag @user.avatar('large'), size: '80x80', alt: 'profile photo', class: 'avatar' %>
 
 <div id="roles">
   <%= 'Role'.pluralize @user.roles.count %>:

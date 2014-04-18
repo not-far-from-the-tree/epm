@@ -1,0 +1,86 @@
+$hover_background_colour: #eee;
+
+html.js #event_start_day {
+  display: none;
+}
+
+#when .ui-datepicker-trigger {
+  /* need to remove button stylings */
+  color: black;
+  background-color: transparent;
+  border-width: 0;
+  padding: 5px 20px 5px 5px;
+  background-image: image-url('calendar.png');
+  background-position: right center;
+  background-repeat: no-repeat;
+  &:hover {
+    background-color: $hover_background_colour;
+  }
+}
+
+.ui-datepicker {
+  display: none; /* prevents displaying at the bottom of the page when not used yet */
+  text-align: center;
+  border: 1px solid black;
+  border-radius: 5px;
+  background-color: white;
+  padding: 0.3em;
+  a {
+    text-decoration: none;
+    color: $link_colour;
+  }
+  th {
+    font-weight: normal;
+  }
+  td a, td span { /* one day */
+    display: block;
+    border: 1px solid #ddd;
+    padding: 0.1em 0.2em;
+    text-align: right;
+  }
+  td a:hover { /* onhover day */
+    background-color: #eee;
+    border-color: black;
+  }
+  a.ui-state-highlight { /* today */
+    background-color: #eee;
+  }
+  td a.ui-state-active, td a:active { /* selected day */
+    background-color: black;
+    border-color: black;
+    color: white;
+  }
+  button {
+    margin-top: 1em;
+  }
+}
+.ui-datepicker-header {
+  position: relative;
+}
+.ui-datepicker-prev, .ui-datepicker-next {
+  cursor: pointer;
+  position: absolute;
+  font-size: 1.2em;
+}
+.ui-datepicker-next {
+  right: 0;
+}
+.ui-datepicker-prev {
+  left: 0;
+}
+button.ui-datepicker-current {
+  display: none;
+  /* this button is a link to 'today' but we don't need it and there's no option to turn it off */
+}
+
+fieldset#coordinator label {
+  display: block;
+}
+fieldset#coordinator label:hover {
+  background-color: $hover_background_colour;
+  border-radius: 10px;
+}
+fieldset#coordinator .user {
+  margin-left: 1.6em;
+  margin-top: -1em;
+}

@@ -11,3 +11,7 @@ Run `whenever -w` to create the cron file for reminder emails
 ## Testing
 
 Test by running 'rspec'.
+
+
+## Image Sources
+* calendar http://thenounproject.com/term/calendar/19362/

@@ -67,43 +67,6 @@ class EventsController < ApplicationController
   end
 
   def show
-    eu = @event.event_users.find_or_initialize_by(user_id: current_user.id)
-
-    # determine what string to use to describe the existing rsvp
-    @attend_str = nil
-    is_the_coordinator = current_user == @event.coordinator
-    if current_user.has_any_role?(:participant, :coordinator) || eu.status
-      @attend_str = 'You '
-      if @event.past?
-        @attend_str += (eu.attending? || eu.attended? || is_the_coordinator) ? 'attended' : 'did not attend'
-      elsif eu.waitlisted?
-        @attend_str += 'are on the waitlist for'
-      elsif eu.requested?
-        @attend_str += 'have requested to attend'
-      elsif eu.attending? || is_the_coordinator
-        @attend_str += 'are attending'
-      elsif eu.invited?
-        @attend_str += 'have been invited to attend'
-      else
-        @attend_str += 'are not attending'
-      end
-      @attend_str += ' this event.'
-    end
-
-    # determine what buttons to show to change rsvp
-    @buttons = {}
-    if @event.participatable_by? current_user
-      if [nil, 'not_attending', 'withdrawn', 'cancelled', 'invited'].include? eu.status
-        # todo: this does not handle events where a participant must first request to join if they haven't been invited, which would change the 'attend' text for statuses that are not :invited
-        @buttons[:attend] = @event.full? ? 'Add To Waitlist' : 'Attend'
-        @buttons[:unattend] = 'Will Not Attend' if eu.invited?
-      elsif eu.waitlisted? || eu.requested?
-        @buttons[:unattend] = 'Withdraw Request'
-      elsif eu.attending?
-        @buttons[:unattend] = 'Cancel'
-      end
-    end
-
   end
 
   def who
@@ -116,10 +79,10 @@ class EventsController < ApplicationController
   end
 
   def edit
-    @event.notify_of_changes = true
   end
 
   def create
+    redirect_to(root_path, notice: 'Event not saved.') and return if params['commit'].downcase == 'cancel'
     @event = Event.new event_params
     if @event.save
       if @event.coordinator && @event.coordinator != current_user
@@ -132,6 +95,7 @@ class EventsController < ApplicationController
   end
 
   def update
+    redirect_to(@event, notice: 'Event changes not saved.') and return if params['commit'].downcase == 'cancel'
     @event.track
     if @event.update event_params
       # send email notifications if appropriate
@@ -151,7 +115,7 @@ class EventsController < ApplicationController
           EventMailer.coordinator_assigned(@event).deliver
         end
         # alert other attendees
-        if @event.notify_of_changes.present? && !(@event.past? && @event.prior['past?']) && users.any?
+        if params['commit'].downcase.include?('notify') && !(@event.past? && @event.prior['past?']) && users.any?
           users = users.partition{|u| u.ability.can?(:read_notes, @event)} # .first can read the note, .last can't
           changed_significantly = @event.changed_significantly?
           if (changed_significantly || (@event.notes != @event.prior['notes'])) && users.first.any?

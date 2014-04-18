@@ -6,7 +6,7 @@ ul.users li {
   margin: 0.8em 0;
 }
 
-img {
+img.avatar {
   float: left;
   margin: 0 1em 1em 0;
 }
@@ -16,13 +16,11 @@ img {
   background-repeat: no-repeat;
   background-position: left center;
   padding-left: 55px;
-  white-space: nowrap;
   overflow: hidden;
 }
 .user p {
   margin: 0;
   padding: 0.2em 0;
-  text-overflow: ellipsis;
 }
 
 #roles a {

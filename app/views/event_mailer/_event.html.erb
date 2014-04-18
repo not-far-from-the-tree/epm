@@ -21,8 +21,3 @@
     <dt>Where</dt>
     <dd><%= with_br event.address if event.address %></dd>
   <% end %>
-  <% if event.coordinator %>
-    <dt>Coordinator</dt>
-    <dd><%= event.coordinator.display_name %></dd>
-  <% end %>
-</dl>

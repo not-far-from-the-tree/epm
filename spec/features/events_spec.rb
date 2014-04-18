@@ -15,6 +15,14 @@ describe "Events" do
 
     context "creating" do
 
+      it "cancels creating an event" do
+        login_as @admin
+        visit root_path
+        click_link 'Add New Event'
+        click_button 'Cancel'
+        expect(current_path).to eq root_path
+      end
+
       it "creates a dateless event" do
         login_as @admin
         visit root_path
@@ -44,8 +52,9 @@ describe "Events" do
         login_as @admin
         visit new_event_path
         e = build :event
-        within '#datepicker' do
-          click_link 29 # select date towards the end of the current month
+        find('.ui-datepicker-trigger').click;
+        within '.ui-datepicker' do
+          click_link 28 # select date towards the end of the current month
         end
         select (e.duration / 3600), from: 'For'
         click_button 'Save'
@@ -88,7 +97,7 @@ describe "Events" do
         e = create :full_event
         login_as @admin
         visit event_path e
-        expect(all('.map .leaflet-marker-icon').length).to eq 2 # self and geocoded location
+        expect(map_points).to eq 2 # self and geocoded location
       end
 
       it "shows no map when not geocoded", js: true do
@@ -103,7 +112,7 @@ describe "Events" do
         login_as @admin
         visit edit_event_path e
         check 'Hide specific location'
-        click_button 'Save'
+        click_button 'Save & Notify'
         expect(page).to have_content '123 fake street'
         expect(page).not_to have_content 'shown only to attendees'
         logout
@@ -121,10 +130,19 @@ describe "Events" do
 
     context "updating" do
 
+      it "cancels updating an event" do
+        e = create :event
+        login_as @admin
+        visit event_path e
+        click_link 'Edit'
+        click_button 'Cancel'
+        expect(current_path).to eq event_path e
+      end
+
       # consider separating out testing that the duration select is showing the right value
       it "updates an event" do
-        login_as @admin
         e = create :full_event
+        login_as @admin
         visit event_path e
         click_link 'Edit'
         expect(find('#event_duration option[selected]').text).to have_content e.duration_hours
@@ -182,7 +200,7 @@ describe "Events" do
           visit edit_event_path @e
           fill_in 'Name', with: 'New name'
           # separately emails those with and without ability to view event notes
-          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 2
+          expect{ click_button 'Save & Notify' }.to change{ActionMailer::Base.deliveries.size}.by 2
           # this is a bit fragile as it relies on knowing/caring the order of emails sent. todo: unfragilize
           expect(ActionMailer::Base.deliveries[-2].bcc).to eq [@coordinator.email]
           expect(last_email.bcc).to eq [@participant.email]
@@ -192,7 +210,7 @@ describe "Events" do
           login_as @admin
           visit edit_event_path @e
           fill_in 'Notes', with: 'new note'
-          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+          expect{ click_button 'Save & Notify' }.to change{ActionMailer::Base.deliveries.size}.by 1
           expect(last_email.bcc).to eq [@coordinator.email]
         end
 
@@ -200,7 +218,7 @@ describe "Events" do
           login_as @coordinator
           visit edit_event_path @e
           fill_in 'Name', with: 'New name'
-          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+          expect{ click_button 'Save & Notify' }.to change{ActionMailer::Base.deliveries.size}.by 1
           expect(last_email.bcc).to eq [@participant.email]
         end
 
@@ -214,7 +232,7 @@ describe "Events" do
           # expecting to send a notice to the new coordinator of the event
           # and also the notice to existing participants of changes
           # which should be the last email
-          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 2
+          expect{ click_button 'Save & Notify' }.to change{ActionMailer::Base.deliveries.size}.by 2
           expect(last_email.bcc).to eq [@participant.email]
         end
 
@@ -222,15 +240,14 @@ describe "Events" do
           login_as @admin
           visit edit_event_path @e
           choose 'event_coordinator_id' # select the nil option
-          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
+          expect{ click_button 'Save & Notify' }.to change{ActionMailer::Base.deliveries.size}.by 0
         end
 
         it "does not email attendees upon significantly changing an event when opting out" do
           login_as @admin
           visit edit_event_path @e
           fill_in 'Name', with: 'some new name'
-          uncheck 'Notify attendees of changes'
-          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
+          expect{ click_button 'Save Without Notifications' }.to change{ActionMailer::Base.deliveries.size}.by 0
         end
 
         it "does not email attendees of changes to past events" do
@@ -239,7 +256,7 @@ describe "Events" do
           login_as @admin
           visit edit_event_path e
           fill_in 'Name', with: 'some new name'
-          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
+          expect{ click_button 'Save & Notify' }.to change{ActionMailer::Base.deliveries.size}.by 0
         end
 
       end
@@ -328,7 +345,7 @@ describe "Events" do
         visit root_path
         click_link 'event with no coordinator'
         click_link 'Edit'
-        expect(all('#coordinators input').length).to eq 2 # nil and self
+        expect(all('#coordinator input').length).to eq 2 # nil and self
       end
 
       it "allows a coordinator to edit a coordinatorless event" do
@@ -391,14 +408,20 @@ describe "Events" do
         login_as @admin
         visit new_event_path
         fill_in 'Address', with: '1600 Pennsylvania Avenue, Washington, DC'
-        expect(all('.map').length).to eq 0
+        within '#address' do
+          expect(page).to have_content 'Enter an address'
+        end
+        expect(map_points).to eq 1 # self only
         find_field('Address').trigger('blur')
         Timeout.timeout(5) do
           loop until page.evaluate_script('jQuery.active').zero?
         end
         expect(find_field('Latitude', visible: false).value.to_i).to be_within(1).of(38)
         expect(find_field('Longitude', visible: false).value.to_i).to be_within(1).of(-77)
-        expect(all('.map .leaflet-marker-icon').length).to eq 2 # should show self and geocoded location
+        expect(map_points).to eq 2 # should show self and geocoded location
+        within '#address' do
+          expect(page).to have_content 'Drag marker to adjust'
+        end
       end
 
       it "geocodes without javascript" do
@@ -551,7 +574,7 @@ describe "Events" do
         create :event
         login_as @admin
         visit root_path
-        expect(all('.map .leaflet-marker-icon').length).to eq 3 # self and 2 geocoded events
+        expect(map_points).to eq 3 # self and 2 geocoded events
       end
 
     end
@@ -605,7 +628,7 @@ describe "Events" do
       create :full_event, start: Time.zone.now
       login_as @admin
       visit calendar_events_path
-      expect(all('.map .leaflet-marker-icon').length).to eq 2 # self and event
+      expect(map_points).to eq 2 # self and event
     end
 
   end
@@ -674,7 +697,7 @@ describe "Events" do
         fill_in 'Date', with: Time.zone.tomorrow.to_date
         # it will send an email to tell the coordinator about the change in time
         # but should not be sending an email to the admin
-        expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        expect{ click_button 'Save & Notify' }.to change{ActionMailer::Base.deliveries.size}.by 1
         expect(last_email.bcc).not_to include @admin.email
       end
 

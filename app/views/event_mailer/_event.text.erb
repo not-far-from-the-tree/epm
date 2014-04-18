@@ -7,5 +7,3 @@ When: <% if event.start %><%= date event.start %>, <%= time event.start %> to <%
 <% if event.address && user.ability.can?(:read_specific_location, event) %>
 Where: <%= event.address %>
 <% end %>
-
-<%= "Coordinator: #{event.coordinator.display_name}" if event.coordinator %>

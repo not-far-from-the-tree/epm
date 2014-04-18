@@ -4,7 +4,7 @@ ol.events {
 ol.events li, .month_calendar .event {
   margin: 0.2em 0;
 }
-ol.events small, .leaflet-popup-content small {
+ol.events small, .leaflet-popup-content small, p small {
   font-style: italic;
   color: #ccc;
 }
@@ -16,191 +16,12 @@ ol.events small, .leaflet-popup-content small {
 
 #rsvp {
   margin-bottom: 1em;
-  border: 1px dashed green;
-  padding: 0.5em;
-  border-radius: 10px;
+  padding: 0.2em 0.5em;
+  background-color: #FCFC6A;
   display: inline-block;
 }
 
-.month_calendar {
-  table {
-    width: 100%;
-    table-layout: fixed;
-    a.event {
-      display: block;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    a.add {
-      position: absolute;
-      top: 0;
-      text-decoration: none;
-      font-weight: bold;
-      display: none; /* not ideal to display onhover given touch devices but it's okay */
-    }
-    td.today:hover a.add, td.future:hover a.add {
-      display: inline;
-    }
-  }
-  h2 {
-    text-align: center;
-    position: relative;
-    a {
-      text-decoration: none;
-      font-weight: normal;
-      position: absolute;
-    }
-  }
-  td {
-    width: 14.28%;
-    border: 1px solid #bbb;
-    vertical-align: top;
-  }
-  td.today {
-    background-color: #eee;
-  }
-  td > div {
-    overflow: auto;
-    height: 6em;
-    position: relative;
-    padding-top: 1.3em;
-  }
-}
-a.previous-month {
-  left: 0;
-}
-a.next-month {
-  right: 0;
-}
-/* next bits are to abbreviate previous -> prev -> symbol (same for next) */
-@media (max-width: 550px) {
-  a.previous-month span span {
-    display: none;
-  }
-}
-@media (max-width: 450px) {
-  a.previous-month span, a.next-month span {
-    display: none;
-  }
-}
-.day_number {
-  font-size: 0.9em;
-  color: #aaa;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-.not-current-month .day_number {
-  color: #ddd;
-}
-
-
 #notes {
-  margin-top: 1em;
-  padding: 0.5em;
+  padding: 0.5em 0.5em 0 0.5em;
   border: 1px dashed #aaa;
-  border-radius: 10px;
-}
-
-.ui-datepicker a {
-  color: black;
-}
-form .ui-datepicker a {
-  color: $link_colour;
-}
-.ui-datepicker {
-  text-align: center;
-  width: 13.5em;
-  a {
-    text-decoration: none;
-    cursor: default; /* this isn't always in a form, note below */
-  }
-  table {
-    border: 1px solid #ddd;
-    background-color: white;
-    border-radius: 5px;
-  }
-  th {
-    text-align: center;
-    font-weight: normal;
-  }
-  td a, td span { /* one day */
-    display: block;
-    border: 1px solid #ddd;
-    padding: 0.1em 0.2em;
-    text-align: right;
-  }
-}
-form .ui-datepicker a {
-  cursor: pointer; /* put back normal link cursor, note above */
-}
-form .ui-datepicker td a:hover { /* onhover day */
-  background-color: #eee;
-  color: $link_colour;
-}
-
-td a.ui-state-highlight { /* today */
-  background-color: #eee;
-}
-td a.ui-state-active, form .ui-datepicker td a:active { /* selected day */
-    background-color: black;
-    border-color: black;
-    color: white;
-}
-
-.ui-datepicker-header {
-  position: relative;
-}
-.ui-datepicker-prev, .ui-datepicker-next {
-  position: absolute;
-  font-size: 1.2em;
-  color: blue;
-  cursor: pointer;
-}
-.ui-datepicker-next {
-  right: 0;
-}
-.ui-datepicker-prev {
-  left: 0;
-}
-.ui-datepicker-title {
-  font-weight: bold;
-}
-form .ui-datepicker-title {
-  font-weight: normal;
-}
-
-html.js #event_start_day {
-  display: none;
-}
-
-
-
-@media (min-width: $col_limit) {
-  .cols #when legend {
-    display: none;
-  }
-  .cols #when label {
-    font-weight: bold;
-  }
-}
-@media (max-width: $col_limit) {
-  .cols #when {
-    border-width: 1px;
-    padding-left: 0.5em;
-  }
-}
-
-
-fieldset#coordinators label {
-  display: block;
-}
-fieldset#coordinators label:hover {
-  background-color: #eee;
-  border-radius: 10px;
-}
-fieldset#coordinators .user {
-  margin-left: 1.6em;
-  margin-top: -1em;
 }

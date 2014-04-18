@@ -28,22 +28,20 @@
 
 <% end %>
 
-<% if current_user.has_any_role?(:participant, :coordinator) || @buttons.any? %>
-  <div id="rsvp">
-    <%= @attend_str %>
-    <% if @buttons.any? %>
-      <% @buttons.each do |type, label| %>
-        <%= button_to label, send("#{type}_event_path", @event), method: :patch %>
-      <% end %>
-      <% if @buttons[:attend] && @event.participants_needed > 0 %>
-        <br><%= pluralize @event.participants_needed, 'participant' %> still needed!
-      <% end %>
-    <% end %>
-  </div>
-<% end %>
+<%= render 'rsvp' %>
 
-<%# todo: better division of cola vs colb, depending on what stuff there is %>
 <%= start_cols %>
+
+<p>
+  <% if @event.start %>
+    <%= date @event.start %> <small><%= relative_time @event %></small>
+    <br>
+    <%= time @event.start %> to <%= time @event.finish %>
+    <small>for <%= pluralize @event.duration_hours, 'hour' %></small>
+  <% else %>
+    No date set.
+  <% end %>
+</p>
 
 <% if @event.notes.present? && can?(:read_notes, @event) %>
   <div id="notes">
@@ -51,31 +49,14 @@
     <%= paragraphs @event.notes %>
   </div>
 <% end %>
-<%= paragraphs @event.description if @event.description.present? %>
-<%= next_col if @event.description.present? || (@event.notes.present? && can?(:read_notes, @event)) %>
 
-<div>
-  <% if @event.start %>
-    <div id="date"><p><%= date @event.start %></p></div>
-    <% content_for :js_ready do %>
-      $('#date').html('').datepicker({
-        dateFormat: 'yy-mm-dd',
-        defaultDate: "<%= @event.start.to_date %>",
-        nextText: '',
-        prevText: '',
-        disabled: true
-      });
-    <% end %>
-    <p><%= time @event.start %> to <%= time @event.finish %> (<%= pluralize @event.duration_hours, 'hour' %>)</p>
-  <% else %>
-    <p>No date set.</p>
-  <% end %>
-</div>
+<%= paragraphs @event.description if @event.description.present? %>
+
+<%= next_col unless @event.description.blank? && @event.start.blank? && (@event.notes.blank? || cannot?(:read_notes, @event)) %>
 
 <% if @event.address || @event.coords %>
   <% coords = @event.coords(current_user) %>
   <section id="where"<%= "data-map=\"true\" data-lat=\"#{coords[0]}\" data-lng=\"#{coords[1]}\"".html_safe if coords %>>
-    <h2>Where</h2>
     <%= with_br(@event.address) if @event.address && can?(:read_specific_location, @event) %>
     <% if @event.coords %>
       <% content_for :js_ready do %>

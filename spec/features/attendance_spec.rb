@@ -188,7 +188,7 @@ describe "Event Attendance" do
     login_as @admin
     visit edit_event_path e
     fill_in 'Max', with: 1
-    click_button 'Save'
+    click_button 'Save & Notify'
     click_link 'Who'
     within '#participants' do
       expect(page).to have_link p1.display_name

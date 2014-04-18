@@ -1,0 +1,73 @@
+.month_calendar {
+  table {
+    width: 100%;
+    table-layout: fixed;
+    a.event {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    a.add {
+      position: absolute;
+      top: 0;
+      text-decoration: none;
+      font-weight: bold;
+      display: none; /* not ideal to display onhover given touch devices but it's okay */
+    }
+    td.today:hover a.add, td.future:hover a.add {
+      /* this prevents showing add link for past events. todo: move that logic to event helper */
+      display: inline;
+    }
+  }
+  h2 {
+    text-align: center;
+    position: relative;
+    a {
+      text-decoration: none;
+      font-weight: normal;
+      position: absolute;
+    }
+  }
+  td {
+    width: 14.28%;
+    border: 1px solid #bbb;
+    vertical-align: top;
+  }
+  td.today {
+    background-color: #eee;
+  }
+  td > div {
+    overflow: auto;
+    height: 6em;
+    position: relative;
+    padding-top: 1.3em;
+  }
+}
+a.previous-month {
+  left: 0;
+}
+a.next-month {
+  right: 0;
+}
+/* next bits are to abbreviate previous -> prev -> symbol (same for next) */
+@media (max-width: 550px) {
+  a.previous-month span span {
+    display: none;
+  }
+}
+@media (max-width: 450px) {
+  a.previous-month span, a.next-month span {
+    display: none;
+  }
+}
+.day_number {
+  font-size: 0.9em;
+  color: #aaa;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.not-current-month .day_number {
+  color: #ddd;
+}

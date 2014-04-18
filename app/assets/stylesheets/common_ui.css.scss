@@ -53,6 +53,9 @@ p {
     margin-right: 0;
   }
 }
+.cols > div > *:first-child, .cols > div > *:first-child, .cols > div > *:first-child {
+  margin-top: 0;
+}
 
 ul, ol {
   margin: 0;
@@ -68,7 +71,6 @@ ul, ol {
   height: 23em;
 }
 #instruction {
-  text-align: right;
   font-style: italic;
 }
 .map .me {
