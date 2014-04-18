@@ -14,14 +14,25 @@ ol.events small, .leaflet-popup-content small, p small {
   }
 }
 
-#rsvp {
+#rsvp { /* on events#show and #who */
   margin-bottom: 1em;
   padding: 0.2em 0.5em;
   background-color: #FCFC6A;
   display: inline-block;
 }
 
-#notes {
+#notes { /* on events#show */
   padding: 0.5em 0.5em 0 0.5em;
   border: 1px dashed #aaa;
+}
+
+body.events-index h2 button {
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  line-height: 10px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 15px;
+  margin-right: 0.4em;
 }
