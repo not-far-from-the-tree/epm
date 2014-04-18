@@ -80,6 +80,9 @@ form[method='post'] button {
   }
 }
 
+#errors {
+  margin: 1em 0;
+}
 div.field_with_errors, #errors h2 {
   display: inline;
   border-bottom: 2px solid red;

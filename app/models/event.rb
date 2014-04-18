@@ -128,7 +128,7 @@ class Event < ActiveRecord::Base
   attr_reader :start_day, :start_time_12, :start_time_p
   attr_accessor :time_error
   before_validation do |event|
-    errors.add(:base, 'Start time must be in the format ##:##') if event.time_error
+    errors.add(:start_time_12, 'Start time must be in the format ##:##') if event.time_error
     # todo. this should be added to start_time_12 rather than :base, but that's no good as "start time 12" is a poor name for users. fix
   end
   def assign_attributes(attrs)
