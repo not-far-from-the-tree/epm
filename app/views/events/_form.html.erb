@@ -75,7 +75,7 @@
     <%= f.number_field :min, min: 0 %><br>
     <%= f.label :max %>
     <%= f.number_field :max, min: 0 %>
-    <span class="hint">leave blank for unlimited participants</span>
+    <span class="hint">leave blank for unlimited</span>
   <fieldset>
 
   <%= next_col %>
@@ -89,9 +89,9 @@
   %>
   <fieldset id="coordinator">
     <legend>Coordinator</legend>
-    <label style="margin-bottom:0.5em">
+    <label style="padding:0.2em 0">
       <%= f.radio_button :coordinator_id, nil %>
-      No coordinator
+      Not set
     </label>
     <% coordinators.each do |coordinator| %>
       <label>
@@ -101,6 +101,24 @@
     <% end %>
     <% content_for :js_ready do %>
       $('#coordinators a').attr('target', '_new');
+      var coordinators = $('#coordinator label');
+      if (coordinators.length > 4) {
+        coordinators.each(function(){
+          if ($(this).find('input:checked').length == 0) {
+            $(this).hide();
+          }
+          else {
+            $(this).find('input').css('visibility', 'hidden');
+          }
+        });
+        $('<button class="default" style="margin-left:0.6em">Change</button>')
+          .click(function(){
+            $('#coordinator input:checked').css('visibility', 'visible');
+            $('#coordinator label').show();
+            $(this).remove();
+          })
+          .appendTo('#coordinator');
+      }
     <% end %>
   </fieldset>
 

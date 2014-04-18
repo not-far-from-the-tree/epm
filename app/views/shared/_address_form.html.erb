@@ -20,6 +20,8 @@
       $('#instruction').text('Enter an address to see it on the map.');
     }
     finish_map(editable_map, points);
+
+    $('<img/>')[0].src = '<%= image_url('loading.gif') %>'; <%# preload image %>
   <% end %>
 
   <fieldset id="coords">
