@@ -6,7 +6,7 @@
 <% end %>
 
 <% if @event.cancel_notes && @user.ability.can?(:read_notes, @event) %>
-  <strong>Notes for admins and coordinator:</strong>
+  <strong>Notes for <%= Configurable.admin.pluralize %> and <%= Configurable.coordinator %>:</strong>
   <%= paragraphs @event.cancel_notes %>
 <% end %>
 

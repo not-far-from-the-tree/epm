@@ -23,7 +23,7 @@
   <% if @user.roles.any? %>
     <%=
       @user.roles.map do |role|
-        outp = role.name.capitalize
+        outp = Configurable.send(role.name).titlecase
         if can?(:destroy, role) && current_user.has_role?(:admin)
           outp += content_tag(:sup, link_to('x', role, method: :delete, title: 'remove this role', data: {confirm: 'Are you sure you want to remove this role?'}))
         end
@@ -37,7 +37,7 @@
     <% other_roles = Role.names.reject{|n, v| @user.roles.find{|r| r.name == n} } %>
     <% if other_roles.any? %>
       <%= form_for [@user, @user.roles.build], html: {style: 'display:inline'} do |f| %>
-        <%= f.select :name, options_for_select(other_roles.map{|n,v|[n.capitalize, n]}.unshift(['Add Role', nil])) %>
+        <%= f.select :name, options_for_select(other_roles.map{|n,v|[Configurable.send(n).titlecase, n]}.unshift(['Add Role', nil])) %>
         <%= submit 'Add' %>
       <% end %>
     <% end %>

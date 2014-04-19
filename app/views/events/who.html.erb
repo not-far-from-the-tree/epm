@@ -28,7 +28,7 @@
 
   <section id="participants">
     <h2>
-      <%= pluralize @event.participants.count, 'Participant' %>
+      <%= pluralize @event.participants.count, Configurable.participant.titlecase %>
       <% if @event.can_accept_participants? %>
         &ndash;
         <% if @event.participants_needed > 0 %>

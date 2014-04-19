@@ -14,14 +14,14 @@ class EventsController < ApplicationController
           @sections << { q: current_user.open_invites, name: 'Invited' }
         end
         if current_user.has_role? :coordinator
-          @sections << { q: current_user.coordinating_events.not_past, name: 'Coordinating' }
+          @sections << { q: current_user.coordinating_events.not_past, name: "Run by Me", id: 'coordinating' }
         end
         if current_user.has_role? :participant
           @sections << { q: current_user.participating_events.not_past, name: 'Attending' }
           @sections << { q: current_user.potential_events, name: 'May be Attending' }
         end
         if current_user.has_any_role? :coordinator, :admin
-          @sections << { q: Event.where(coordinator_id: nil).not_past.not_cancelled, name: 'Needing a Coordinator' }
+          @sections << { q: Event.where(coordinator_id: nil).not_past.not_cancelled, name: "Needing a #{Configurable.coordinator.titlecase}" }
         end
         if current_user.has_role? :admin
           @sections << { q: Event.where.not(coordinator_id: nil).where('start IS NULL OR lat IS NULL').not_past.not_cancelled, name: 'Missing a Date or Location' }
@@ -29,12 +29,12 @@ class EventsController < ApplicationController
         if current_user.has_any_role? :admin, :participant
           q = Event.needing_participants
           q = q.participatable_by(current_user) unless current_user.has_role? :admin
-          @sections << { q: q, name: 'Needing More Participants' }
+          @sections << { q: q, name: "Needing More #{Configurable.participant.pluralize.titlecase}" }
         end
         if current_user.has_any_role? :admin, :participant
           q = Event.accepting_not_needing_participants.limit(max)
           q = q.participatable_by(current_user) unless current_user.has_role? :admin
-          @sections << { q: q, name: 'Accepting More Participants' }
+          @sections << { q: q, name: "Accepting More #{Configurable.participant.pluralize.titlecase}" }
         end
         if current_user.has_any_role? :admin, :participant
           q = Event.participatable.not_past.where(reached_max: true).limit(max)

@@ -6,7 +6,7 @@
 <p>
 
 <% if @reason == 'max_changed' %>
-  <p>This is because the maximum number of participants was lowered.</p>
+  <p>This is because the maximum number of <%= Configurable.participant.pluralize %> was lowered.</p>
 <% end %>
 
 <p>You can see all the events you are attending on <%= link_to 'your profile page', me_url %>.</p>

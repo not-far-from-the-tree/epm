@@ -45,7 +45,7 @@
 
 <% if @event.notes.present? && can?(:read_notes, @event) %>
   <div id="notes">
-    <strong>Notes for Admins and Coordinators</strong>
+    <strong>Notes for <%= Configurable.admin.titlecase.pluralize %> and <%= Configurable.coordinator.titlecase %></strong>
     <%= paragraphs @event.notes %>
   </div>
 <% end %>

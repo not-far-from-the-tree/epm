@@ -14,7 +14,7 @@ class User < ActiveRecord::Base
     CSV.generate force_quotes: true do |csv|
       csv << ['id', 'name', 'email', 'phone number', 'joined', 'events attended', 'roles', 'description']
       all.each do |user|
-        csv << [user.id, user.name, user.email, user.phone, user.created_at.to_date.to_s, user.events.past.count, user.roles.map{|r| r.name}.join(', '), user.description]
+        csv << [user.id, user.name, user.email, user.phone, user.created_at.to_date.to_s, user.events.past.count, user.roles.map{|r| Configurable.send(r.name)}.join(', '), user.description]
       end
     end
   end

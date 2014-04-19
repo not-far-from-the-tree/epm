@@ -47,7 +47,7 @@
         <%= button_to label, send("#{type}_event_path", @event), method: :patch %>
       <% end %>
       <% if buttons[:attend] && @event.participants_needed > 0 %>
-        <span style="white-space:nowrap">&ndash; <%= pluralize @event.participants_needed, 'participant' %> are still needed.</span>
+        <span style="white-space:nowrap">&ndash; <%= pluralize @event.participants_needed, Configurable.participant %> are still needed.</span>
       <% end %>
     <% end %>
   </div>

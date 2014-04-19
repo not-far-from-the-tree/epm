@@ -6,7 +6,7 @@
     <dd><%= paragraphs event.description %></dd>
   <% end %>
   <% if event.notes && user.ability.can?(:read_notes, event) %>
-    <dt>Notes for admins and coordinators</dt>
+    <dt>Notes for <%= Configurable.admin.pluralize %> and <%= Configurable.coordinator %></dt>
     <dd><%= paragraphs event.notes %></dd>
   <% end %>
   <dt>When</dt>
