@@ -24,5 +24,7 @@ en:
     attributes:
       user:
         phone: Phone Number
+        email: E-mail Address
+        handle: Alias
       event:
         start_time_12: Start time

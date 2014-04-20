@@ -53,12 +53,13 @@
 <% if can? :read_contact, @user %>
   <div>
     <h2>Contact Information</h2>
-    <%= mail_to @user.email %>
+    <%= @user.name if @user.name %>
+    <p><%= mail_to @user.email %></p>
     <% if @user.phone %>
-      <br><%= link_to @user.phone, "tel:#{@user.phone}" %>
+      <%= link_to @user.phone, "tel:#{@user.phone}" %>
     <% end %>
     <% if @user.address && can?(:read_address, @user) %>
-      <div><%= with_br(@user.address) if @user.address %></div>
+      <p><%= with_br(@user.address) if @user.address %></p>
     <% end %>
   </div>
 <% end %>

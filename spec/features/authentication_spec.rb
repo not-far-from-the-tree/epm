@@ -4,7 +4,7 @@ describe "Authentication" do
 
   it "signs up a new user" do
     visit new_user_registration_path
-    fill_in 'Email', :with => Faker::Internet.email
+    fill_in 'E-mail', :with => Faker::Internet.email
     pass = Faker::Internet.password
     fill_in 'Password', :with => pass
     fill_in 'Password confirmation', :with => pass
@@ -28,7 +28,7 @@ describe "Authentication" do
     pass = Faker::Internet.password
     u = FactoryGirl.create(:user, password: pass)
     visit new_user_session_path
-    fill_in 'Email', with: u.email
+    fill_in 'E-mail', with: u.email
     fill_in 'Password', with: pass
     click_button 'Sign in'
     expect(page).to have_content 'Log out'
@@ -37,7 +37,7 @@ describe "Authentication" do
   it "fails to log in a user with bad credentials" do
     u = FactoryGirl.create :user
     visit new_user_session_path
-    fill_in 'Email', with: u.email
+    fill_in 'E-mail', with: u.email
     fill_in 'Password', with: Faker::Internet.password
     click_button 'Sign in'
     expect(page).to have_content 'Invalid'
@@ -47,7 +47,7 @@ describe "Authentication" do
     user = create(:user)
     visit new_user_session_path
     click_link 'Forgot your password?'
-    fill_in 'Email', with: user.email
+    fill_in 'E-mail', with: user.email
     expect { click_button 'Send' }.to change{ActionMailer::Base.deliveries.size}.by 1
     expect(last_email.to).to eq [user.email]
     expect(last_email.from).to eq ['no-reply@example.com']
@@ -57,7 +57,7 @@ describe "Authentication" do
   it "does not send a password reset email to non-users" do
     visit new_user_session_path
     click_link 'Forgot your password?'
-    fill_in 'Email', with: Faker::Internet.email
+    fill_in 'E-mail', with: Faker::Internet.email
     expect { click_button 'Send' }.not_to change{ActionMailer::Base.deliveries.size}
     expect(page).to have_content 'error'
   end
@@ -66,7 +66,7 @@ describe "Authentication" do
     user = create :user
     visit new_user_session_path
     click_link "Didn't receive confirmation instructions?"
-    fill_in 'Email', with: user.email
+    fill_in 'E-mail', with: user.email
     expect { click_button 'Resend' }.to change{ActionMailer::Base.deliveries.size}.by 1
     expect(last_email.to).to eq [user.email]
     expect(last_email.from).to eq ['no-reply@example.com']
@@ -76,7 +76,7 @@ describe "Authentication" do
   it "does not resends a confirmation email to non-users" do
     visit new_user_session_path
     click_link "Didn't receive confirmation instructions?"
-    fill_in 'Email', with: Faker::Internet.email
+    fill_in 'E-mail', with: Faker::Internet.email
     expect { click_button 'Resend' }.not_to change{ActionMailer::Base.deliveries.size}
     expect(page).to have_content 'error'
   end

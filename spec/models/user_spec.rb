@@ -59,16 +59,26 @@ describe User do
 
   end
 
-  it "has a non-blank display name" do
-    expect(build(:user).display_name).not_to be_blank
-  end
+  context "names" do
 
-  it "generates a name based on email" do
-    expect(create(:user, name: nil, email: 'joe.smith@example.com').name).to eq 'Joe Smith'
-  end
+    it "has a non-blank display name" do
+      expect(build(:user).display_name).not_to be_blank
+    end
 
-  it "does not generate a name when one is given" do
-    expect(create(:user, name: 'My Name', email: 'joe.smith@example.com').name).to eq 'My Name'
+    it "generates a name and alias based on email" do
+      u = create :user, name: nil, email: 'joe.smith@example.com'
+      expect(u.name).to eq 'Joe Smith'
+      expect(u.handle).to eq 'Joe Smith'
+    end
+
+    it "does not generate a name when one is given" do
+      expect(create(:user, name: 'My Name', email: 'joe.smith@example.com').name).to eq 'My Name'
+    end
+
+    it "does not generate an alias when one is given" do
+      expect(create(:user, handle: 'My Name', email: 'joe.smith@example.com').handle).to eq 'My Name'
+    end
+
   end
 
   it "has an avatar which is a url" do

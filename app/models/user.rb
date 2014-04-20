@@ -4,8 +4,10 @@ class User < ActiveRecord::Base
 
   strip_attributes
   before_create do |user|
-    if user.name.blank? && user.email.present? && user.email.include?('@')
-      user.name = user.email.split('@').first.gsub(/\.|-|_/, ' ').titlecase
+    if user.email.present? && user.email.include?('@')
+      autoname = user.email.split('@').first.gsub(/\.|-|_/, ' ').titlecase
+      user.name = autoname if user.name.blank?
+      user.handle = autoname if user.handle.blank?
     end
     true
   end
@@ -31,7 +33,7 @@ class User < ActiveRecord::Base
   scope :geocoded, -> { where.not lat: nil }
   scope :search, ->(q) {
     like = Rails.configuration.database_configuration[Rails.env]["adapter"] == 'postgresql' ? 'ILIKE' : 'LIKE'
-    where("users.email #{like} ? OR users.name #{like} ?", "%#{q}%", "%#{q}%")
+    where("users.email #{like} ? OR users.name #{like} ? OR users.handle #{like} ?", "%#{q}%", "%#{q}%", "%#{q}%")
   }
   scope :roleless, -> { where 'users.id NOT IN (SELECT DISTINCT user_id FROM roles)' }
   # todo: consider refactoring these to automatically have a scope for every role
@@ -85,7 +87,7 @@ class User < ActiveRecord::Base
   end
 
   def display_name
-    name || '(no name)'
+    handle || '(no alias)'
   end
 
   def avatar(size = :small)
