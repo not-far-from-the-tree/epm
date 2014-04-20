@@ -11,7 +11,7 @@
       $(this).closest('form').submit();
     });
   <% end %>
-  <%= text_field_tag :q, @q, placeholder: 'Name or email' %>
+  <%= text_field_tag :q, @q, placeholder: 'name, alias, or email' %>
   <%= submit 'Search' %>
 <% end %>
 
@@ -26,7 +26,13 @@
   <ul class="users">
     <% @users.each_with_index do |user, i| %>
       <%= "</ul>#{next_col}<ul class=\"users\">".html_safe if defined?(switch_col) && switch_col == i %>
-      <%= render 'user', user: user, tag: 'li' %>
+      <%= render layout: 'user', locals: {user: user, tag: 'li'} do %>
+        <% if @q.present? %>
+          <%= [user.name, user.email].compact.join ', ' %>
+        <% elsif !@role %>
+          <%= user.roles.map {|r| Configurable.send(r.name).titlecase}.join ', ' %>
+        <% end %>
+      <% end %>
     <% end %>
   </ul>
   <%= end_cols %>

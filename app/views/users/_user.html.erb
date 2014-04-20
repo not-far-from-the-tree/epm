@@ -1,6 +1,12 @@
 <%= content_tag (tag ||= 'div'), class: 'user', style: "background-image:url('#{user.avatar}')" do %>
   <%= link_to_if can?(:show, user), user.display_name, user %>
-  <% if user.description.present? %>
-    <p><%= truncate(user.description, length: 50, separator: ' ') %></p>
-  <% end %>
+  <%
+    desc = ''
+    desc += (yield || '').strip if block_given?
+    if user.description
+      desc += '. ' if desc.present?
+      desc += truncate(user.description, length: 50, separator: ' ')
+    end
+  %>
+  <%= content_tag(:p, desc) if desc.present? %>
 <% end %>
