@@ -28,9 +28,10 @@ class User < ActiveRecord::Base
 
 
   scope :by_name, -> { order :name }
+  scope :geocoded, -> { where.not lat: nil }
   scope :search, ->(q) {
     like = Rails.configuration.database_configuration[Rails.env]["adapter"] == 'postgresql' ? 'ILIKE' : 'LIKE'
-    where("users.email LIKE ? OR users.name #{like} ?", "%#{q}%", "%#{q}%")
+    where("users.email #{like} ? OR users.name #{like} ?", "%#{q}%", "%#{q}%")
   }
   scope :roleless, -> { where 'users.id NOT IN (SELECT DISTINCT user_id FROM roles)' }
   # todo: consider refactoring these to automatically have a scope for every role

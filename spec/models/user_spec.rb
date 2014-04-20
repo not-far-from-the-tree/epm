@@ -144,6 +144,12 @@ describe User do
       expect(User.by_name).to eq [a, b, c]
     end
 
+    it "lists users that have coordinates" do
+      w_coords = create :user, lat: 50, lng: 50
+      wo_coords = create :user, lat: nil, lng: nil
+      expect(User.geocoded).to eq [w_coords]
+    end
+
     it "lists users according to role" do
       a = create :admin
       c = create :coordinator

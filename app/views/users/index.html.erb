@@ -1,21 +1,21 @@
-<% title 'Find Users' %>
-
-<% content_for :header do %>
-
-  <%= form_tag users_path, method: :get do %>
-    <%= select_tag :role, options_for_select(Role.names.map{|n, v| Configurable.send(n).pluralize.titlecase}.unshift(['Everyone', nil]) << ['No roles', 'none'], @role) %>
-    <% content_for :js_ready do %>
-      $('select').change(function(){
-        $(this).closest('form').submit();
-      });
-    <% end %>
-    <%= text_field_tag :q, @q, placeholder: 'Name or email' %>
-    <%= submit 'Search' %>
+<% if can? :map, User %>
+  <% content_for :header do %>
+    <%= link_to 'Map', map_users_path %>
   <% end %>
-
-  <%= link_to 'Export these users', users_path(format: 'csv' ) %>
-
 <% end %>
+
+<%= form_tag users_path, method: :get do %>
+  <%= select_tag :role, options_for_select(Role.names.map{|n, v| Configurable.send(n).pluralize.titlecase}.unshift(['Everyone', nil]) << ['No roles', 'none'], @role) %>
+  <% content_for :js_ready do %>
+    $('select').change(function(){
+      $(this).closest('form').submit();
+    });
+  <% end %>
+  <%= text_field_tag :q, @q, placeholder: 'Name or email' %>
+  <%= submit 'Search' %>
+<% end %>
+
+<%= link_to 'Export these users', users_path(format: 'csv' ) %>
 
 
 <% if @users.any? %>

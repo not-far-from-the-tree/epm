@@ -1,0 +1,33 @@
+<% title 'Map' %>
+
+<% if @layers.any? %>
+
+  <div>
+    <% @layers.each do |h| %>
+      <div style="margin:0.2em 0"><div class="mapicon"><%= h[:code] %></div> <%= h[:name] %></div>
+    <% end %>
+  </div>
+
+  <div id="map" class="map" style="height:45em;margin-top:1em"></div>
+  <% content_for :js_ready do %>
+    var map = make_map('map', true);
+    <% @layers.each do |h| %>
+      var <%= h[:code] %>_icon = L.divIcon({html: '<%= h[:code] %>', className: 'mapicon', iconSize: [20,20]});
+      $([<%= h[:points].map{|u| "[#{u.lat.round(2)}, #{u.lng.round(2)}]"}.join(',') %>]).each(function(){
+        L.marker(this, {icon: <%= h[:code] %>_icon}).addTo(map);
+      });
+    <% end %>
+    <%
+      everybody = @layers.map{|h| h[:points]}.flatten
+      lats = everybody.map{|u| u.lat}
+      lngs = everybody.map{|u| u.lng}
+    %>
+    setTimeout(function(){ map.fitBounds([[<%= lats.min %>, <%= lngs.min %>], [<%= lats.max %>, <%= lngs.max %>]]); }, 0); // https://github.com/Leaflet/Leaflet/issues/2021
+  <% end %>
+  Note: Locations are approximate.
+
+<% else %>
+
+  <p>There are not enough users to display a map.</p>
+
+<% end %>

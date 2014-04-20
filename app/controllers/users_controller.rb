@@ -27,6 +27,28 @@ class UsersController < ApplicationController
     end
   end
 
+  def map
+    @layers = [
+      {
+          points: User.participants.geocoded.select('lat, lng'),
+          name: Configurable.participant.pluralize.titlecase
+      },
+      {
+          points: User.coordinators.geocoded.select('lat, lng'),
+          name: Configurable.coordinator.pluralize.titlecase
+      }
+    ].reject{|h| h[:points].length < 10}
+    codes = []
+    @layers.each do  |h|
+      n = 0
+      while codes.include? h[:name][0..n]
+        n+= 1
+      end
+      h[:code] = h[:name][0..n]
+      codes << h[:code]
+    end
+  end
+
   def show
     @past_coordinating = @user.coordinating_events.past
     @past_participating = @user.participating_events.past

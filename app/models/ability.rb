@@ -23,7 +23,7 @@ class Ability
 
       if user.has_role? :admin
         can :manage, [Event, Role, :setting]
-        can [:index, :read_contact, :read_attendance], User
+        can [:index, :map, :read_contact, :read_attendance], User
       end
 
       if user.has_role? :coordinator

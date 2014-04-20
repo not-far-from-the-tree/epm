@@ -274,3 +274,41 @@ describe "Users" do
   end
 
 end
+
+# the below tests are separated from above, as the js: true tests were interfering with other tests above and causing them to fail
+describe "user map" do
+
+  include Warden::Test::Helpers
+
+  after :each do
+    Warden.test_reset!
+  end
+
+  it "shows a map to admin", js: true do
+    User.participants.geocoded.destroy_all # todo: why this is needed here
+    9.times { create :participant, lat: Faker::Address.latitude, lng: Faker::Address.longitude }
+    login_as create :admin
+    visit users_path
+    click_link 'Map'
+    expect(current_path).to eq map_users_path
+    expect(map_points).to eq 0 # need at least 10 people to show any
+    create :participant, lat: Faker::Address.latitude, lng: Faker::Address.longitude
+    visit map_users_path
+    expect(map_points).to eq 10
+  end
+
+  it "does not show a map to participants" do
+    login_as create :participant
+    visit map_users_path
+    expect(current_path).not_to eq map_users_path
+    expect(page).to have_content 'Sorry'
+  end
+
+  it "does not show a map to coordinators" do
+    login_as create :coordinator
+    visit map_users_path
+    expect(current_path).not_to eq map_users_path
+    expect(page).to have_content 'Sorry'
+  end
+
+end

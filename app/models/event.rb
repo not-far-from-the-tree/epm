@@ -322,7 +322,7 @@ class Event < ActiveRecord::Base
     # todo: take into account those who haven't been to any events yet
     invitable = User.participants
     if self.coords
-      invitable = invitable.where.not(lat: nil).by_distance(origin: self.coords)
+      invitable = invitable.geocoded.by_distance(origin: self.coords)
     else
       invitable = invitable.order('created_at DESC') # i.e. newest participants
     end

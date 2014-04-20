@@ -5,6 +5,7 @@ Epm::Application.routes.draw do
   devise_for :users, controllers: { registrations: 'registrations' }
   resources :users, only: [:index, :show, :edit, :update] do
     resources :roles, only: [:create, :destroy], shallow: true
+    get 'map', on: :collection
     patch 'deactivate', on: :member
   end
   get 'me', to: 'users#me'
