@@ -25,7 +25,7 @@
       @user.roles.map do |role|
         outp = Configurable.send(role.name).titlecase
         if can?(:destroy, role) && current_user.has_role?(:admin)
-          outp += content_tag(:sup, link_to('x', role, method: :delete, title: 'remove this role', data: {confirm: 'Are you sure you want to remove this role?'}))
+          outp += button_to 'x', role, method: :delete, title: 'remove this role', class: 'danger', data: {confirm: 'Are you sure you want to remove this role?'}
         end
         outp
       end.to_sentence.html_safe

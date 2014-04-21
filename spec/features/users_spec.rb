@@ -229,7 +229,7 @@ describe "Users" do
       e.attend participant
       login_as @admin
       visit user_path participant
-      click_link 'x' # user has only one role, so this is the right delete link
+      click_button 'x' # user has only one role, so this is the right delete link
       expect(current_path).to eq user_path participant
       expect(page).to have_content 'Role removed'
       within '#roles' do

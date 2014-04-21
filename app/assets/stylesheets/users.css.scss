@@ -26,9 +26,12 @@ img.avatar {
   padding: 0.2em 0;
 }
 
-#roles a {
-  text-decoration: none;
-  font-weight: bold;
+#roles button.danger {
+  height: 1em;
+  width: 1em;
+  line-height: 1em;
+  vertical-align: top;
+  padding: 0;
 }
 
 
