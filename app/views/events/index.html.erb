@@ -10,7 +10,7 @@
 
 <% if defined? @coordinators_not_taking_attendance %>
   <section id="coordinators_not_taking_attendance">
-    <h2>Coordinators Not Taking Attendance</h2>
+    <h2><%= Configurable.coordinator.pluralize.titlecase %> Not Taking Attendance</h2>
     <p><%= @coordinators_not_taking_attendance.map{|c| link_to c.display_name, c}.to_sentence.html_safe %>.</p>
   </section>
 <% end %>
