@@ -409,6 +409,14 @@ describe "Events" do
         expect(page).to have_content 'Sorry'
       end
 
+      it "includes a user as an event's coordinator when they are no longer a coordinator" do
+        e = create :participatable_past_event
+        e.coordinator.roles.where(name: Role.names[:coordinator]).destroy_all
+        login_as @admin
+        visit edit_event_path e
+        expect(page).to have_link e.coordinator.display_name
+      end
+
     end
 
     context "geocoding" do

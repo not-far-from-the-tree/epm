@@ -83,8 +83,14 @@
   <%
     if current_user.has_role? :admin
       coordinators = @event.coordinator ? User.coordinators.order("users.id = #{@event.coordinator_id} DESC") : User.coordinators
+      if @event.coordinator && !coordinators.include?(@event.coordinator)
+        # the user set as coordinator may no longer be a coordinator;
+        #   this forces them to be listed anyway to prevent problems;
+        #   they still won't have any coordinatior privileges
+        coordinators.unshift @event.coordinator
+      end
     else
-      coordinators = User.coordinators.where(id: current_user.id)
+      coordinators = User.where id: current_user.id
     end
   %>
   <fieldset id="coordinator" class="users">
