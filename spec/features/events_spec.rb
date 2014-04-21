@@ -320,7 +320,7 @@ describe "Events" do
         it "notifies a coordinator when an existing event is assigned to them" do
           e = create :event, coordinator: nil
           login_as @admin
-          visit edit_event_path(e)
+          visit edit_event_path e
           choose "event_coordinator_id_#{@coordinator.id}"
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
           expect(last_email.to.first).to match @coordinator.email
@@ -330,6 +330,14 @@ describe "Events" do
           e = create :event, coordinator: nil
           login_as @coordinator
           visit edit_event_path(e)
+          choose "event_coordinator_id_#{@coordinator.id}"
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
+        end
+
+        it "does not notify a coordinator when they are assigned a past event" do
+          e = create :past_event, coordinator: nil
+          login_as @admin
+          visit edit_event_path e
           choose "event_coordinator_id_#{@coordinator.id}"
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
         end

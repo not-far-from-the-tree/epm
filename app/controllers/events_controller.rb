@@ -93,7 +93,7 @@ class EventsController < ApplicationController
     redirect_to(root_path, notice: 'Event not saved.') and return if params['commit'].downcase == 'cancel'
     @event = Event.new event_params
     if @event.save
-      if @event.coordinator && @event.coordinator != current_user
+      if @event.coordinator && @event.coordinator != current_user && !@event.past?
         EventMailer.coordinator_assigned(@event).deliver
       end
       redirect_to @event, notice: 'Event saved.'
@@ -118,7 +118,7 @@ class EventsController < ApplicationController
           end
         end
         # alert coordinator being assigned
-        if @event.coordinator && (@event.coordinator_id != @event.prior['coordinator_id']) && (@event.coordinator != current_user)
+        if @event.coordinator && (@event.coordinator_id != @event.prior['coordinator_id']) && (@event.coordinator != current_user) && !@event.past?
           users.reject!{|u| u == @event.coordinator} # prevents emailing a coordinator twice when they are assigned an event which has significant changes
           EventMailer.coordinator_assigned(@event).deliver
         end
