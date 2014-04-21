@@ -21,7 +21,12 @@
 <% if @users.any? %>
   <h2><%= pluralize @users.total_count, 'User' %></h2>
   <%= paginate @users %>
-  <% switch_col = (@users.count/2) if @users.count > 5 %>
+  <%
+     if @users.length > 5
+      switch_col = @users.length / 2
+      switch_col += 1 if @users.length.odd?
+    end
+  %>
   <%= start_cols %>
   <ul class="users">
     <% @users.each_with_index do |user, i| %>
