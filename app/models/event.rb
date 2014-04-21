@@ -109,6 +109,7 @@ class Event < ActiveRecord::Base
   scope :awaiting_approval, -> { not_past.where 'events.status = ? AND coordinator_id IS NOT NULL AND start IS NOT NULL', statuses[:proposed] }
   scope :needing_participants, -> { participatable.not_past.where(below_min: true) }
   scope :accepting_not_needing_participants, -> { participatable.not_past.where(below_min: false, reached_max: false) }
+  scope :needing_attendance_taken, -> { participatable.past.joins("INNER JOIN event_users ON event_users.event_id = events.id AND event_users.status = #{EventUser.statuses[:attending]}").distinct }
   scope :in_month, ->(year, month) { # can pass in integers or strings which are integers
     month ||= ''
     year ||= ''

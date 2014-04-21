@@ -633,6 +633,29 @@ describe "Events" do
       expect(map_points).to eq 2 # self and event
     end
 
+    it "displays events needing attendance to coordinators" do
+      c = create :coordinator
+      e = create :participatable_past_event, coordinator: c
+      e.event_users.create user: create(:participant), status: :attending
+      login_as c
+      visit root_path
+      within '#needing_attendance_taken' do
+        expect(page).to have_link e.display_name
+      end
+    end
+
+    it "displays coordinators who need to take attendance, not the events themselves to admin" do
+      c = create :coordinator
+      e = create :participatable_event, coordinator: c, start: 1.week.ago # older than the 3 day threshold
+      e.event_users.create user: create(:participant), status: :attending
+      login_as @admin
+      visit root_path
+      expect(all('#needing_attendance_taken').length).to eq 0
+      within '#coordinators_not_taking_attendance' do
+        expect(page).to have_link c.display_name
+      end
+    end
+
   end
 
   context "status" do

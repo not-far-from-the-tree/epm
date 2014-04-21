@@ -655,6 +655,26 @@ describe Event do
         expect(eu4.reload.attending?).to be_true
       end
 
+      it "lists events needing attendance taken" do
+        Event.destroy_all # todo: why is this not handled by database cleaner
+        c = create :coordinator
+        p = create :participant
+        not_past = create :participatable_event, coordinator: c
+        not_past.attend p
+        nobody_went = create :participatable_past_event, coordinator: c
+        cancelled = create :participatable_past_event, coordinator: c, status: :cancelled
+        cancelled.event_users.create user: p, status: :attending
+        needs = create :participatable_past_event, coordinator: c
+        needs.event_users.create user: p, status: :attending
+        already_taken = create :participatable_past_event, coordinator: c
+        already_taken.event_users.create user: p, status: :attended
+        expect(Event.needing_attendance_taken).to include needs
+        expect(Event.needing_attendance_taken).not_to include not_past
+        expect(Event.needing_attendance_taken).not_to include nobody_went
+        expect(Event.needing_attendance_taken).not_to include cancelled
+        expect(Event.needing_attendance_taken).not_to include already_taken
+      end
+
     end
 
   end

@@ -5,6 +5,11 @@ class EventsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
+        if current_user.has_role? :admin
+          # this 'section' doesn't match the pattern of the others so can't be put into @sections
+          coordinators = User.coordinators_not_taking_attendance
+          @coordinators_not_taking_attendance = coordinators if coordinators.any?
+        end
         @sections = []
         max = 10 # used for sections which do not need to show all
         if current_user.has_role? :admin
@@ -14,6 +19,7 @@ class EventsController < ApplicationController
           @sections << { q: current_user.open_invites, name: 'Invited' }
         end
         if current_user.has_role? :coordinator
+          @sections << { q: current_user.coordinating_events.needing_attendance_taken, name: 'Needing Attendance Taken' }
           @sections << { q: current_user.coordinating_events.not_past, name: "Run by Me", id: 'coordinating' }
         end
         if current_user.has_role? :participant

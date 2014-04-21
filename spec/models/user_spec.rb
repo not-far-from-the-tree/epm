@@ -2,98 +2,102 @@ require 'spec_helper'
 
 describe User do
 
-  context "validity" do
+  context "attributes" do
 
-    it "has a valid factory" do
-      expect(create(:user)).to be_valid
+    context "validity" do
+
+      it "has a valid factory" do
+        expect(create(:user)).to be_valid
+      end
+
+      it "is invalid without an email" do
+        expect(build(:user, email: nil)).not_to be_valid
+      end
+
+      it "is invalid without a password" do
+        expect(build(:user, password: nil)).not_to be_valid
+      end
+
+      it "is invalid with an overly short password" do
+        expect(build(:user, password: "foo")).not_to be_valid
+      end
+
+      it "is invalid with an incorrect password confirmation" do
+        expect(build(:user, password: "1234567", password_confirmation: "1234568")).not_to be_valid
+      end
+
+      it "does not allow multiple users with the same email, case insensitively" do
+        user1 = build :user
+        user1.email = user1.email.upcase
+        user1.save
+        expect(build(:user, email: user1.email.downcase)).not_to be_valid
+      end
+
+      it "is valid with a latitude in range" do
+        expect(build :event, lat: 40, lng: -80).to be_valid
+      end
+
+      it "is invalid with a latitude out of range" do
+        expect(build :event, lat: 3000, lng: -80).not_to be_valid
+      end
+
     end
 
-    it "is invalid without an email" do
-      expect(build(:user, email: nil)).not_to be_valid
+    context "geocoding" do
+
+      it "geocodes an address" do
+        e = build :user, address: '1600 Pennsylvania Avenue, Washington, DC'
+        e.valid? # triggers geocoding
+        expect(e.lat).to be_within(1).of(38)
+        expect(e.lng).to be_within(1).of(-77)
+      end
+
+      it "does not override given coordinates" do
+        e = build :user, address: '1600 Pennsylvania Avenue, Washington, DC', lat: 40, lng: -75
+        e.valid? # triggers geocoding
+        expect(e.lat).to eq 40
+        expect(e.lng).to eq -75
+      end
+
     end
 
-    it "is invalid without a password" do
-      expect(build(:user, password: nil)).not_to be_valid
+    context "names" do
+
+      it "has a non-blank display name" do
+        expect(build(:user).display_name).not_to be_blank
+      end
+
+      it "generates a name and alias based on email" do
+        u = create :user, name: nil, email: 'joe.smith@example.com'
+        expect(u.name).to eq 'Joe Smith'
+        expect(u.handle).to eq 'Joe Smith'
+      end
+
+      it "does not generate a name when one is given" do
+        expect(create(:user, name: 'My Name', email: 'joe.smith@example.com').name).to eq 'My Name'
+      end
+
+      it "does not generate an alias when one is given" do
+        expect(create(:user, handle: 'My Name', email: 'joe.smith@example.com').handle).to eq 'My Name'
+      end
+
     end
 
-    it "is invalid with an overly short password" do
-      expect(build(:user, password: "foo")).not_to be_valid
+    it "has an avatar which is a url" do
+      expect(build(:user).avatar).to match URI::regexp(%w(http https))
     end
 
-    it "is invalid with an incorrect password confirmation" do
-      expect(build(:user, password: "1234567", password_confirmation: "1234568")).not_to be_valid
-    end
+    # all fields should be stripped, this just tests two (excessive to check them all)
+    context "normalizing attributes" do
 
-    it "does not allow multiple users with the same email, case insensitively" do
-      user1 = build :user
-      user1.email = user1.email.upcase
-      user1.save
-      expect(build(:user, email: user1.email.downcase)).not_to be_valid
-    end
+      it "strips the name" do
+        expect(create(:user, name: "  Joe\n").name).to eq 'Joe'
+      end
 
-    it "is valid with a latitude in range" do
-      expect(build :event, lat: 40, lng: -80).to be_valid
-    end
+      it "nullifies empty description" do
+        expect(create(:user, description: " \n").description).to be_nil
+      end
 
-    it "is invalid with a latitude out of range" do
-      expect(build :event, lat: 3000, lng: -80).not_to be_valid
-    end
-
-  end
-
-  context "geocoding" do
-
-    it "geocodes an address" do
-      e = build :user, address: '1600 Pennsylvania Avenue, Washington, DC'
-      e.valid? # triggers geocoding
-      expect(e.lat).to be_within(1).of(38)
-      expect(e.lng).to be_within(1).of(-77)
-    end
-
-    it "does not override given coordinates" do
-      e = build :user, address: '1600 Pennsylvania Avenue, Washington, DC', lat: 40, lng: -75
-      e.valid? # triggers geocoding
-      expect(e.lat).to eq 40
-      expect(e.lng).to eq -75
-    end
-
-  end
-
-  context "names" do
-
-    it "has a non-blank display name" do
-      expect(build(:user).display_name).not_to be_blank
-    end
-
-    it "generates a name and alias based on email" do
-      u = create :user, name: nil, email: 'joe.smith@example.com'
-      expect(u.name).to eq 'Joe Smith'
-      expect(u.handle).to eq 'Joe Smith'
-    end
-
-    it "does not generate a name when one is given" do
-      expect(create(:user, name: 'My Name', email: 'joe.smith@example.com').name).to eq 'My Name'
-    end
-
-    it "does not generate an alias when one is given" do
-      expect(create(:user, handle: 'My Name', email: 'joe.smith@example.com').handle).to eq 'My Name'
-    end
-
-  end
-
-  it "has an avatar which is a url" do
-    expect(build(:user).avatar).to match URI::regexp(%w(http https))
-  end
-
-  # all fields should be stripped, this just tests two (excessive to check them all)
-  context "normalizing attributes" do
-
-    it "strips the name" do
-      expect(create(:user, name: "  Joe\n").name).to eq 'Joe'
-    end
-
-    it "nullifies empty description" do
-      expect(create(:user, description: " \n").description).to be_nil
     end
 
   end
@@ -197,6 +201,30 @@ describe User do
       expect(bobs.length).to eq 1
       expect(bobs.first).to eq u3
       expect(User.search('Jack').length).to eq 0
+    end
+
+    it "lists coordinators not taking attendance" do
+      p = create :participant
+      # c_takes always take attendance
+      c_takes = create :coordinator
+      # not using :participatable_past_event because we want to ensure they're at least 3 days old, i.e. threshold for when attendance should be taken by
+      e1 = create :participatable_event, start: 1.month.ago, coordinator: c_takes
+      e1.event_users.create user: p, status: :attended
+      # c_verybad never takes attendance
+      c_verybad = create :coordinator
+      e2 = create :participatable_event, start: 1.month.ago, coordinator: c_verybad
+      e2.event_users.create user: p, status: :attending
+      e3 = create :participatable_event, start: 1.month.ago, coordinator: c_verybad
+      e3.event_users.create user: p, status: :attending
+      # c_bad sometimes takes attendance
+      c_bad = create :coordinator
+      e4 = create :participatable_event, start: 1.month.ago, coordinator: c_bad
+      e4.event_users.create user: p, status: :attended
+      e5 = create :participatable_event, start: 1.month.ago, coordinator: c_bad
+      e5.event_users.create user: p, status: :attending
+      # expect the two bad coordinators to be listed, ordered by worst coordinator first
+      bad_coordinators = User.coordinators_not_taking_attendance
+      expect(bad_coordinators.index c_verybad).to be < bad_coordinators.index(c_bad)
     end
 
   end

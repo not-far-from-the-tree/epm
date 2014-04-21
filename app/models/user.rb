@@ -40,6 +40,14 @@ class User < ActiveRecord::Base
   scope :admins, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:admin]}") }
   scope :coordinators, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:coordinator]}") }
   scope :participants, -> { joins("INNER JOIN roles ON roles.user_id = users.id AND roles.name = #{Role.names[:participant]}") }
+  def self.coordinators_not_taking_attendance
+    # get the ids of events needing attendance taken and more 3 days old (note: query is executed as a subquery of the next query)
+    event_ids = Event.needing_attendance_taken.where("finish < ?", 3.days.ago).reorder(nil).select 'events.id'
+    # get the coordinators of those events, orderded by how many events they haven't done attendance for
+    coordinator_ids = Event.where("id IN (#{event_ids.to_sql})").group(:coordinator_id).reorder('COUNT(events.id) DESC').select(:coordinator_id).pluck :coordinator_id
+    coordinators = User.where(id: coordinator_ids).to_a
+    coordinator_ids.map{|uid| coordinators.find{|c| c.id == uid} }
+  end
 
   has_many :event_users, dependent: :destroy
   has_many :coordinating_events, -> { where.not(status: Event.statuses[:cancelled]) }, class_name: 'Event', foreign_key: 'coordinator_id'
