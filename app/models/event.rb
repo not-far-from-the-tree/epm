@@ -345,6 +345,10 @@ class Event < ActiveRecord::Base
     can_accept_participants? && event_users.select{|eu| eu.persisted?}.none? && suggested_invitations > 0
   end
 
+  def take_attendance(attended_eu_ids) # eu_ids which exist but are not passed in are no shows
+    eus = event_users.where status: EventUser.statuses_array(:attending, :attended, :no_show)
+    eus.each{|eu| eu.update status: attended_eu_ids.include?(eu.id) ? :attended : :no_show}
+  end
 
   private
 

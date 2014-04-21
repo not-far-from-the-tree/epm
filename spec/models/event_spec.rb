@@ -612,6 +612,51 @@ describe Event do
 
     end
 
+    context "taking attendance" do
+
+      it "takes attendance when everyone showed up" do
+        e = create :participatable_event
+        eu1 = e.attend create :participant
+        eu2 = e.attend create :participant
+        e.take_attendance [eu1.id, eu2.id]
+        expect(eu1.reload.attended?).to be_true
+        expect(eu2.reload.attended?).to be_true
+      end
+
+      it "takes attendance when some people showed up" do
+        e = create :participatable_event
+        eu1 = e.attend create :participant
+        eu2 = e.attend create :participant
+        e.take_attendance [eu1.id]
+        expect(eu1.reload.attended?).to be_true
+        expect(eu2.reload.no_show?).to be_true
+      end
+
+      it "takes attendance when nobody showed up" do
+        e = create :participatable_event
+        eu1 = e.attend create :participant
+        eu2 = e.attend create :participant
+        e.take_attendance []
+        expect(eu1.reload.no_show?).to be_true
+        expect(eu2.reload.no_show?).to be_true
+      end
+
+      it "does not affect attendance when given eu ids which don't apply" do
+        e = create :participatable_event, max: 2
+        eu1 = e.attend create :participant
+        eu2 = e.attend create :participant
+        eu3 = e.attend create :participant # on the waitlist
+        e2 = create :participatable_event, coordinator: e.coordinator
+        eu4 = e2.attend eu1.user # on a different event
+        e.take_attendance [eu1.id, eu2.id, eu3.id, eu4.id, 98732] # also passing in an id which doesn't exist
+        expect(eu1.reload.attended?).to be_true
+        expect(eu2.reload.attended?).to be_true
+        expect(eu3.reload.waitlisted?).to be_true
+        expect(eu4.reload.attending?).to be_true
+      end
+
+    end
+
   end
 
   context "multiple events" do

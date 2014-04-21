@@ -1,5 +1,3 @@
-$hover_background_colour: #eee;
-
 html.js #event_start_day {
   display: none;
 }
@@ -71,16 +69,4 @@ html.js #event_start_day {
 button.ui-datepicker-current {
   display: none;
   /* this button is a link to 'today' but we don't need it and there's no option to turn it off */
-}
-
-fieldset#coordinator label {
-  display: block;
-}
-fieldset#coordinator label:hover {
-  background-color: $hover_background_colour;
-  border-radius: 10px;
-}
-fieldset#coordinator .user {
-  margin-left: 1.6em;
-  margin-top: -1em;
 }

@@ -103,3 +103,16 @@ span.hint {
 html.js form #coords {
   display: none;
 }
+
+
+fieldset.users label {
+  display: block;
+}
+fieldset.users .user {
+  margin-left: 1.6em;
+  margin-top: -1em;
+}
+fieldset.users label:hover {
+  background-color: $hover_background_colour;
+  border-radius: 10px;
+}

@@ -87,7 +87,7 @@
       coordinators = User.coordinators.where(id: current_user.id)
     end
   %>
-  <fieldset id="coordinator">
+  <fieldset id="coordinator" class="users">
     <legend><%= Configurable.coordinator.titlecase %></legend>
     <label style="padding:0.2em 0">
       <%= f.radio_button :coordinator_id, nil %>
@@ -100,7 +100,6 @@
       </label>
     <% end %>
     <% content_for :js_ready do %>
-      $('#coordinators a').attr('target', '_new');
       var coordinators = $('#coordinator label');
       if (coordinators.length > 4) {
         coordinators.each(function(){

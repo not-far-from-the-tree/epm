@@ -33,6 +33,7 @@ FactoryGirl.define do
   factory :past_event, class: Event do
     start { (rand(100)+1).days.ago.change hour: rand(7..19) }
     duration { rand(1..5).hours }
+    status Event.statuses[:approved]
 
     factory :full_past_event do
       name { Faker::Lorem.words(rand 2..5).join(' ').capitalize }

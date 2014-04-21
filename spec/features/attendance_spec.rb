@@ -118,145 +118,237 @@ describe "Event Attendance" do
     end
   end
 
-  it "joins an event waitlist" do
-    e = create :participatable_event, max: 1
-    e.attend create :participant
-    login_as @participant
-    visit event_path e
-    within '#rsvp' do
-      expect(page).to have_content 'You are not attending'
-      expect(all('button').length).to eq 1
-      click_button 'Add To Waitlist'
-    end
-    expect(current_path).to eq event_path e
-    expect(page).to have_content 'You are on the waitlist'
-    within 'header' do
-      click_link 'Events'
-    end
-    within '#may_be_attending' do
-      expect(page).to have_link e.display_name
-    end
-  end
+  context "waitlist" do
 
-  it "removes oneself from a waitlist" do
-    e = create :participatable_event, max: 1
-    e.attend create :participant
-    e.attend @participant
-    login_as @participant
-    visit event_path e
-    within '#rsvp' do
+    it "joins an event waitlist" do
+      e = create :participatable_event, max: 1
+      e.attend create :participant
+      login_as @participant
+      visit event_path e
+      within '#rsvp' do
+        expect(page).to have_content 'You are not attending'
+        expect(all('button').length).to eq 1
+        click_button 'Add To Waitlist'
+      end
+      expect(current_path).to eq event_path e
       expect(page).to have_content 'You are on the waitlist'
-      expect(all('button').length).to eq 1
-      click_button 'Withdraw Request'
+      within 'header' do
+        click_link 'Events'
+      end
+      within '#may_be_attending' do
+        expect(page).to have_link e.display_name
+      end
     end
-    expect(current_path).to eq event_path e
-    expect(page).to have_content 'You are not attending'
-    click_link 'My Profile'
-    visit root_path
-    expect(all('#may_be_attending').length).to eq 0
+
+    it "removes oneself from a waitlist" do
+      e = create :participatable_event, max: 1
+      e.attend create :participant
+      e.attend @participant
+      login_as @participant
+      visit event_path e
+      within '#rsvp' do
+        expect(page).to have_content 'You are on the waitlist'
+        expect(all('button').length).to eq 1
+        click_button 'Withdraw Request'
+      end
+      expect(current_path).to eq event_path e
+      expect(page).to have_content 'You are not attending'
+      click_link 'My Profile'
+      visit root_path
+      expect(all('#may_be_attending').length).to eq 0
+    end
+
+    it "adds users on a waitlist when a participant cancels" do
+      e = create :participatable_event, max: 1
+      will_cancel = create :participant
+      e.attend will_cancel
+      will_attend = create :participant
+      e.attend will_attend # gets onto waitlist
+      login_as will_cancel
+      visit who_event_path e
+      within '#participants' do
+        expect(page).not_to have_link will_attend.display_name
+      end
+      click_link 'Event Details'
+      within '#rsvp' do
+        click_button 'Cancel'
+      end
+      click_link 'Who'
+      within '#participants' do
+        expect(page).to have_link will_attend.display_name
+      end
+      expect(last_email.bcc).to eq [will_attend.email]
+      expect(last_email.subject).to match 'are attending'
+    end
+
+    it "removes participants when the max is decreased" do
+      e = create :participatable_event, max: 2
+      p1 = create :participant
+      e.attend p1
+      p2 = create :participant
+      e.attend p2
+      login_as @admin
+      visit edit_event_path e
+      fill_in 'Max', with: 1
+      click_button 'Save & Notify'
+      click_link 'Who'
+      within '#participants' do
+        expect(page).to have_link p1.display_name
+        expect(page).not_to have_link p2.display_name
+      end
+      expect(last_email.subject).to match 'no longer attending'
+      expect(last_email.bcc).to eq [p2.email]
+    end
+
   end
 
-  it "adds users on a waitlist when a participant cancels" do
-    e = create :participatable_event, max: 1
-    will_cancel = create :participant
-    e.attend will_cancel
-    will_attend = create :participant
-    e.attend will_attend # gets onto waitlist
-    login_as will_cancel
-    visit who_event_path e
-    within '#participants' do
-      expect(page).not_to have_link will_attend.display_name
+  context "invitations" do
+
+    it "allows coordinators to invite users to an event" do
+      e = create :participatable_event
+      login_as e.coordinator
+      visit event_path e
+      within '#invite' do
+        fill_in 'number', with: '1'
+        click_button 'Invite'
+      end
+      expect(page).to have_content 'invitation sent'
     end
-    click_link 'Event Details'
-    within '#rsvp' do
-      click_button 'Cancel'
+
+    it "does not allow participants to invite users to an event" do
+      e = create :participatable_event
+      login_as @participant
+      visit event_path e
+      expect(all('#invite').length).to eq 0
     end
-    click_link 'Who'
-    within '#participants' do
-      expect(page).to have_link will_attend.display_name
+
+    # also tests that admins can invite users
+    # and that invitations are shown on the home page
+    it "invites people to an event, one accepts and one declines" do
+      3.times { create :participant }
+      e = create :participatable_event
+      login_as @admin
+      visit event_path e
+      within '#invite' do
+        fill_in 'number', with: '2'
+        click_button 'Invite'
+      end
+      expect(current_path).to eq event_path e
+      expect(page).to have_content '2 invitations sent'
+      expect(last_email.subject).to match 'invited'
+      email_addresses = last_email.bcc
+      expect(email_addresses.length).to eq 2
+      logout
+      login_as User.find_by email: email_addresses.first
+      visit root_path
+      within '#invited' do
+        click_link e.display_name
+      end
+      within '#rsvp' do
+        expect(page).to have_content 'been invited'
+        click_button 'Attend'
+      end
+      expect(current_path).to eq event_path e
+      within "#rsvp" do
+        expect(page).to have_content 'are attending'
+      end
+      logout
+      login_as User.find_by email: email_addresses.last
+      visit event_path e
+      within '#rsvp' do
+        expect(page).to have_content 'been invited'
+        click_button 'Will Not Attend'
+      end
+      expect(current_path).to eq event_path e
+      within "#rsvp" do
+        expect(page).to have_content 'are not attending'
+      end
     end
-    expect(last_email.bcc).to eq [will_attend.email]
-    expect(last_email.subject).to match 'are attending'
+
   end
 
-  it "removes participants when the max is decreased" do
-    e = create :participatable_event, max: 2
-    p1 = create :participant
-    e.attend p1
-    p2 = create :participant
-    e.attend p2
-    login_as @admin
-    visit edit_event_path e
-    fill_in 'Max', with: 1
-    click_button 'Save & Notify'
-    click_link 'Who'
-    within '#participants' do
-      expect(page).to have_link p1.display_name
-      expect(page).not_to have_link p2.display_name
-    end
-    expect(last_email.subject).to match 'no longer attending'
-    expect(last_email.bcc).to eq [p2.email]
-  end
+  context "taking attendance" do
 
-  it "allows coordinators to invite users to an event" do
-    e = create :participatable_event
-    login_as e.coordinator
-    visit event_path e
-    within '#invite' do
-      fill_in 'number', with: '1'
-      click_button 'Invite'
+    it "allows coordinator to take attendance" do
+      e = create :participatable_past_event
+      eu = e.event_users.create user: @participant, status: :attending
+      p2 = create :participant
+      eu2 = e.event_users.create user: p2, status: :attending
+      login_as e.coordinator
+      visit event_path e
+      click_link 'Who'
+      expect(page).not_to have_link 'Edit Attendance'
+      expect(page).to have_link @participant.display_name
+      expect(page).to have_link p2.display_name
+      check("attendance_#{eu.id}")
+      uncheck("attendance_#{eu2.id}")
+      click_button 'Take Attendance'
+      expect(current_path).to eq who_event_path e
+      expect(page).to have_content 'Attendance taken'
+      within '#participants' do
+        expect(page).to have_link @participant.display_name
+        expect(page).not_to have_link p2.display_name
+      end
     end
-    expect(page).to have_content 'invitation sent'
-  end
 
-  it "does not allow participants to invite users to an event" do
-    e = create :participatable_event
-    login_as @participant
-    visit event_path e
-    expect(all('#invite').length).to eq 0
-  end
+    it "does not allow taking attendance on a cancelled event" do
+      e = create :participatable_past_event, status: :cancelled
+      e.event_users.create user: @participant, status: :attending
+      login_as e.coordinator
+      visit who_event_path e
+      expect(page).not_to have_button 'Take Attendance'
+    end
 
-  # also tests that admins can invite users
-  # and that invitations are shown on the home page
-  it "invites people to an event, one accepts and one declines" do
-    3.times { create :participant }
-    e = create :participatable_event
-    login_as @admin
-    visit event_path e
-    within '#invite' do
-      fill_in 'number', with: '2'
-      click_button 'Invite'
+    it "does not allow taking attendance when an event isn't over" do
+      e = create :participatable_event, status: :cancelled
+      e.attend @participant
+      login_as e.coordinator
+      visit who_event_path e
+      expect(page).not_to have_button 'Take Attendance'
     end
-    expect(current_path).to eq event_path e
-    expect(page).to have_content '2 invitations sent'
-    expect(last_email.subject).to match 'invited'
-    email_addresses = last_email.bcc
-    expect(email_addresses.length).to eq 2
-    logout
-    login_as User.find_by email: email_addresses.first
-    visit root_path
-    within '#invited' do
-      click_link e.display_name
+
+    it "does not allow admins to take attendance" do
+      e = create :participatable_past_event
+      e.event_users.create user: @participant, status: :attending
+      login_as @admin
+      visit who_event_path e
+      expect(page).not_to have_button 'Take Attendance'
     end
-    within '#rsvp' do
-      expect(page).to have_content 'been invited'
-      click_button 'Attend'
+
+    it "does not allow participants to take attendance" do
+      e = create :participatable_past_event
+      e.event_users.create user: @participant, status: :attending
+      login_as @participant
+      visit who_event_path e
+      expect(page).not_to have_button 'Take Attendance'
     end
-    expect(current_path).to eq event_path e
-    within "#rsvp" do
-      expect(page).to have_content 'are attending'
+
+    it "allows coordinator to edit attendance to make corrections" do
+      e = create :participatable_past_event
+      eu = e.event_users.create user: @participant, status: :attended
+      p2 = create :participant
+      eu2 = e.event_users.create user: p2, status: :no_show
+      login_as e.coordinator
+      visit event_path e
+      click_link 'Who'
+      within '#participants' do
+        expect(page).to have_link @participant.display_name
+        expect(page).not_to have_link p2.display_name
+      end
+      expect(page).not_to have_button 'Take Attendance'
+      click_link 'Edit Attendance'
+      expect(current_path).to eq who_event_path e
+      uncheck("attendance_#{eu.id}")
+      check("attendance_#{eu2.id}")
+      click_button 'Take Attendance'
+      expect(current_path).to eq who_event_path e
+      expect(page).to have_content 'Attendance taken'
+      within '#participants' do
+        expect(page).not_to have_link @participant.display_name
+        expect(page).to have_link p2.display_name
+      end
     end
-    logout
-    login_as User.find_by email: email_addresses.last
-    visit event_path e
-    within '#rsvp' do
-      expect(page).to have_content 'been invited'
-      click_button 'Will Not Attend'
-    end
-    expect(current_path).to eq event_path e
-    within "#rsvp" do
-      expect(page).to have_content 'are not attending'
-    end
+
   end
 
 end

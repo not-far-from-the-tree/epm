@@ -11,9 +11,35 @@
 <% content_for :header do %>
   <%= link_to 'Event Details', @event %>
   <%= render 'invite', event: @event %>
+  <%= link_to('Edit Attendance', take_attendance: true) if @can_take_attendance && !@taking_attendance %>
 <% end %>
 
-<%= render 'rsvp' %>
+<% if @taking_attendance %>
+  <%= form_for @event, url: take_attendance_event_path(@event), method: :patch do |f| %>
+    <fieldset class="users">
+      <legend>Attendance</legend>
+      Check those who attended.
+      <% @event.event_users.where(status: EventUser.statuses_array(:attending, :attended, :no_show)).each do |eu| %>
+        <label>
+          <%= check_box_tag "attendance[#{eu.id}]", true, eu.attended? %>
+          <%= render 'users/user', user: eu.user %>
+        </label>
+      <% end %>
+    </fieldset>
+    <%= submit 'Take Attendance' %>
+  <% end %>
+  <% content_for :js_ready do %>
+    $('fieldset.users label:first')
+      .before('<br>')
+      .before($('<button type="button" class="default">Check All</button>').click(function(){
+          $('fieldset.users input').prop('checked', true);
+        })
+      );
+  <% end %>
+<% end %>
+
+<%# no need to tell coordinators they're attending, as they are listed already, right after this %>
+<%= render('rsvp') unless @event.coordinator == current_user %>
 
 <section>
   <h2>Coordinator</h2>
@@ -24,7 +50,8 @@
   <% end %>
 </section>
 
-<% if @event.can_have_participants? %>
+
+<% if @event.can_have_participants? && !@taking_attendance %>
 
   <section id="participants">
     <h2>
@@ -32,15 +59,15 @@
       <% if @event.can_accept_participants? %>
         &ndash;
         <% if @event.participants_needed > 0 %>
-          <%= @event.participants_needed %> more needed
+          <%= @event.participants_needed %> More Needed
         <% elsif @event.full? %>
-          full
+          Full
         <% else %>
           <%
             spots = @event.remaining_spots
-            spots = 'unlimited' if spots == true
+            spots = 'Unlimited' if spots == true
           %>
-          <%= pluralize spots, 'spot' %> left
+          <%= pluralize spots, 'Spot' %> Left
         <% end %>
       <% end %>
     </h2>
@@ -51,7 +78,7 @@
         <% end %>
       </ul>
     <% else %>
-      <p>None yet.</p>
+      <p>None<%= ' yet' if !@event.past? %>.</p>
     <% end %>
   </section>
 

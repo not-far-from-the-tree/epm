@@ -5,6 +5,9 @@ ul.users {
 ul.users li {
   margin: 0.8em 0;
 }
+ul.users, fieldset.users {
+  max-width: 35em;
+}
 
 img.avatar {
   float: left;

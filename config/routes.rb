@@ -20,6 +20,7 @@ Epm::Application.routes.draw do
       patch 'attend'
       patch 'unattend'
       patch 'invite'
+      patch 'take_attendance'
     end
   end
 

@@ -32,11 +32,6 @@ function marker_dragged(e) {
 
 $(function(){
 
-  // expand/contract input as content changes length
-  $("form[method!='get']").find("input[data-default_size]").keyup(function(){
-    $(this).attr('size', Math.min(100, Math.max($(this).data('default_size'), $(this).val().length + 3)));
-  });
-
   // add maps
   $('*[data-map]').each(function(){
     var container = $(this);
@@ -60,5 +55,13 @@ $(function(){
     });
     finish_map(map, points);
   });
+
+  // form stuff
+  $('form a').attr('target', '_new');
+  // expand/contract input as content changes length
+  $("form[method!='get']").find("input[data-default_size]").keyup(function(){
+    $(this).attr('size', Math.min(100, Math.max($(this).data('default_size'), $(this).val().length + 3)));
+  });
+
 
 });

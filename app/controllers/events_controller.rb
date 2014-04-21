@@ -70,6 +70,8 @@ class EventsController < ApplicationController
   end
 
   def who
+    @can_take_attendance = can?(:take_attendance, @event) && @event.past? && @event.approved? && @event.event_users.where(status: EventUser.statuses_array(:attending, :attended, :no_show)).any?
+    @taking_attendance = @can_take_attendance && (params['take_attendance'] || @event.event_users.where(status: EventUser.statuses[:attending]).any?)
   end
 
   def new
@@ -189,6 +191,13 @@ class EventsController < ApplicationController
       flash[:notice] = 'No invitations sent.'
     end
     redirect_to @event
+  end
+
+  def take_attendance
+    params['attendance'] ||= []
+    attended_eu_ids = params['attendance'].map{|eu_id, v| eu_id.to_i}
+    @event.take_attendance attended_eu_ids
+    redirect_to who_event_path(@event), notice: 'Attendance taken.'
   end
 
   private

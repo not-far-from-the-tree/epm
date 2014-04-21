@@ -40,7 +40,7 @@ namespace :db do
       e.coordinator = User.coordinators.sample(1).first
       e = use_probabilities(e, event_attribute_probabilities)
       User.participants.sample(rand 3..7).each do |u|
-        e.attend u
+        e.event_users.create user: u, status: EventUser.statuses[:attending]
       end
     end
     # future events
