@@ -276,7 +276,7 @@ describe "Event Attendance" do
       eu2 = e.event_users.create user: p2, status: :attending
       login_as e.coordinator
       visit event_path e
-      click_link 'Who'
+      click_link 'take attendance'
       expect(page).not_to have_link 'Edit Attendance'
       expect(page).to have_link @participant.display_name
       expect(page).to have_link p2.display_name
