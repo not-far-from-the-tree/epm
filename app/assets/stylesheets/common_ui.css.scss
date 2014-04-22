@@ -62,6 +62,11 @@ ul, ol {
   padding-left: 1.3em;
 }
 
+small {
+  font-style: italic;
+  color: #ccc;
+}
+
 .loading {
   background: white image-url('loading.gif') right top no-repeat;
 }

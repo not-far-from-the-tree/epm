@@ -57,7 +57,12 @@
 <% if @event.address || @event.coords %>
   <% coords = @event.coords(current_user) %>
   <section id="where"<%= "data-map=\"true\" data-lat=\"#{coords[0]}\" data-lng=\"#{coords[1]}\"".html_safe if coords %>>
-    <%= with_br(@event.address) if @event.address && can?(:read_specific_location, @event) %>
+    <%
+      output = []
+      output << content_tag(:small, "#{@event.distance_to(current_user).round(1)} kms away") if @event.coords && current_user.coords
+      output << with_br(@event.address) if @event.address && can?(:read_specific_location, @event)
+    %>
+    <%= output.join('<br>').html_safe if output.any? %>
     <% if @event.coords %>
       <% content_for :js_ready do %>
         <% if cannot? :read_specific_location, @event %>
