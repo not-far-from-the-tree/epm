@@ -49,6 +49,7 @@ class EventMailer < ActionMailer::Base
 
   def invite(event, users)
     @event = event
+    users = [*users]
     # users are all participants, but as some could also be admins, need to do this for permissions:
     @user = users.find{|u| u.ability.cannot?(:read_notes, event)} || users.first
     mail bcc: to(users), subject: 'You are invited to an event'

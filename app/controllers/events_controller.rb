@@ -190,9 +190,9 @@ class EventsController < ApplicationController
     if num > 0 && people.any?
       people.each do |participant|
         @event.event_users.create user: participant, status: :invited
+        Invitation.create event: @event, user: participant
       end
-      EventMailer.invite(@event, people).deliver
-      flash[:notice] = "#{pluralize people.length, 'invitation'} sent."
+      flash[:notice] = "#{pluralize people.length, 'invitation'} will be sent shortly."
     else
       flash[:notice] = 'No invitations sent.'
     end

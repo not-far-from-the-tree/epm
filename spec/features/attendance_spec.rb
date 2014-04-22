@@ -212,7 +212,7 @@ describe "Event Attendance" do
         fill_in 'number', with: '1'
         click_button 'Invite'
       end
-      expect(page).to have_content 'invitation sent'
+      expect(page).to have_content 'invitation will be sent'
     end
 
     it "does not allow participants to invite users to an event" do
@@ -234,12 +234,9 @@ describe "Event Attendance" do
         click_button 'Invite'
       end
       expect(current_path).to eq event_path e
-      expect(page).to have_content '2 invitations sent'
-      expect(last_email.subject).to match 'invited'
-      email_addresses = last_email.bcc
-      expect(email_addresses.length).to eq 2
+      expect(page).to have_content '2 invitations will be sent'
       logout
-      login_as User.find_by email: email_addresses.first
+      login_as Invitation.first.user
       visit root_path
       within '#invited' do
         click_link e.display_name
@@ -253,7 +250,7 @@ describe "Event Attendance" do
         expect(page).to have_content 'are attending'
       end
       logout
-      login_as User.find_by email: email_addresses.last
+      login_as Invitation.last.user
       visit event_path e
       within '#rsvp' do
         expect(page).to have_content 'been invited'
