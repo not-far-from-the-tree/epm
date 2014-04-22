@@ -59,7 +59,7 @@ $(function(){
   // form stuff
   $('form a').attr('target', '_new');
   // expand/contract input as content changes length
-  $("form[method!='get']").find("input[data-default_size]").keyup(function(){
+  $("form[method!='get']").find("input[data-default_size]").on('keyup paste blur', function(){
     $(this).attr('size', Math.min(100, Math.max($(this).data('default_size'), $(this).val().length + 3)));
   });
 
