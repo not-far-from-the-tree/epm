@@ -35,10 +35,11 @@
         onSelect: function(){
           $('.ui-datepicker-trigger').text($.datepicker.formatDate('DD MM d, yy', $(this).datepicker('getDate')));
           <%# js-formatted date above to be kept in same format as date() in helpers/events %>
+          $('#time_fields').css('visibility', 'visible');
         }
       });
     <% end %>
-    <div class="field">
+    <div class="field" id="time_fields">
       <%= f.label :start_time_12, 'Time' %>
       <%= f.text_field :start_time_12, size: 5, maxlength: 5, class: 'time', value: (@event.start.present? ? @event.start_time_12 : '12:00') %>
       <%= f.select :start_time_p, options_for_select(['AM', 'PM'], @event.start_time_p) %>
@@ -47,6 +48,11 @@
       <%= f.select :duration, options_for_select((1..6).map{|n| [pluralize(n, 'hour'), n.hours]}, @event.duration) %>
     </div>
   </fieldset>
+  <% unless @event.start %>
+    <% content_for :js_ready do %>
+      $('#time_fields').css('visibility', 'hidden');
+    <% end %>
+  <% end %>
 
   <div class="field">
     <%= f.label :notes %> <span class="hint">for <%= Configurable.admin.pluralize.titlecase %> and <%= Configurable.coordinator.titlecase %> only</span><br>
