@@ -10,10 +10,11 @@ Devise.setup do |config|
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class
   # with default "from" parameter.
-  config.mailer_sender = "#{Configurable.title} <#{Configurable.email}>"
+  config.mailer_sender = "#{Configurable.title} <#{Configurable.email}>" # overwritten in mailers/devise_mailer.rb anyway, but breaks if this line is removed (why??)
 
   # Configure the class responsible to send e-mails.
   # config.mailer = 'Devise::Mailer'
+  config.mailer = 'DeviseMailer'
 
   # ==> ORM configuration
   # Load and configure the ORM. Supports :active_record (default) and
