@@ -193,14 +193,36 @@ describe User do
       u1 = create :user, name: 'Joe Smith', email: 'joe_smith@example.com'
       u2 = create :user, name: 'Sally', email: 'sally_smith@example.com'
       u3 = create :user, name: 'Bob Dole', email: 'blabla@example.com'
-      smiths = User.search 'smith' # checks that it looks in both name and email fields
-      expect(smiths.length).to eq 2
+      u4 = create :user, name: 'Bobby Whatever', email: 'whatever@example.com', handle: 'Blacksmith'
+      smiths = User.search 'smith' # checks that it looks in name, handle, and email fields
+      expect(smiths.length).to eq 3
       expect(smiths).to include u1
       expect(smiths).to include u2
+      expect(smiths).to include u4
       bobs = User.search 'bob' # checks for case sensitivity
-      expect(bobs.length).to eq 1
-      expect(bobs.first).to eq u3
+      expect(bobs.length).to eq 2
+      expect(bobs).to include u3
+      expect(bobs).to include u4
       expect(User.search('Jack').length).to eq 0
+    end
+
+    it "lists users who have not attended and are not attending any events" do
+      c = create :coordinator
+      p_virgin = create :participant
+      p_cancelled = create :participant
+      cancelled = create :participatable_event, coordinator: c, status: :cancelled
+      cancelled.event_users.create user: p_cancelled, status: :attending
+      p_attending = create :participant
+      future = create :participatable_event, coordinator: c
+      future.attend p_attending
+      p_attended = create :participant
+      past = create :participatable_event, coordinator: c, start: 1.month.ago
+      past.event_users.create user: p, status: :attended
+      virgins = User.participated_in_no_events
+      expect(virgins).to include p_virgin
+      expect(virgins).to include p_cancelled
+      expect(virgins).not_to include p_attending
+      expect(virgins).to include p_attended
     end
 
     it "lists coordinators not taking attendance" do
@@ -225,6 +247,23 @@ describe User do
       # expect the two bad coordinators to be listed, ordered by worst coordinator first
       bad_coordinators = User.coordinators_not_taking_attendance
       expect(bad_coordinators.index c_verybad).to be < bad_coordinators.index(c_bad)
+    end
+
+    it "lists users not involved in an event, ordered by distance to it" do
+      e = create :participatable_event, lat: 50, lng: 50
+      p_attending = create :participant, lat: 51, lng: 51
+      e.attend p_attending
+      p_invited = create :participant, lat: 51, lng: 51
+      e.event_users.create user: p_invited, status: :invited
+      p_nogeocode = create :participant
+      p_near = create :participant, lat: 51, lng: 51
+      p_far = create :participant, lat: 60, lng: 60
+      expect(User.not_involved_in_by_distance(e)).to eq [p_near, p_far]
+    end
+
+    it "returns nobody when looking for users near non-geocoded event" do
+      e = create :event
+      expect(User.not_involved_in_by_distance(e)).to eq []
     end
 
   end

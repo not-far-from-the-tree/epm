@@ -76,8 +76,23 @@ class EventsController < ApplicationController
   end
 
   def who
-    @can_take_attendance = can?(:take_attendance, @event) && @event.past? && @event.approved? && @event.event_users.where(status: EventUser.statuses_array(:attending, :attended, :no_show)).any?
-    @taking_attendance = @can_take_attendance && (params['take_attendance'] || @event.event_users.where(status: EventUser.statuses[:attending]).any?)
+    @can_take_attendance = false
+    @taking_attendance = false
+    @can_invite = false
+    @inviting = false
+    if @event.start
+      if @event.time_until > 1.day
+        if can?(:invite, @event) && @event.invitable?
+          @nearby = User.not_involved_in_by_distance(@event).count
+          @can_invite = @nearby > 0
+          @suggested_invitations = [@event.suggested_invitations, @nearby].min
+          @inviting = @can_invite && (params['invite'] || @suggested_invitations > 0)
+        end
+      elsif @event.past?
+        @can_take_attendance = can?(:take_attendance, @event) && @event.approved? && @event.event_users.where(status: EventUser.statuses_array(:attending, :attended, :no_show)).any?
+        @taking_attendance = @can_take_attendance && (params['take_attendance'] || @event.event_users.where(status: EventUser.statuses[:attending]).any?)
+      end
+    end
   end
 
   def new
@@ -185,14 +200,11 @@ class EventsController < ApplicationController
 
   include ActionView::Helpers::TextHelper # needed for pluralize()
   def invite
-    num =  params['number'].to_i
-    people = @event.invitable_participants.limit([num, Event.max_invitable].min)
-    if num > 0 && people.any?
-      people.each do |participant|
-        @event.event_users.create user: participant, status: :invited
-        Invitation.create event: @event, user: participant
-      end
-      flash[:notice] = "#{pluralize people.length, 'invitation'} will be sent shortly."
+    u1 = User.not_involved_in_by_distance(@event).limit(params['invite_near'].to_i)
+    u2 = User.not_involved_in_by_distance(@event).participated_in_no_events.limit(params['invite_near_virgin'].to_i)
+    invites = @event.invite u1 + u2
+    if invites > 0
+      flash[:notice] = "#{pluralize invites, 'invitation'} will be sent shortly."
     else
       flash[:notice] = 'No invitations sent.'
     end

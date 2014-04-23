@@ -303,93 +303,85 @@ describe Event do
 
     context "invitations" do
 
-      it "has a maximum number of invitees of 50" do
-        expect(Event.max_invitable).to eq 50
+      context "suggested number" do
+
+        it "suggests number of invitations for a participtable event" do
+          expect(build(:participatable_event, lat: 50, lng: 50).suggested_invitations).to be > 0
+        end
+
+        it "suggests zero invitations for a non-participtable event" do
+          expect(build(:participatable_event, lat: 50, lng: 50, status: :proposed).suggested_invitations).to eq 0
+          expect(build(:participatable_event, lat: 50, lng: 50, start: 1.month.ago).suggested_invitations).to eq 0
+        end
+
+        it "suggests zero invitations for events without coordinates" do
+          expect(build(:participatable_event).suggested_invitations).to eq 0
+        end
+
+        it "suggests zero invitations for full events" do
+          e = create :participatable_event, lat: 50, lng: 50, max: 1
+          e.attend create :participant
+          expect(e.suggested_invitations).to eq 0
+        end
+
+        it "suggests at least as many invitations as there are remaining spots" do
+          e = create :participatable_event, lat: 50, lng: 50, max: 5
+          expect(e.suggested_invitations).to be >= 5
+        end
+
+        it "suggests at least as many invitations as participants are needed" do
+          e = create :participatable_event, lat: 50, lng: 50, min: 3
+          expect(e.suggested_invitations).to be >= 3
+        end
+
+        it "suggests fewer invitations when some have already been sent out" do
+          e = create :participatable_event, lat: 50, lng: 50, max: 20
+          suggested = e.suggested_invitations
+          5.times { e.event_users.create user: create(:participant), status: :invited }
+          expect(e.suggested_invitations).to be < suggested
+        end
+
       end
 
-      it "suggests number of invitations for a participtable event" do
-        create :participant
-        expect(build(:participatable_event).suggested_invitations).to be > 0
-      end
-
-      it "suggests zero invitations for a non-participtable event" do
-        create :participant
-        expect(build(:participatable_event, status: :proposed).suggested_invitations).to eq 0
-        expect(build(:participatable_event, start: 1.month.ago).suggested_invitations).to eq 0
-      end
-
-      it "suggests zero invitations for full events" do
-        create :participant
-        e = create :participatable_event, max: 1
-        e.attend create :participant
-        expect(e.suggested_invitations).to eq 0
-      end
-
-      it "has invitable participants" do
-        participant = create :participant
+      it "invites one person" do
         e = create :participatable_event
-        expect(e.invitable_participants).to include participant
+        p = create :participant
+        invited = e.invite p
+        expect(invited).to eq 1
+        eus = e.event_users.to_a
+        expect(eus.length).to eq 1
+        expect(eus.first.user).to eq p
+        expect(eus.first.status).to eq 'invited'
+        invitations = Invitation.where(event_id: e.id).to_a
+        expect(invitations.length).to eq 1
+        expect(invitations.first.user).to eq p
       end
 
-      it "excludes event coordinator from invitable participants" do
-        c = create :coordinator
-        c.roles.create name: :participant
-        participant = create :participant
-        e = create :participatable_event, coordinator: c
-        expect(e.invitable_participants).to include participant
-        expect(e.invitable_participants).not_to include c
+      it "invites multiple people" do
+        e = create :participatable_event
+        expect(e.invite [create(:participant), create(:participant)]).to eq 2
       end
 
-      it "excludes existing invitees and attendees from invitable participants" do
+      it "does not doubly invite duplicates" do
+        e = create :participatable_event
+        p = create :participant
+        p_dup = User.where(id: p.id).first
+        expect(e.invite [p, p_dup]).to eq 1
+      end
+
+      it "does not invite those already involved" do
         e = create :participatable_event
         attending = create :participant
         e.attend attending
-        invited = create :participant
-        e.event_users.create user: invited, status: :invited
-        p3 = create :participant
-        p4 = create :participant
-        invitable = e.invitable_participants
-        expect(invitable).to include p3
-        expect(invitable).to include p4
-        expect(invitable).not_to include attending
-        expect(invitable).not_to include invited
-      end
-
-      it "has invitable participants for geocoded events, closest first" do
-        e = create :participatable_event, lat: 50, lng: 50
-        near = create :participant, lat: 51, lng: 51
-        far = create :participant, lat: 60, lng: 60
-        invitable = e.invitable_participants
-        expect(invitable.index near).to be < invitable.index(far)
-      end
-
-      it "says an event is invitable when nobody has been invited yet" do
-        create :participant
-        expect(create(:participatable_event).invitable?).to be_true
-      end
-
-      it "says an event is not invitable when an event is past" do
-        create :participant
-        expect(create(:participatable_past_event).invitable?).to be_false
-      end
-
-      it "says an event is not invitable when someone has been invited already" do
-        create :participant
-        e = create :participatable_event
-        e.event_users.create user: create(:participant), status: :invited
-        expect(e.invitable?).to be_false
-      end
-
-      it "says an event is not invitable when someone is already attending" do
-        create :participant
-        e = create :participatable_event
-        e.attend create :participant
-        expect(e.invitable?).to be_false
-      end
-
-      it "says an event is not invitable when there is nobody to invite" do
-        User.participants.destroy_all # todo: should be handled by database cleaner...
-        expect(create(:participatable_event).invitable?).to be_false
+        already_invited = create :participant
+        e.event_users.create user: already_invited, status: :invited
+        cancelled = create :participant
+        e.event_users.create user: cancelled, status: :cancelled
+        uninvolved = create :participant
+        expect(e.invite [attending, uninvolved, cancelled, already_invited]).to eq 1
+        invitation = Invitation.last
+        expect(invitation.user).to eq uninvolved
+        expect(invitation.event).to eq e
       end
 
     end

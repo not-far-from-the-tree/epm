@@ -205,11 +205,13 @@ describe "Event Attendance" do
   context "invitations" do
 
     it "allows coordinators to invite users to an event" do
-      e = create :participatable_event
+      e = create :participatable_event, max: 1, lat: 50, lng: 50
+      create :participant, lat: 50, lng: 51 # make sure there is someone who can be invited
       login_as e.coordinator
-      visit event_path e
+      visit who_event_path e
       within '#invite' do
-        fill_in 'number', with: '1'
+        fill_in 'invite_near', with: 1
+        fill_in 'invite_near_virgin', with: 0
         click_button 'Invite'
       end
       expect(page).to have_content 'invitation will be sent'
@@ -223,14 +225,14 @@ describe "Event Attendance" do
     end
 
     # also tests that admins can invite users
-    # and that invitations are shown on the home page
     it "invites people to an event, one accepts and one declines" do
-      3.times { create :participant }
-      e = create :participatable_event
+      2.times { create :participant, lat: 50, lng: 51 }
+      e = create :participatable_event, lat: 50, lng: 51
       login_as @admin
-      visit event_path e
+      visit who_event_path e
       within '#invite' do
-        fill_in 'number', with: '2'
+        fill_in 'invite_near', with: 0
+        fill_in 'invite_near_virgin', with: 2
         click_button 'Invite'
       end
       expect(current_path).to eq event_path e
@@ -260,6 +262,20 @@ describe "Event Attendance" do
       within "#rsvp" do
         expect(page).to have_content 'are not attending'
       end
+    end
+
+    it "shows invite form when there are spots available or when requested" do
+      e = create :participatable_event, lat: 50, lng: 50
+      potential_attendee = create :participant, lat: 51, lng: 51
+      e.attend @participant
+      login_as e.coordinator
+      visit who_event_path e
+      expect(page).to have_button 'Invite'
+      e.update max: 1
+      visit who_event_path e
+      expect(page).not_to have_button 'Invite'
+      click_link 'Invite'
+      expect(page).to have_button 'Invite'
     end
 
   end

@@ -33,7 +33,10 @@ input[type="number"] {
 label, legend {
   font-weight: bold;
 }
-.checkbox_field label, #header label {
+label.field {
+  display: block;
+}
+.checkbox_field label, #header label, label.field {
   font-weight: normal;
 }
 fieldset {

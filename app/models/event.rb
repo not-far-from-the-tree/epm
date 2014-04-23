@@ -319,31 +319,32 @@ class Event < ActiveRecord::Base
     event_users.where(user_id: user.id).first_or_initialize.unattend
   end
 
-  def invitable_participants
-    # todo: take into account those who haven't been to any events yet
-    invitable = User.participants
-    if self.coords
-      invitable = invitable.geocoded.by_distance(origin: self.coords)
-    else
-      invitable = invitable.order('created_at DESC') # i.e. newest participants
-    end
-    exclude = []
-    exclude << coordinator.id if coordinator
-    event_users.select{|eu| eu.persisted?}.each{|eu| exclude << eu.user_id}
-    invitable = invitable.where.not(id: exclude) if exclude.any?
-    invitable
-  end
-  def self.max_invitable
-    50
-  end
   def suggested_invitations # number of people that should be invited
-    return 0 if full? || !can_accept_participants?
-    num = invitable_participants.limit(self.class.max_invitable).count
-    num = [num, (max * 2)].min if max
-    num
+    return 0 if !invitable? || full?
+    response_rate = 0.3 # complete guess, and of course won't be the same for every org
+    expected_from_invitations = event_users.where(status: EventUser.statuses[:invited]).count * response_rate * 0.8
+    # 0.8 above is largely arbitrary, but the point is that the response rate of already sent invitations will be < response_rate as some will have been looked at and ignored
+    reciprocal_rate = 1 / response_rate
+    at_leasts = []
+    at_leasts << (remaining_spots * reciprocal_rate) - expected_from_invitations if max
+    at_leasts << (participants_needed * reciprocal_rate) - expected_from_invitations if min > 0
+    return at_leasts.push(0).max.round if at_leasts.any?
+    10 # not really based on anything, but gotta have some number here
   end
   def invitable?
-    can_accept_participants? && event_users.select{|eu| eu.persisted?}.none? && suggested_invitations > 0
+    can_accept_participants? && coords
+  end
+
+  def invite(users)
+    n = 0
+    [*users].uniq.each do |participant|
+      eu = event_users.create user: participant, status: :invited
+      if eu.valid?
+        Invitation.create event: self, user: participant
+        n += 1
+      end
+    end
+    n
   end
 
   def take_attendance(attended_eu_ids) # eu_ids which exist but are not passed in are no shows

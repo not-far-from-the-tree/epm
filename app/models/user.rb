@@ -48,10 +48,22 @@ class User < ActiveRecord::Base
     coordinators = User.where(id: coordinator_ids).to_a
     coordinator_ids.map{|uid| coordinators.find{|c| c.id == uid} }
   end
+  scope :not_involved_in_by_distance, ->(event) {
+    return none unless event.coords
+    geocoded.by_distance(origin: event.coords)
+      .where.not("users.id IN (#{EventUser.where(event_id: event.id).select(:user_id).to_sql})")
+  }
+  scope :participated_in_no_events, -> {
+    user_ids = EventUser.where(status: EventUser.statuses_array(:attending, :attended))
+      .joins(:event).where("events.status = #{Event.statuses[:approved]}").select('event_users.user_id')
+    where.not "users.id IN (#{user_ids.to_sql})"
+  }
 
   has_many :event_users, dependent: :destroy
   has_many :coordinating_events, -> { where.not(status: Event.statuses[:cancelled]) }, class_name: 'Event', foreign_key: 'coordinator_id'
-  has_many :participating_events, -> { where('event_users.status' => EventUser.statuses_array(:attending, :attended)).where('events.status = ?', Event.statuses[:approved])}, through: :event_users, source: :event
+  has_many :participating_events, -> {
+      where('event_users.status' => EventUser.statuses_array(:attending, :attended)).where('events.status = ?', Event.statuses[:approved])
+    }, through: :event_users, source: :event
   def events # where the user is a participant or the coordinator
     Event.not_cancelled
       .joins("LEFT JOIN event_users ON events.id = event_users.event_id AND event_users.status IN (#{EventUser.statuses_array(:attending, :attended).join(', ')})")
