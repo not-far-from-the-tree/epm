@@ -321,7 +321,7 @@ class Event < ActiveRecord::Base
 
   def suggested_invitations # number of people that should be invited
     return 0 if !invitable? || full?
-    response_rate = 0.3 # complete guess, and of course won't be the same for every org
+    response_rate = 0.1 # complete guess, and of course won't be the same for every org
     expected_from_invitations = event_users.where(status: EventUser.statuses[:invited]).count * response_rate * 0.8
     # 0.8 above is largely arbitrary, but the point is that the response rate of already sent invitations will be < response_rate as some will have been looked at and ignored
     reciprocal_rate = 1 / response_rate
