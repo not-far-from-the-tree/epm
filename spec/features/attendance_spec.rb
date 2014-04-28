@@ -208,7 +208,8 @@ describe "Event Attendance" do
       e = create :participatable_event, max: 1, lat: 50, lng: 50
       create :participant, lat: 50, lng: 51 # make sure there is someone who can be invited
       login_as e.coordinator
-      visit who_event_path e
+      visit event_path e
+      click_link 'invite'
       within '#invite' do
         fill_in 'invite_near', with: 1
         fill_in 'invite_near_virgin', with: 0
@@ -231,7 +232,8 @@ describe "Event Attendance" do
       2.times { create :participant, lat: 50, lng: 51 }
       e = create :participatable_event, lat: 50, lng: 51
       login_as @admin
-      visit who_event_path e
+      visit event_path e
+      click_link 'invite'
       within '#invite' do
         fill_in 'invite_near', with: 0
         fill_in 'invite_near_virgin', with: 2

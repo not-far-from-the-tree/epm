@@ -40,7 +40,7 @@
 
 <% if current_user.has_any_role?(:participant, :coordinator) || buttons.any? %>
 
-  <div id="rsvp">
+  <div id="rsvp" class="highlight">
     <%= attend_str %>
     <% if buttons.any? %>
       <% buttons.each do |type, label| %>

@@ -90,6 +90,7 @@ class EventsController < ApplicationController
       end
       if @event.time_until > 1.day
         if can?(:invite, @event) && @event.invitable?
+          # note: this logic is largely duplicated in views/events/show.html.erb
           @nearby = User.not_involved_in_by_distance(@event).count
           @can_invite = @nearby > 0
           @suggested_invitations = [@event.suggested_invitations, @nearby].min
