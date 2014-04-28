@@ -78,9 +78,16 @@ class EventsController < ApplicationController
   def who
     @can_take_attendance = false
     @taking_attendance = false
+    @show_invites = false
     @can_invite = false
     @inviting = false
     if @event.start
+      if (current_user.has_role?(:admin) || @event.coordinator == current_user) && @event.can_accept_participants?
+        eus = @event.event_users.where(status: EventUser.statuses_array(:invited, :not_attending)).group_by{|eu| eu.status}
+        @num_invited = (eus['invited'] || []).length
+        @num_declined = (eus['not_attending'] || []).length
+        @show_invites = (@num_invited > 0) || (@num_declined > 0)
+      end
       if @event.time_until > 1.day
         if can?(:invite, @event) && @event.invitable?
           @nearby = User.not_involved_in_by_distance(@event).count

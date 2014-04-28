@@ -214,7 +214,9 @@ describe "Event Attendance" do
         fill_in 'invite_near_virgin', with: 0
         click_button 'Invite'
       end
-      expect(page).to have_content 'invitation will be sent'
+      expect(page).to have_content '1 invitation will be sent'
+      click_link 'Who'
+      expect(page).to have_content '1 invitation is awaiting a response'
     end
 
     it "does not allow participants to invite users to an event" do
@@ -262,6 +264,10 @@ describe "Event Attendance" do
       within "#rsvp" do
         expect(page).to have_content 'are not attending'
       end
+      logout
+      login_as @admin
+      visit who_event_path e
+      expect(page).to have_content '1 invitation was declined'
     end
 
     it "shows invite form when there are spots available or when requested" do
