@@ -564,6 +564,8 @@ describe "Events" do
 
     end
 
+# maps on home page turned off for now
+=begin
     context "events page maps" do
 
       it "shows one map for each section with a geocoded event", js: true do
@@ -596,6 +598,7 @@ describe "Events" do
       end
 
     end
+=end
 
     it "shows a no-events message when there are no events" do
       Event.destroy_all # todo: why is this not handled by database cleaner?

@@ -26,14 +26,16 @@
       events_shown += section[:q].length
     %>
     <% section_id = section[:id] || section[:name].downcase.gsub(' ', '_') %>
-    <section id="<%= section_id %>"<%= ' data-map="side"'.html_safe if section[:q].find{|e|e.coords} %>>
+    <%# these maps turned off for now %>
+    <section id="<%= section_id %>"<%= ' data-map="side"'.html_safe if section[:q].find{|e|e.coords} && false %>>
       <h2><%= section[:name] %></h2>
       <%= render 'events', events: section[:q] %>
     </section>
   <% end %>
 <% end %>
 
-<% if sections_shown > 3 && events_shown > 20 %>
+<%# not using toggle functionality for the time being %>
+<% if false && sections_shown > 3 && events_shown > 20 %>
   <% content_for :js_ready do %>
     $('section').each(function(){
       $('<button title="minimize this section">-</button>')
