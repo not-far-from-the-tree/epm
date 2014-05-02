@@ -4,9 +4,9 @@ describe "Users" do
 
   include Warden::Test::Helpers
   before :all do
-    @participant = create :participant
+    @participant = create :participant, fname: 'Randomname', lname: 'Lastylast'
     @coordinator = create :coordinator
-    @admin = create :admin
+    @admin = create :admin, fname: 'Admiral', lname: 'Adminy'
   end
   after :each do
     Warden.test_reset!
@@ -35,8 +35,8 @@ describe "Users" do
     end
 
     it "shows user search results" do
-      create :user, name: 'Joe', email: 'joe@example.com'
-      create :user, name: 'Jack', email: 'jack@example.com'
+      create :user, fname: 'Joe', email: 'joe@example.com'
+      create :user, fname: 'Jack', email: 'jack@example.com'
       login_as @admin
       visit users_path
       fill_in 'q', with: 'joe'
@@ -49,6 +49,7 @@ describe "Users" do
     it "shows users with a particular role" do
       login_as @admin
       visit users_path
+      expect(page).to have_content @participant.display_name
       select 'Admins', from: :role
       click_button 'Search'
       expect(find('option[selected]').text).to eq 'Admins'
@@ -67,7 +68,7 @@ describe "Users" do
       click_link 'Export'
       csv = CSV.parse(source) # using source as page has normalized the whitespace (thus having no newlines)
       expect(csv.length).to eq (User.count + 1)
-      ['id', 'name', 'email', 'phone number', 'description', 'roles', 'events attended', 'joined'].each do |field|
+      ['id', 'first name', 'last name', 'email', 'phone number', 'address', 'roles', 'events attended', 'joined'].each do |field|
         expect(csv.first).to include field
       end
       expect(page).to have_content @admin.email
@@ -109,11 +110,11 @@ describe "Users" do
       visit user_path @participant
       click_link 'Edit'
       expect(current_path).to eq edit_user_path @participant
-      new_name = 'John Smith'
-      fill_in 'Full Name', with: new_name
+      fill_in 'user_fname', with: 'Joe'
+      fill_in 'user_lname', with: 'Smith'
       click_button 'Save'
       expect(current_path).to eq user_path @participant
-      expect(page).to have_content new_name
+      expect(page).to have_content 'Joe Smith'
     end
 
     it "prevents editing another's profile" do
@@ -128,10 +129,10 @@ describe "Users" do
     it "cancels editing one's profile" do
       visit user_path @participant
       click_link 'Edit'
-      fill_in 'Full Name', with: 'new name'
+      fill_in 'user_fname', with: 'Joe'
       click_button 'Cancel'
       expect(current_path).to eq user_path @participant
-      expect(page).not_to have_content 'new name'
+      expect(page).not_to have_content 'Joe'
     end
 
   end

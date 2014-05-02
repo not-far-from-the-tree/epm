@@ -1,15 +1,15 @@
 development:
   adapter: postgresql
-  database: epm_development
+  database: nfftt_development
   host: localhost
 
 test:
   adapter: postgresql
-  database: epm_test
+  database: nfftt_test
   host: localhost
 
 production:
   adapter: postgresql
   # adapter: mysql2
-  database: epm_production
+  database: nfftt_production
   host: localhost

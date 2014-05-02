@@ -3,10 +3,6 @@
   <%
     desc = ''
     desc += (yield || '').strip if block_given?
-    if user.description
-      desc += '. ' if desc.present?
-      desc += truncate(user.description, length: 50, separator: ' ')
-    end
   %>
   <%= content_tag(:p, desc) if desc.present? %>
 <% end %>

@@ -4,17 +4,14 @@
 
   <%= start_cols %>
 
-  <h2>Private Information</h2>
-  <p style="margin-top:0">Shown only to <%= Configurable.admin.pluralize.titlecase %>.</p>
+  <fieldset>
+    <legend>Name</legend>
+    <%= f.text_field :fname, placeholder: 'First' %><br>
+    <%= f.text_field :lname, placeholder: 'Last' %>
+  </fieldset>
 
   <div class="field">
-    <%= f.label :name %> <span class="hint">to greet you in emails</span><br>
-    <%= f.text_field :name %>
-  </div>
-
-  <div class="field">
-    <%= f.label :email %>
-    <span class="hint">to send notifications</span><br>
+    <%= f.label :email %><br>
     <%= f.email_field :email %>
   </div>
 
@@ -23,22 +20,9 @@
     <%= f.phone_field :phone %>
   </div>
 
-  <%= render 'shared/address_form', f: f, hint: "to invite you to nearby events; not even shown to #{Configurable.admin.pluralize.titlecase}".html_safe %>
-
   <%= next_col %>
 
-  <h2>Public Information</h2>
-  <p></p>
-
-  <div class="field">
-    <%= f.label :handle %> <span class="hint">how your name will appear to others</span><br>
-    <%= f.text_field :handle %>
-  </div>
-
-  <div class="field">
-    <%= f.label :description %> <span class="hint">anything you want to say</span><br>
-    <%= f.text_area :description %>
-  </div>
+  <%= render 'shared/address_form', f: f %>
 
   <%= end_cols %>
 

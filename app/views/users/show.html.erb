@@ -44,8 +44,6 @@
   <% end %>
 </div>
 
-<%= paragraphs @user.description if @user.description.present? %>
-
 <p>Joined <%= @user.created_at.strftime "%B %d %Y" %>.</p>
 
 <%= clear %>
@@ -53,7 +51,6 @@
 <% if can? :read_contact, @user %>
   <div>
     <h2>Contact Information</h2>
-    <%= @user.name if @user.name %>
     <p><%= mail_to @user.email %></p>
     <% if @user.phone %>
       <%= link_to @user.phone, "tel:#{@user.phone}" %>

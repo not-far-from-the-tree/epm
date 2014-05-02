@@ -160,7 +160,7 @@ describe "Event Attendance" do
 
     it "adds users on a waitlist when a participant cancels" do
       e = create :participatable_event, max: 1
-      will_cancel = create :participant
+      will_cancel = create :participant, fname: 'Whoever', lname: 'Lastylast'
       e.attend will_cancel
       will_attend = create :participant
       e.attend will_attend # gets onto waitlist
@@ -183,9 +183,9 @@ describe "Event Attendance" do
 
     it "removes participants when the max is decreased" do
       e = create :participatable_event, max: 2
-      p1 = create :participant
+      p1 = create :participant, fname: 'Whoever', lname: 'Lastylast'
       e.attend p1
-      p2 = create :participant
+      p2 = create :participant, fname: 'Joeyjoejoe', lname: 'Shebeda'
       e.attend p2
       login_as @admin
       visit edit_event_path e
@@ -293,7 +293,7 @@ describe "Event Attendance" do
     it "allows coordinator to take attendance" do
       e = create :participatable_past_event
       eu = e.event_users.create user: @participant, status: :attending
-      p2 = create :participant
+      p2 = create :participant, fname: 'Whoever', lname: 'Lastylast'
       eu2 = e.event_users.create user: p2, status: :attending
       login_as e.coordinator
       visit event_path e
@@ -347,7 +347,7 @@ describe "Event Attendance" do
     it "allows coordinator to edit attendance to make corrections" do
       e = create :participatable_past_event
       eu = e.event_users.create user: @participant, status: :attended
-      p2 = create :participant
+      p2 = create :participant, fname: 'Whoever', lname: 'Lastylast'
       eu2 = e.event_users.create user: p2, status: :no_show
       login_as e.coordinator
       visit event_path e

@@ -61,28 +61,6 @@ describe User do
 
     end
 
-    context "names" do
-
-      it "has a non-blank display name" do
-        expect(build(:user).display_name).not_to be_blank
-      end
-
-      it "generates a name and alias based on email" do
-        u = create :user, name: nil, email: 'joe.smith@example.com'
-        expect(u.name).to eq 'Joe Smith'
-        expect(u.handle).to eq 'Joe Smith'
-      end
-
-      it "does not generate a name when one is given" do
-        expect(create(:user, name: 'My Name', email: 'joe.smith@example.com').name).to eq 'My Name'
-      end
-
-      it "does not generate an alias when one is given" do
-        expect(create(:user, handle: 'My Name', email: 'joe.smith@example.com').handle).to eq 'My Name'
-      end
-
-    end
-
     it "has an avatar which is a url" do
       expect(build(:user).avatar).to match URI::regexp(%w(http https))
     end
@@ -90,12 +68,12 @@ describe User do
     # all fields should be stripped, this just tests two (excessive to check them all)
     context "normalizing attributes" do
 
-      it "strips the name" do
-        expect(create(:user, name: "  Joe\n").name).to eq 'Joe'
+      it "strips the first name" do
+        expect(create(:user, fname: "  Joe\n").fname).to eq 'Joe'
       end
 
-      it "nullifies empty description" do
-        expect(create(:user, description: " \n").description).to be_nil
+      it "nullifies empty phone number" do
+        expect(create(:user, phone: " \n").phone).to be_nil
       end
 
     end
@@ -152,10 +130,11 @@ describe User do
     end
 
     it "orders users by name" do
-      b = create :user, name: 'b'
-      a = create :user, name: 'a'
-      c = create :user, name: 'c'
-      expect(User.by_name).to eq [a, b, c]
+      b = create :user, lname: 'b'
+      a = create :user, lname: 'a'
+      cz = create :user, lname: 'c', fname: 'z'
+      ca = create :user, lname: 'c', fname: 'a'
+      expect(User.by_name).to eq [a, b, ca, cz]
     end
 
     it "lists users that have coordinates" do
@@ -190,11 +169,11 @@ describe User do
     end
 
     it "searches for users" do
-      u1 = create :user, name: 'Joe Smith', email: 'joe_smith@example.com'
-      u2 = create :user, name: 'Sally', email: 'sally_smith@example.com'
-      u3 = create :user, name: 'Bob Dole', email: 'blabla@example.com'
-      u4 = create :user, name: 'Bobby Whatever', email: 'whatever@example.com', handle: 'Blacksmith'
-      smiths = User.search 'smith' # checks that it looks in name, handle, and email fields
+      u1 = create :user, fname: 'Joe', lname: 'Smith', email: 'joe_smith@example.com'
+      u2 = create :user, fname: 'Sally', email: 'sally_smith@example.com'
+      u3 = create :user, fname: 'Bob', lname: 'Dole', email: 'blabla@example.com'
+      u4 = create :user, fname: 'Bobby', lname: 'Blacksmith', email: 'whatever@example.com'
+      smiths = User.search 'smith' # checks that it looks in first and last name and email fields
       expect(smiths.length).to eq 3
       expect(smiths).to include u1
       expect(smiths).to include u2

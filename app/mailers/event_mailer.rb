@@ -67,7 +67,8 @@ class EventMailer < ActionMailer::Base
 
     def to(users)
       return users.map{|u| to(u)} unless users.is_a? User
-      users.name.present? ? "#{users.name} <#{users.email}>" : users.email
+      n = "#{users.fname} #{users.lname}".strip
+      n.present? ? "#{n} <#{users.email}>" : users.email
     end
 
 end
