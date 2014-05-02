@@ -180,15 +180,11 @@ describe "Users" do
       expect(page).to have_link @e.display_name
     end
 
-    it "shows profile without contact info and attendance history to participants" do
+    it "does not show other user profiles to participants" do
       login_as create :participant
       visit user_path @u
-      expect(current_path).to eq user_path @u
-      expect(page).to have_content @u.display_name
-      expect(page).not_to have_link @u.email
-      expect(page).not_to have_link @u.phone
-      expect(page).not_to have_content @u.address
-      expect(page).not_to have_link @e.display_name
+      expect(current_path).not_to eq user_path @u
+      expect(page).to have_content 'Sorry'
     end
 
   end

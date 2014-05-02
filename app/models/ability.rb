@@ -8,14 +8,11 @@ class Ability
     if user.persisted?
 
       can :read, Event, can_have_participants?: true
-      can :who, Event do |event|
-        can? :read, event
-      end
       can :calendar, Event
       can :index, :geocode
 
-      can [:show, :me], User
-      can [:read_contact, :read_attendance, :read_address, :update], User, id: user.id
+      can :me, User
+      can [:show, :read_contact, :read_attendance, :read_address, :update], User, id: user.id
       can :destroy, Role, user_id: user.id
       can :deactivate, User do |u|
         u.roles.reject{|r| can? :destroy, r }.empty?
@@ -24,7 +21,7 @@ class Ability
       if user.has_role? :admin
         can :manage, [Event, Role, :setting]
         cannot :take_attendance, Event
-        can [:index, :map, :read_contact, :read_attendance], User
+        can [:index, :map, :show, :read_contact, :read_attendance], User
       end
 
       if user.has_role? :coordinator
@@ -32,8 +29,8 @@ class Ability
         can [:update, :read_notes, :read_specific_location], Event do |event|
           !event.coordinator || (event.coordinator == user)
         end
-        can [:ask_to_cancel, :cancel, :invite, :take_attendance], Event, coordinator_id: user.id
-        can :read_attendance, User
+        can [:who, :ask_to_cancel, :cancel, :invite, :take_attendance], Event, coordinator_id: user.id
+        can [:show, :read_attendance], User
       end
 
       if user.has_role? :participant

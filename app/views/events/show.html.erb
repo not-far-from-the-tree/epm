@@ -6,13 +6,15 @@
 
 <% content_for :header do %>
 
-  <%
-    who_link = 'Who'
-    unless @event.cancelled?
-      who_link += "#{@event.past? ? ' Went' : '’s Coming'} (#{@event.users.length})"
-    end
-  %>
-  <%= link_to who_link, who_event_path(@event) %>
+  <% if can? :who, @event %>
+    <%
+      who_link = 'Who'
+      unless @event.cancelled?
+        who_link += "#{@event.past? ? ' Went' : '’s Coming'} (#{@event.users.length})"
+      end
+    %>
+    <%= link_to who_link, who_event_path(@event) %>
+  <% end %>
 
   <% if can? :update, @event %>
     <%= link_to 'Edit', edit_event_path(@event) %>

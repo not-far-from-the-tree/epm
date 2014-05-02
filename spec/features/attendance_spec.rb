@@ -47,10 +47,6 @@ describe "Event Attendance" do
     end
     expect(current_path).to eq event_path e
     expect(page).to have_content 'You are attending'
-    click_link 'Who'
-    within '#participants' do
-      expect(page).to have_link @participant.display_name
-    end
     visit root_path
     within '#attending' do
       expect(page).to have_link e.display_name
@@ -118,6 +114,16 @@ describe "Event Attendance" do
     end
   end
 
+  it "does not allow participants to view who is attending an event" do
+    e = create :participatable_event
+    login_as @participant
+    visit event_path e
+    expect(page).not_to have_link 'Who'
+    visit who_event_path e
+    expect(current_path).not_to eq who_event_path e
+    expect(page).to have_content 'Sorry'
+  end
+
   context "waitlist" do
 
     it "joins an event waitlist" do
@@ -163,22 +169,21 @@ describe "Event Attendance" do
       will_cancel = create :participant, fname: 'Whoever', lname: 'Lastylast'
       e.attend will_cancel
       will_attend = create :participant
-      e.attend will_attend # gets onto waitlist
+      eu = e.attend will_attend # gets onto waitlist
+      expect(eu.waitlisted?).to be_true
       login_as will_cancel
-      visit who_event_path e
-      within '#participants' do
-        expect(page).not_to have_link will_attend.display_name
-      end
-      click_link 'Event Details'
+      visit event_path e
       within '#rsvp' do
         click_button 'Cancel'
       end
-      click_link 'Who'
-      within '#participants' do
-        expect(page).to have_link will_attend.display_name
-      end
       expect(last_email.bcc).to eq [will_attend.email]
       expect(last_email.subject).to match 'are attending'
+      logout
+      login_as will_attend
+      visit root_path
+      within '#attending' do
+        expect(page).to have_link e.display_name
+      end
     end
 
     it "removes participants when the max is decreased" do
