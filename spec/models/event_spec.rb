@@ -188,7 +188,7 @@ describe Event do
 
     it "properly calculates time until" do
       expect(build(:event, start: nil).time_until).to be_nil
-      expect(build(:event, start: 1.month.from_now).time_until).to be_within(1.minute).of(1.month)
+      expect(build(:event, start: 1.month.from_now).time_until).to be_within(1.day).of(1.month)
       expect(build(:event, start: 2.weeks.ago).time_until).to be_within(1.minute).of(- 2.weeks)
     end
 

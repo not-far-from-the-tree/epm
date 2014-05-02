@@ -82,7 +82,7 @@
 <% end %>
 
 <section>
-  <h2>Coordinator</h2>
+  <h2><%= Configurable.coordinator.titlecase %></h2>
   <% if @event.coordinator %>
     <%= render 'users/user', user: @event.coordinator %>
   <% else %>
