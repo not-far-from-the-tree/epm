@@ -44,6 +44,8 @@
   <% end %>
 </div>
 
+<p>Wards: <%= @user.wards.any? ? @user.wards.map{|w|w.name}.to_sentence : 'none' %>.</p>
+
 <p>Joined <%= @user.created_at.strftime "%B %d %Y" %>.</p>
 
 <%= clear %>

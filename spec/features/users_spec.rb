@@ -135,6 +135,16 @@ describe "Users" do
       expect(page).not_to have_content 'Joe'
     end
 
+    it "sets one's wards" do
+      create :ward, name: 'ward one'
+      create :ward, name: 'ward two'
+      visit edit_user_path @participant
+      check 'ward one'
+      click_button 'Save'
+      expect(page).to have_content 'ward one'
+      expect(page).not_to have_content 'ward two'
+    end
+
   end
 
   context "profile permissions" do

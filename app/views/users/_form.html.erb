@@ -26,6 +26,19 @@
 
   <%= end_cols %>
 
+  <% if Ward.any? %>
+    <fieldset>
+      <legend>Wards I am Interested In</legend>
+      <%= hidden_field_tag "user[ward_ids][]" %>
+      <% Ward.all.each do |ward| %>
+        <div>
+          <%= check_box_tag "user[ward_ids][]", ward.id, @user.ward_ids.include?(ward.id), id: "ward_#{ward.id}" %>
+          <label for="<%= "ward_#{ward.id}" %>"><%= ward.name %></label>
+        </div>
+      <% end %>
+    </fieldset>
+  <% end %>
+
   <%= cancel %>
   <%= submit 'Save Profile' %>
 

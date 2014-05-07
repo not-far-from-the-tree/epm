@@ -22,6 +22,7 @@ FactoryGirl.define do
       description { Faker::Lorem.sentences(rand 1..5).join(' ') }
       notes { Faker::Lorem.sentences(rand 1..5).join(' ') }
       address { "#{Faker::Address.street_address}\n#{Faker::Address.city}, #{Faker::Address.country}" }
+      ward
       lat { Faker::Address.latitude }
       lng { Faker::Address.longitude }
       min { rand(0..10) }

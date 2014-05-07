@@ -68,7 +68,13 @@
 
   <%= render layout: 'shared/address_form', locals: { f: f } do %>
     <%= f.check_box :hide_specific_location %>
-    <%= f.label :hide_specific_location, 'Hide specific location for non-attendees', style: 'font-weight:normal' %><br>
+    <%= f.label :hide_specific_location, 'Hide specific location for non-attendees', style: 'font-weight:normal' %>
+    <% if Ward.any? %>
+      <div>
+        <%= f.label :ward_id %>
+        <%= f.collection_select :ward_id, Ward.all, :id, :name, include_blank: true %>
+      </div>
+    <% end %>
   <% end %>
 
   <%= end_cols %>

@@ -80,6 +80,17 @@ describe "Events" do
         expect(page).to have_content 'Sorry'
       end
 
+      it "selects a ward" do
+        w = create :ward
+        login_as @admin
+        visit new_event_path
+        fill_in 'Name', with: 'some event name'
+        select w.name, from: 'Ward'
+        click_button 'Save'
+        click_link 'Edit'
+        expect(page).to have_select 'Ward', selected: w.name
+      end
+
     end
 
     context "show" do

@@ -59,6 +59,8 @@ class Event < ActiveRecord::Base
     end
   end
 
+  belongs_to :ward
+
   # allow for adding a reason for cancelling an event, with separate fields for admin/coordinator and participants
   attr_accessor :cancel_notes, :cancel_description
   def cancel_notes=(str)

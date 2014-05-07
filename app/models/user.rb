@@ -20,6 +20,8 @@ class User < ActiveRecord::Base
   validates :lat, numericality: {greater_than_or_equal_to: -90, less_than_or_equal_to: 90}, allow_nil: true
   validates :lng, numericality: {greater_than_or_equal_to: -180, less_than_or_equal_to: 180}, allow_nil: true
 
+  has_many :user_wards
+  has_many :wards, through: :user_wards
 
   scope :by_name, -> { order :lname, :fname }
   scope :geocoded, -> { where.not lat: nil }

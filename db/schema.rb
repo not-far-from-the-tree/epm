@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140502170628) do
+ActiveRecord::Schema.define(version: 20140503203846) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -54,10 +54,12 @@ ActiveRecord::Schema.define(version: 20140502170628) do
     t.boolean  "hide_specific_location",                         default: false
     t.boolean  "below_min",                                      default: false
     t.boolean  "reached_max",                                    default: false
+    t.integer  "ward_id"
   end
 
   add_index "events", ["coordinator_id"], name: "index_events_on_coordinator_id", using: :btree
   add_index "events", ["lat", "lng"], name: "index_events_on_lat_and_lng", using: :btree
+  add_index "events", ["ward_id"], name: "index_events_on_ward_id", using: :btree
 
   create_table "invitations", force: true do |t|
     t.integer  "user_id"
@@ -77,6 +79,16 @@ ActiveRecord::Schema.define(version: 20140502170628) do
   end
 
   add_index "roles", ["user_id"], name: "index_roles_on_user_id", using: :btree
+
+  create_table "user_wards", force: true do |t|
+    t.integer  "user_id"
+    t.integer  "ward_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "user_wards", ["user_id"], name: "index_user_wards_on_user_id", using: :btree
+  add_index "user_wards", ["ward_id"], name: "index_user_wards_on_ward_id", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "email",                                          default: "", null: false
@@ -106,5 +118,11 @@ ActiveRecord::Schema.define(version: 20140502170628) do
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["lat", "lng"], name: "index_users_on_lat_and_lng", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
+
+  create_table "wards", force: true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end
