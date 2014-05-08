@@ -245,6 +245,16 @@ describe User do
       expect(User.not_involved_in_by_distance(e)).to eq []
     end
 
+    it "lists users interested in a particular ward" do
+      w1 = create :ward
+      w2 = create :ward
+      u1 = create :user
+      u1.user_wards.create ward: w1
+      u2 = create :user
+      u2.user_wards.create ward: w2
+      expect(User.interested_in_ward w1).to eq [u1]
+    end
+
   end
 
   context "events" do

@@ -55,6 +55,8 @@ class User < ActiveRecord::Base
     where.not "users.id IN (#{user_ids.to_sql})"
   }
 
+  scope :interested_in_ward, ->(ward) { joins("INNER JOIN user_wards ON user_wards.user_id = users.id AND user_wards.ward_id = #{ward.id}") }
+
   has_many :event_users, dependent: :destroy
   has_many :coordinating_events, -> { where.not(status: Event.statuses[:cancelled]) }, class_name: 'Event', foreign_key: 'coordinator_id'
   has_many :participating_events, -> {
