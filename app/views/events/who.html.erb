@@ -11,7 +11,6 @@
 <% content_for :header do %>
   <%= link_to 'Event Details', @event %>
   <%= link_to('Edit Attendance', take_attendance: true) if @can_take_attendance && !@taking_attendance %>
-  <%= link_to("Invite #{Configurable.participant.pluralize.titlecase}", invite: true) if @can_invite && !@inviting %>
 <% end %>
 
 
@@ -42,43 +41,16 @@
 <%# no need to tell coordinators they're attending, as they are listed already, right after this %>
 <%= render('rsvp') unless @event.coordinator == current_user %>
 
-<% if @show_invites || @inviting %>
+<% if @show_invites || @show_invite %>
   <section>
     <h2>Invitations</h2>
-
     <% if @num_invited > 0 %>
       <p><%= pluralize @num_invited, 'invitation' %> <%= 'is'.pluralize(@num_invited) %> awaiting a response.</p>
     <% end %>
     <% if @num_declined > 0 %>
       <p><%= pluralize @num_declined, 'invitation' %> <%= 'was'.pluralize(@num_declined) %> declined.</p>
     <% end %>
-
-    <% if @inviting %>
-
-      <%= form_for @event, url: invite_event_path(@event), method: :patch, html: {id: 'invite'} do |f| %>
-        <h3>Invite <%= Configurable.participant.pluralize.titlecase %></h3>
-        <label class="field">
-          Invite the nearest <%= number_field_tag 'invite_near', 0, min: 0, max: @nearby, value: @suggested_invitations %>
-          <%= Configurable.participant.pluralize %>.
-        </label>
-        <% nearby_virgin = User.not_involved_in_by_distance(@event).participated_in_no_events.count %>
-        <% if nearby_virgin > 0 %>
-          <%
-            suggested_virgin = @suggested_invitations / 4
-            suggested_invitations = nearby_virgin if suggested_virgin > nearby_virgin
-          %>
-          <label class="field">
-            Invite the nearest <%= number_field_tag 'invite_near_virgin', 0, min: 0, max: nearby_virgin, value: suggested_virgin %>
-            <%= Configurable.participant.pluralize %> who have not been to any events yet.
-            <br><span class="hint" style="padding-left:0">may include some of the same people as above</span>
-          </label>
-        <% end %>
-        <%= submit 'Invite' %>
-        <%# todo: show preview map of nearest %>
-      <% end %>
-
-    <% end %>
-
+    <%= button_to("Invite #{Configurable.participant.pluralize.titlecase}", invite_event_path(@event), method: :patch) if @show_invite %>
 <% end %>
 
 <section>

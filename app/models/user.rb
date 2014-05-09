@@ -44,18 +44,17 @@ class User < ActiveRecord::Base
     coordinators = User.where(id: coordinator_ids).to_a
     coordinator_ids.map{|uid| coordinators.find{|c| c.id == uid} }
   end
-  scope :not_involved_in_by_distance, ->(event) {
-    return none unless event.coords
-    geocoded.by_distance(origin: event.coords)
-      .where.not("users.id IN (#{EventUser.where(event_id: event.id).select(:user_id).to_sql})")
-  }
+  scope :not_involved_in, ->(event) { where.not "users.id IN (#{EventUser.where(event_id: event.id).select(:user_id).to_sql})" }
   scope :participated_in_no_events, -> {
     user_ids = EventUser.where(status: EventUser.statuses_array(:attending, :attended))
       .joins(:event).where("events.status = #{Event.statuses[:approved]}").select('event_users.user_id')
     where.not "users.id IN (#{user_ids.to_sql})"
   }
-
   scope :interested_in_ward, ->(ward) { joins("INNER JOIN user_wards ON user_wards.user_id = users.id AND user_wards.ward_id = #{ward.id}") }
+  scope :invitable_to, ->(event) {
+    return none unless event.ward
+    participants.interested_in_ward(event.ward).not_involved_in(event)
+  }
 
   has_many :event_users, dependent: :destroy
   has_many :coordinating_events, -> { where.not(status: Event.statuses[:cancelled]) }, class_name: 'Event', foreign_key: 'coordinator_id'

@@ -303,44 +303,52 @@ describe Event do
 
     context "invitations" do
 
-      context "suggested number" do
+      context "should invite" do
 
-        it "suggests number of invitations for a participtable event" do
-          expect(build(:participatable_event, lat: 50, lng: 50).suggested_invitations).to be > 0
+        it "should not recommend inviting when no ward is specified" do
+          expect(build(:event, ward: nil).should_invite?).to be_false
         end
 
-        it "suggests zero invitations for a non-participtable event" do
-          expect(build(:participatable_event, lat: 50, lng: 50, status: :proposed).suggested_invitations).to eq 0
-          expect(build(:participatable_event, lat: 50, lng: 50, start: 1.month.ago).suggested_invitations).to eq 0
+        it "should not recommend inviting when an event has been cancelled" do
+          ward = create :ward
+          p = create :participant
+          p.user_wards.create ward: ward
+          expect(build(:participatable_event, ward: ward, status: :cancelled).should_invite?).to be_false
         end
 
-        it "suggests zero invitations for events without coordinates" do
-          expect(build(:participatable_event).suggested_invitations).to eq 0
+        it "should not recommend inviting when an event is full" do
+          ward = create :ward
+          p = create :participant
+          p.user_wards.create ward: ward
+          e = create :participatable_event, max: 1, ward: ward
+          e.attend p
+          expect(e.should_invite?).to be_false
         end
 
-        it "suggests zero invitations for full events" do
-          e = create :participatable_event, lat: 50, lng: 50, max: 1
-          e.attend create :participant
-          expect(e.suggested_invitations).to eq 0
+        it "should not recommend inviting when invites have already been sent" do
+          ward = create :ward
+          p = create :participant
+          p.user_wards.create ward: ward
+          e = create :participatable_event, ward: ward
+          e.event_users.create status: :invited, user: p
+          expect(e.should_invite?).to be_false
         end
 
-        it "suggests at least as many invitations as there are remaining spots" do
-          e = create :participatable_event, lat: 50, lng: 50, max: 5
-          expect(e.suggested_invitations).to be >= 5
+        it "should not recommend inviting when nobody is interested in the event's ward" do
+          ward = create :ward
+          p = create :participant
+          p.user_wards.create ward: ward
+          e = create :participatable_event, ward: create(:ward)
+          expect(e.should_invite?).to be_false
         end
 
-        it "suggests at least as many invitations as participants are needed" do
-          e = create :participatable_event, lat: 50, lng: 50, min: 3
-          expect(e.suggested_invitations).to be >= 3
+        it "should recommend inviting when appropriate" do
+          ward = create :ward
+          p = create :participant
+          p.user_wards.create ward: ward
+          e = create :participatable_event, ward: ward
+          expect(e.should_invite?).to be_true
         end
-
-        # this should be okay however due to rounding, may not. so commented out for now
-        # it "suggests fewer invitations when some have already been sent out" do
-        #   e = create :participatable_event, lat: 50, lng: 50, max: 20
-        #   suggested = e.suggested_invitations
-        #   5.times { e.event_users.create user: create(:participant), status: :invited }
-        #   expect(e.suggested_invitations).to be < suggested
-        # end
 
       end
 

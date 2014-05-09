@@ -228,21 +228,19 @@ describe User do
       expect(bad_coordinators.index c_verybad).to be < bad_coordinators.index(c_bad)
     end
 
-    it "lists users not involved in an event, ordered by distance to it" do
-      e = create :participatable_event, lat: 50, lng: 50
-      p_attending = create :participant, lat: 51, lng: 51
+    it "lists users not involved in an event" do
+      e = create :participatable_event
+      p_attending = create :participant
       e.attend p_attending
-      p_invited = create :participant, lat: 51, lng: 51
+      p_invited = create :participant
       e.event_users.create user: p_invited, status: :invited
-      p_nogeocode = create :participant
-      p_near = create :participant, lat: 51, lng: 51
-      p_far = create :participant, lat: 60, lng: 60
-      expect(User.not_involved_in_by_distance(e)).to eq [p_near, p_far]
-    end
-
-    it "returns nobody when looking for users near non-geocoded event" do
-      e = create :event
-      expect(User.not_involved_in_by_distance(e)).to eq []
+      p1 = create :participant
+      p2 = create :participant
+      people = User.not_involved_in e
+      expect(people).to include p1
+      expect(people).to include p2
+      expect(people).not_to include p_attending
+      expect(people).not_to include p_invited
     end
 
     it "lists users interested in a particular ward" do
@@ -253,6 +251,23 @@ describe User do
       u2 = create :user
       u2.user_wards.create ward: w2
       expect(User.interested_in_ward w1).to eq [u1]
+    end
+
+    it "lists users who can be invited to an event" do
+      # ie users who are participants, interested in the event's ward, who aren't already involved
+      e = create :participatable_event, ward: create(:ward)
+      u = create :user
+      p = create :participant
+      p_interested = create :participant
+      p_interested.user_wards.create ward: e.ward
+      p_attending = create :participant
+      p_attending.user_wards.create ward: e.ward
+      e.attend p_attending
+      expect(User.invitable_to e).to eq [p_interested]
+    end
+
+    it "lists no users who can be invited to an event with no ward" do
+      expect(User.invitable_to(create(:participatable_event)).length).to eq 0
     end
 
   end

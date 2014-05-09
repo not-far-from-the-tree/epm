@@ -79,8 +79,7 @@ class EventsController < ApplicationController
     @can_take_attendance = false
     @taking_attendance = false
     @show_invites = false
-    @can_invite = false
-    @inviting = false
+    @show_invite = false
     if @event.start
       if (current_user.has_role?(:admin) || @event.coordinator == current_user) && @event.can_accept_participants?
         eus = @event.event_users.where(status: EventUser.statuses_array(:invited, :not_attending)).group_by{|eu| eu.status}
@@ -88,14 +87,8 @@ class EventsController < ApplicationController
         @num_declined = (eus['not_attending'] || []).length
         @show_invites = (@num_invited > 0) || (@num_declined > 0)
       end
-      if @event.time_until > 1.day
-        if can?(:invite, @event) && @event.invitable?
-          # note: this logic is largely duplicated in views/events/show.html.erb
-          @nearby = User.not_involved_in_by_distance(@event).count
-          @can_invite = @nearby > 0
-          @suggested_invitations = [@event.suggested_invitations, @nearby].min
-          @inviting = @can_invite && (params['invite'] || @suggested_invitations > 0)
-        end
+      if can?(:invite, @event) && @event.should_invite?
+        @show_invite = true
       elsif @event.past?
         @can_take_attendance = can?(:take_attendance, @event) && @event.approved? && @event.event_users.where(status: EventUser.statuses_array(:attending, :attended, :no_show)).any?
         @taking_attendance = @can_take_attendance && (params['take_attendance'] || @event.event_users.where(status: EventUser.statuses[:attending]).any?)
@@ -208,15 +201,16 @@ class EventsController < ApplicationController
 
   include ActionView::Helpers::TextHelper # needed for pluralize()
   def invite
-    u1 = User.not_involved_in_by_distance(@event).limit(params['invite_near'].to_i)
-    u2 = User.not_involved_in_by_distance(@event).participated_in_no_events.limit(params['invite_near_virgin'].to_i)
-    invites = @event.invite u1 + u2
-    if invites > 0
-      flash[:notice] = "#{pluralize invites, 'invitation'} will be sent shortly."
-    else
+    if @event.ward
+      invites = @event.invite User.invitable_to @event
+      if invites > 0
+        flash[:notice] = "#{pluralize invites, 'invitation'} will be sent shortly."
+      end
+    end
+    unless flash[:notice].present?
       flash[:notice] = 'No invitations sent.'
     end
-    redirect_to @event
+    redirect_to who_event_path @event
   end
 
   def take_attendance

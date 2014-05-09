@@ -30,16 +30,9 @@
 
 <%= render 'rsvp' %>
 
-<%# this section is largely the same as in events_controller.rb, who method %>
-<% if @event.start && @event.time_until > 1.day && can?(:invite, @event) && @event.invitable? %>
-  <%
-    nearby = User.not_involved_in_by_distance(@event).count
-    suggested_invitations = [@event.suggested_invitations, nearby].min
-  %>
-  <% if nearby > 0 && suggested_invitations > 0 %>
-    <%= clear %>
-    <div class="highlight">Please <%= link_to "invite some #{Configurable.participant.pluralize}", who_event_path(@event) %>.</div>
-  <% end %>
+<% if can?(:invite, @event) && @event.should_invite? %>
+  <%= clear %>
+  <div class="highlight">Please <%= button_to "Invite #{Configurable.participant.pluralize.titlecase}", invite_event_path(@event), method: :patch %>.</div>
 <% end %>
 
 

@@ -231,7 +231,7 @@ class Event < ActiveRecord::Base
     else
       vevent.status = 'TENTATIVE'
     end
-    vevent.add_contact(coordinator.name) if coordinator # todo: replace with organizer property?
+    vevent.add_contact(coordinator.display_name) if coordinator # todo: replace with organizer property?
     vevent.geo = coords.join(',') if coords
     vevent.location = address if address
     vevent
@@ -321,20 +321,8 @@ class Event < ActiveRecord::Base
     event_users.where(user_id: user.id).first_or_initialize.unattend
   end
 
-  def suggested_invitations # number of people that should be invited
-    return 0 if !invitable? || full?
-    response_rate = 0.1 # complete guess, and of course won't be the same for every org
-    expected_from_invitations = event_users.where(status: EventUser.statuses[:invited]).count * response_rate * 0.8
-    # 0.8 above is largely arbitrary, but the point is that the response rate of already sent invitations will be < response_rate as some will have been looked at and ignored
-    reciprocal_rate = 1 / response_rate
-    at_leasts = []
-    at_leasts << (remaining_spots * reciprocal_rate) - expected_from_invitations if max
-    at_leasts << (participants_needed * reciprocal_rate) - expected_from_invitations if min > 0
-    return at_leasts.push(0).max.round if at_leasts.any?
-    10 # not really based on anything, but gotta have some number here
-  end
-  def invitable?
-    can_accept_participants? && coords
+  def should_invite?
+    can_accept_participants? && ward && !full? && event_users.where(status: EventUser.statuses_array(:invited, :not_attending)).none? && User.invitable_to(self).any?
   end
 
   def invite(users)

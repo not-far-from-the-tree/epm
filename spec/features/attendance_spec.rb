@@ -210,19 +210,19 @@ describe "Event Attendance" do
   context "invitations" do
 
     it "allows coordinators to invite users to an event" do
-      e = create :participatable_event, max: 1, lat: 50, lng: 50
-      create :participant, lat: 50, lng: 51 # make sure there is someone who can be invited
+      e = create :participatable_event, max: 1, ward: create(:ward)
+      p = create :participant
+      p.user_wards.create ward: e.ward
       login_as e.coordinator
       visit event_path e
-      click_link 'invite'
-      within '#invite' do
-        fill_in 'invite_near', with: 1
-        fill_in 'invite_near_virgin', with: 0
-        click_button 'Invite'
-      end
+      click_button 'Invite'
+      # hmn, is it confusing to have both of these?
       expect(page).to have_content '1 invitation will be sent'
-      click_link 'Who'
       expect(page).to have_content '1 invitation is awaiting a response'
+      expect(current_path).to eq who_event_path e
+      expect(page).not_to have_button 'Invite'
+      click_link 'Event Details'
+      expect(page).not_to have_button 'Invite'
     end
 
     it "does not allow participants to invite users to an event" do
@@ -234,17 +234,16 @@ describe "Event Attendance" do
 
     # also tests that admins can invite users
     it "invites people to an event, one accepts and one declines" do
-      2.times { create :participant, lat: 50, lng: 51 }
-      e = create :participatable_event, lat: 50, lng: 51
+      w = create :ward
+      p1 = create :participant
+      p1.user_wards.create ward: w
+      p2 = create :participant
+      p2.user_wards.create ward: w
+      e = create :participatable_event, ward: w
       login_as @admin
       visit event_path e
-      click_link 'invite'
-      within '#invite' do
-        fill_in 'invite_near', with: 0
-        fill_in 'invite_near_virgin', with: 2
-        click_button 'Invite'
-      end
-      expect(current_path).to eq event_path e
+      click_button 'Invite'
+      expect(current_path).to eq who_event_path e
       expect(page).to have_content '2 invitations will be sent'
       logout
       login_as Invitation.first.user
@@ -275,20 +274,6 @@ describe "Event Attendance" do
       login_as @admin
       visit who_event_path e
       expect(page).to have_content '1 invitation was declined'
-    end
-
-    it "shows invite form when there are spots available or when requested" do
-      e = create :participatable_event, lat: 50, lng: 50
-      potential_attendee = create :participant, lat: 51, lng: 51
-      e.attend @participant
-      login_as e.coordinator
-      visit who_event_path e
-      expect(page).to have_button 'Invite'
-      e.update max: 1
-      visit who_event_path e
-      expect(page).not_to have_button 'Invite'
-      click_link 'Invite'
-      expect(page).to have_button 'Invite'
     end
 
   end
