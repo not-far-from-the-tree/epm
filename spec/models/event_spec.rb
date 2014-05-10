@@ -15,7 +15,7 @@ describe Event do
       end
 
       it "has a display name using the address when no name or description is given" do
-        e = build :event, name: nil, description: nil, address: '123 fake street', no_geocode: true
+        e = build :event, name: nil, description: nil, address: '123 fake street', no_geocode: true, hide_specific_location: false
         expect(e.display_name).to eq '123 fake street'
       end
 

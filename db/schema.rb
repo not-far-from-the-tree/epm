@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140503203846) do
+ActiveRecord::Schema.define(version: 20140510223536) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -51,7 +51,7 @@ ActiveRecord::Schema.define(version: 20140503203846) do
     t.decimal  "lng",                    precision: 9, scale: 6
     t.integer  "min",                                            default: 0
     t.integer  "max"
-    t.boolean  "hide_specific_location",                         default: false
+    t.boolean  "hide_specific_location",                         default: true
     t.boolean  "below_min",                                      default: false
     t.boolean  "reached_max",                                    default: false
     t.integer  "ward_id"
