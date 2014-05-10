@@ -16,6 +16,9 @@
     <%= link_to who_link, who_event_path(@event) %>
   <% end %>
 
+  <% if can?(:take_attendance, @event) && @event.past? && @event.approved? && @event.event_users.where(status: EventUser.statuses[:attending]).any? %>
+    <%= link_to 'Take Attendance', who_event_path(@event) %>
+  <% end %>
   <% if can? :update, @event %>
     <%= link_to 'Edit', edit_event_path(@event) %>
   <% end %>

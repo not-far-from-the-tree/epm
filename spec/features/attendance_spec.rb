@@ -287,7 +287,7 @@ describe "Event Attendance" do
       eu2 = e.event_users.create user: p2, status: :attending
       login_as e.coordinator
       visit event_path e
-      click_link 'take attendance'
+      click_link 'Take Attendance'
       expect(page).not_to have_link 'Edit Attendance'
       expect(page).to have_link @participant.display_name
       expect(page).to have_link p2.display_name
@@ -302,6 +302,15 @@ describe "Event Attendance" do
       end
     end
 
+    it "allows admin to take attendance" do
+      e = create :participatable_past_event
+      e.event_users.create user: @participant, status: :attending
+      login_as @admin
+      visit event_path e
+      click_link 'Take Attendance'
+      expect(page).to have_button 'Take Attendance'
+    end
+
     it "does not allow taking attendance on a cancelled event" do
       e = create :participatable_past_event, status: :cancelled
       e.event_users.create user: @participant, status: :attending
@@ -314,14 +323,6 @@ describe "Event Attendance" do
       e = create :participatable_event, status: :cancelled
       e.attend @participant
       login_as e.coordinator
-      visit who_event_path e
-      expect(page).not_to have_button 'Take Attendance'
-    end
-
-    it "does not allow admins to take attendance" do
-      e = create :participatable_past_event
-      e.event_users.create user: @participant, status: :attending
-      login_as @admin
       visit who_event_path e
       expect(page).not_to have_button 'Take Attendance'
     end

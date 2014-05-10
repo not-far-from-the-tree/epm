@@ -50,9 +50,6 @@
         <span style="white-space:nowrap">&ndash; <%= pluralize @event.participants_needed, Configurable.participant %> still needed.</span>
       <% end %>
     <% end %>
-    <% if can?(:take_attendance, @event) && @event.past? && @event.approved? && @event.event_users.where(status: EventUser.statuses[:attending]).any? %>
-      Please <%= link_to 'take attendance', who_event_path(@event) %>.
-    <% end %>
   </div>
 
 <% end %>

@@ -276,35 +276,40 @@ describe "Events" do
 
     end
 
-    context "coordinator" do
+    context "cancelling" do
 
-      before :each do
-        @coordinator = create :coordinator
-      end
-
-      it "prevents coordinators from cancelling an event with no coordinator" do
-        login_as @coordinator
-        visit event_path(create :event)
-        expect(page).not_to have_content 'Cancel'
-      end
-
-      it "prevents coordinators from cancelling an event with another coordinator" do
-        login_as @coordinator
-        e = create :event, coordinator:(create :coordinator)
-        visit event_path(e)
-        expect(page).not_to have_content 'Cancel'
-      end
-
-      it "allows a coordinator to cancel their own event" do
-        e = create :event, coordinator: @coordinator
-        login_as @coordinator
+      it "allows admin to cancel an event" do
+        e = create :event
+        login_as @admin
         visit event_path e
         click_link 'Cancel'
         fill_in 'Reason', with: 'Bad weather'
         click_button 'Cancel Event'
         expect(current_path).to eq event_path e
         expect(page).to have_content 'Event cancelled'
-        expect(e.reload.cancelled?).to be_true
+      end
+
+      it "does not allow coordinators to cancel an event" do
+        # even if it's an event they are coordinating
+        e = create :event, coordinator: create(:coordinator)
+        login_as e.coordinator
+        visit event_path e
+        expect(page).not_to  have_link 'Cancel'
+      end
+
+      it "does not allow participants to cancel an event" do
+        e = create :participatable_event
+        login_as @participant
+        visit event_path e
+        expect(page).not_to  have_link 'Cancel'
+      end
+
+    end
+
+    context "coordinator" do
+
+      before :each do
+        @coordinator = create :coordinator
       end
 
       it "allows admin to set a coordinator" do
@@ -317,42 +322,38 @@ describe "Events" do
         expect(page).to have_content @coordinator.display_name
       end
 
-      describe "email notifications" do
+      it "notifies a coordinator when a new event is assigned to them" do
+        login_as @admin
+        visit new_event_path
+        fill_in 'Name', with: 'some event'
+        choose "event_coordinator_id_#{@coordinator.id}"
+        expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        expect(last_email.to.first).to match @coordinator.email
+      end
 
-        it "notifies a coordinator when a new event is assigned to them" do
-          login_as @admin
-          visit new_event_path
-          fill_in 'Name', with: 'some event'
-          choose "event_coordinator_id_#{@coordinator.id}"
-          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
-          expect(last_email.to.first).to match @coordinator.email
-        end
+      it "notifies a coordinator when an existing event is assigned to them" do
+        e = create :event, coordinator: nil
+        login_as @admin
+        visit edit_event_path e
+        choose "event_coordinator_id_#{@coordinator.id}"
+        expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        expect(last_email.to.first).to match @coordinator.email
+      end
 
-        it "notifies a coordinator when an existing event is assigned to them" do
-          e = create :event, coordinator: nil
-          login_as @admin
-          visit edit_event_path e
-          choose "event_coordinator_id_#{@coordinator.id}"
-          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
-          expect(last_email.to.first).to match @coordinator.email
-        end
+      it "does not notify a coordinator when they assign an event to themselves" do
+        e = create :event, coordinator: nil
+        login_as @coordinator
+        visit edit_event_path(e)
+        choose "event_coordinator_id_#{@coordinator.id}"
+        expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
+      end
 
-        it "does not notify a coordinator when they assign an event to themselves" do
-          e = create :event, coordinator: nil
-          login_as @coordinator
-          visit edit_event_path(e)
-          choose "event_coordinator_id_#{@coordinator.id}"
-          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
-        end
-
-        it "does not notify a coordinator when they are assigned a past event" do
-          e = create :past_event, coordinator: nil
-          login_as @admin
-          visit edit_event_path e
-          choose "event_coordinator_id_#{@coordinator.id}"
-          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
-        end
-
+      it "does not notify a coordinator when they are assigned a past event" do
+        e = create :past_event, coordinator: nil
+        login_as @admin
+        visit edit_event_path e
+        choose "event_coordinator_id_#{@coordinator.id}"
+        expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
       end
 
       it "allows coordinator to set an event's coordinator only to his/herself" do
@@ -789,19 +790,6 @@ describe "Events" do
         visit event_path e
         click_link 'Cancel'
         expect{ click_button 'Cancel Event' }.to change{ActionMailer::Base.deliveries.size}.by 2 # email to admins/coordinators and to participants
-      end
-
-      it "send emails to admins and participants but not the coordinator when an event is cancelled by the coordinator" do
-        coordinator = create :coordinator
-        e = create :participatable_event, coordinator: coordinator
-        participant = create :participant
-        e.attend participant
-        login_as coordinator
-        visit event_path e
-        click_link 'Cancel'
-        expect{ click_button 'Cancel Event' }.to change{ActionMailer::Base.deliveries.size}.by 2 # email to admins/coordinators and to participants
-        # todo: fix fragility; this relies on order of emails sent
-        expect(ActionMailer::Base.deliveries[-2].bcc.length).to eq User.admins.length
       end
 
       it "does not send email when an event is cancelled by the only admin, that does not have a coordinator or participants" do
