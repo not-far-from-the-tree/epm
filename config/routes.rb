@@ -17,6 +17,7 @@ Epm::Application.routes.draw do
       get 'cancel', to: 'events#ask_to_cancel'
       patch 'cancel'
       patch 'approve'
+      patch 'claim'
       patch 'attend'
       patch 'unattend'
       patch 'invite'

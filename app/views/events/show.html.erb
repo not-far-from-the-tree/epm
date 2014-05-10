@@ -16,6 +16,9 @@
     <%= link_to who_link, who_event_path(@event) %>
   <% end %>
 
+  <% if can?(:claim, @event) && !@event.cancelled? && !@event.past? %>
+    <%= link_to 'Claim This Event', claim_event_path(@event), method: :patch %>
+  <% end %>
   <% if can?(:take_attendance, @event) && @event.past? && @event.approved? && @event.event_users.where(status: EventUser.statuses[:attending]).any? %>
     <%= link_to 'Take Attendance', who_event_path(@event) %>
   <% end %>

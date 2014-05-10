@@ -20,15 +20,14 @@ class Ability
 
       if user.has_role? :admin
         can :manage, [Event, Role, :setting]
+        cannot :claim, Event
         can [:index, :map, :show, :read_contact, :read_attendance], User
       end
 
       if user.has_role? :coordinator
         can :read, Event
-        can [:update, :read_notes, :read_specific_location], Event do |event|
-          !event.coordinator || (event.coordinator == user)
-        end
-        can [:who, :invite, :take_attendance], Event, coordinator_id: user.id
+        can [:claim, :read_notes], Event, coordinator_id: nil
+        can [:update, :read_notes, :read_specific_location, :who, :invite, :take_attendance], Event, coordinator_id: user.id
         can [:show, :read_attendance], User
       end
 

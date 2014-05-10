@@ -190,7 +190,7 @@ describe "Events" do
 
       end
 
-      it "prevents updating an event without permission" do
+      it "does not allow participants to edit an event" do
         login_as @participant
         e = create :participatable_event
         visit event_path e
@@ -276,40 +276,10 @@ describe "Events" do
 
     end
 
-    context "cancelling" do
-
-      it "allows admin to cancel an event" do
-        e = create :event
-        login_as @admin
-        visit event_path e
-        click_link 'Cancel'
-        fill_in 'Reason', with: 'Bad weather'
-        click_button 'Cancel Event'
-        expect(current_path).to eq event_path e
-        expect(page).to have_content 'Event cancelled'
-      end
-
-      it "does not allow coordinators to cancel an event" do
-        # even if it's an event they are coordinating
-        e = create :event, coordinator: create(:coordinator)
-        login_as e.coordinator
-        visit event_path e
-        expect(page).not_to  have_link 'Cancel'
-      end
-
-      it "does not allow participants to cancel an event" do
-        e = create :participatable_event
-        login_as @participant
-        visit event_path e
-        expect(page).not_to  have_link 'Cancel'
-      end
-
-    end
-
     context "coordinator" do
 
       before :each do
-        @coordinator = create :coordinator
+        @coordinator = create :coordinator, fname: 'Joeyjoejoe', lname: 'Shebeda'
       end
 
       it "allows admin to set a coordinator" do
@@ -340,14 +310,6 @@ describe "Events" do
         expect(last_email.to.first).to match @coordinator.email
       end
 
-      it "does not notify a coordinator when they assign an event to themselves" do
-        e = create :event, coordinator: nil
-        login_as @coordinator
-        visit edit_event_path(e)
-        choose "event_coordinator_id_#{@coordinator.id}"
-        expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
-      end
-
       it "does not notify a coordinator when they are assigned a past event" do
         e = create :past_event, coordinator: nil
         login_as @admin
@@ -356,37 +318,47 @@ describe "Events" do
         expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
       end
 
-      it "allows coordinator to set an event's coordinator only to his/herself" do
-        coordinator2 = create :coordinator
-        login_as @admin
-        visit new_event_path
-        fill_in 'Name', with: 'event with no coordinator'
-        click_button 'Save'
-        logout
+      it "allows a coordinator to claim an event" do
+        e = create :event, coordinator: nil
         login_as @coordinator
-        visit root_path
-        click_link 'event with no coordinator'
-        click_link 'Edit'
-        expect(all('#coordinator input').length).to eq 2 # nil and self
+        visit event_path e
+        click_link 'Claim'
+        expect(current_path).to eq event_path e
+        expect(page).to have_content 'You are now running this event'
+        click_link 'Who'
+        expect(page).to have_link @coordinator.display_name
       end
 
-      it "allows a coordinator to edit a coordinatorless event" do
-        e = create :event, name: 'event with no coordinator'
+      it "does not allow admins to claim an event" do
+        e = create :event, coordinator: nil
+        login_as @admin
+        visit event_path e
+        expect(page).not_to have_link 'Claim'
+      end
+
+      it "does not allow participants to claim an event" do
+        e = create :event, coordinator: nil
+        login_as @participant
+        visit event_path e
+        expect(page).not_to have_link 'Claim'
+      end
+
+      it "does not allow a coordinator to claim a cancelled event" do
+        e = create :event, coordinator: nil, status: :cancelled
         login_as @coordinator
-        visit root_path
-        click_link 'event with no coordinator'
-        click_link 'Edit'
-        name = 'some name'
-        fill_in 'Name', with: name
-        click_button 'Save'
-        expect(current_path).to eq event_path e
-        expect(page).to have_content name
+        visit event_path e
+        expect(page).not_to have_link 'Claim'
+      end
+
+      it "does not allow a coordinator to claim a past event" do
+        e = create :event, coordinator: nil, start: 1.month.ago
+        login_as @coordinator
+        visit event_path e
+        expect(page).not_to have_link 'Claim'
       end
 
       it "allows a coordinator to edit an event they are coordinating" do
-        e = build :event
-        e.coordinator = @coordinator
-        e.save
+        e = create :event, coordinator: @coordinator
         login_as @coordinator
         visit edit_event_path e
         name = 'some name'
@@ -396,28 +368,13 @@ describe "Events" do
         expect(page).to have_content name
       end
 
-      it "allows coordinator to edit a dateless event" do
-        e = create :event, coordinator: @coordinator, start: nil, name: 'foo'
-        login_as @coordinator
-        visit root_path
-        click_link 'foo'
-        click_link 'Edit'
-        name = 'some name'
-        fill_in 'Name', with: name
-        click_button 'Save'
-        expect(current_path).to eq event_path e
-        expect(page).to have_content name
-      end
-
       it "does not allow a coordinator to edit an event with another coordinator" do
-        e = build :event
-        e.coordinator = @coordinator
-        e.save
+        e = create :event, coordinator: @coordinator
         login_as create :coordinator
         visit event_path e
         expect(page).not_to have_content 'Edit'
-        visit edit_event_path(e)
-        expect(current_path).not_to eq edit_event_path(e)
+        visit edit_event_path e
+        expect(current_path).not_to eq edit_event_path e
         expect(page).to have_content 'Sorry'
       end
 
@@ -739,10 +696,10 @@ describe "Events" do
         e = create :event, status: :proposed # missing a coordinator
         c = create :coordinator
         login_as c
-        visit edit_event_path e
-        choose "event_coordinator_id_#{c.id}"
-        expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        visit event_path e
+        expect{ click_link 'Claim' }.to change{ActionMailer::Base.deliveries.size}.by 1
         expect(last_email.bcc).to eq User.admins.map{|u| u.email}
+        expect(current_path).to eq event_path e
       end
 
       it "does not email admins when an event is ready for approval by their own change" do
@@ -761,23 +718,31 @@ describe "Events" do
 
     context "cancelling" do
 
-      it "cancels an event" do
-        login_as @admin
+      it "allows admin to cancel an event" do
         e = create :event
+        login_as @admin
         visit event_path e
         click_link 'Cancel'
+        fill_in 'Reason', with: 'Bad weather'
         click_button 'Cancel Event'
         expect(current_path).to eq event_path e
         expect(page).to have_content 'Event cancelled'
         expect(page).not_to have_link 'Cancel'
-        expect(e.reload.cancelled?).to be_true
       end
 
-      it "prevents participants from cancelling an event" do
-        login_as @participant
-        e = create :event
+      it "does not allow coordinators to cancel an event" do
+        # even if it's an event they are coordinating
+        e = create :event, coordinator: create(:coordinator)
+        login_as e.coordinator
         visit event_path e
-        expect(page).not_to have_content 'Cancel'
+        expect(page).not_to  have_link 'Cancel'
+      end
+
+      it "does not allow participants to cancel an event" do
+        e = create :participatable_event
+        login_as @participant
+        visit event_path e
+        expect(page).not_to have_link 'Cancel'
       end
 
       it "send emails to admins+coordinator and participants when an event is cancelled" do

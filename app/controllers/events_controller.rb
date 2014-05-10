@@ -129,6 +129,7 @@ class EventsController < ApplicationController
         if !@event.prior['awaiting_approval?'] && @event.awaiting_approval?
           admins = User.admins.reject{|u| u == current_user}
           if admins.any?
+            # note: awaiting approval emails also sent from claim method
             users.reject!{|u| admins.include? u} # prevents emailing an admin twice if they are also a coordinator or a participant of this event
             EventMailer.awaiting_approval(@event, admins).deliver
           end
@@ -165,6 +166,21 @@ class EventsController < ApplicationController
       flash[:notice] = 'Event approved.'
     else
       flash[:notice] = 'Cannot approve cancelled events.'
+    end
+    redirect_to @event
+  end
+
+  def claim
+    was_awaiting_approval = @event.awaiting_approval?
+    if @event.update coordinator_id: current_user.id
+      if @event.awaiting_approval? && !was_awaiting_approval
+        # awaiting approval emails also sent from update method
+        admins = User.admins.reject{|u| u == current_user}
+        EventMailer.awaiting_approval(@event, admins).deliver if admins.any?
+      end
+      flash[:notice] = 'You are now running this event.'
+    else
+      flash[:error] = 'You are not able to claim this event.'
     end
     redirect_to @event
   end
