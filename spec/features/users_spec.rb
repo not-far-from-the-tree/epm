@@ -278,6 +278,16 @@ describe "Users" do
       expect(page).not_to have_link 'Deactivate'
     end
 
+    it "shows a message to users with no roles" do
+      p = create :participant
+      login_as p
+      visit root_path
+      expect(page).not_to have_content 'has been deactivated'
+      p.roles.destroy_all
+      visit root_path
+      expect(page).to have_content 'has been deactivated'
+    end
+
   end
 
 end

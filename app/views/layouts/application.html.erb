@@ -69,7 +69,12 @@
     </div>
   <% end %>
 
-  <div id="main"><%= yield %></div>
+  <div id="main">
+    <% if user_signed_in? && current_user.roles.none? %>
+      <div class="highlight">Your account has been deactivated. For more information, please contact <%= mail_to 'info@notfarfromthetree.org' %> or call 647-774-7425.</div>
+    <% end %>
+    <%= yield %>
+  </div>
 
 </body>
 </html>
