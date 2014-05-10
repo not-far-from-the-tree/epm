@@ -52,6 +52,7 @@ fieldset .field label, fieldset .checkbox_field label {
 }
 
 button, form[method='post'] button.default {
+  vertical-align: middle;
   border-radius: 5px;
   background-color: white;
   padding: 0.2em 0.8em;
@@ -100,7 +101,7 @@ div.field_with_errors {
 span.hint {
   font-style: italic;
   padding-left: 0.2em;
-  color: #aaa;
+  color: #685c53;
 }
 
 html.js form #coords {

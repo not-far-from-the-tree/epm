@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require after_jquery
+//= require fonts
 //= require jquery_ujs
 //= require jquery.ui.datepicker
 //= require leaflet

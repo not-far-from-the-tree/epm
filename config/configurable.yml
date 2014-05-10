@@ -3,11 +3,6 @@ title:
   type: string
   default: Event-Participant Manager
 
-title_short:
-  name: Title (short)
-  type: string
-  default: EPM
-
 email:
   name: Email
   type: string

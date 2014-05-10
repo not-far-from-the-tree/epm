@@ -1,15 +1,59 @@
 html {
-  background-color: white;
+  background-color: grey;
+  background-image: url(http://notfarfromthetree.org/nfftt_2014/wp-content/themes/nfftt/library/images/main_bg.jpg);
 }
 body {
   margin: 0;
   padding-bottom: 2em;
 }
 
+#preheader {
+  position: relative;
+  font-family: 'ITC Officina Sans Std Bold', Helvetica, Sans-serif;
+}
+#logo_bg {
+  height: 190px;
+  background-image: url(http://notfarfromthetree.org/nfftt_2014/wp-content/themes/nfftt/library/images/tree_bg.png);
+  background-repeat: no-repeat;
+  background-position: -150px 0px;
+  opacity: 0.4;
+}
+#logo, #preheader h1 {
+  position: absolute;
+  top: 0;
+}
+#logo {
+  left: 30px;
+}
+#preheader h1 {
+  font-size: 2em;
+  line-height: 179px;
+  left: 350px;
+  a {
+    color: #685c53;
+    text-decoration: none;
+  }
+}
+@media (max-width: 850px) {
+  #preheader h1 {
+    line-height: normal;
+  }
+}
+@media (max-width: 550px) {
+  #logo {
+    left: 0;
+  }
+  #preheader h1 {
+    display: none;
+  }
+}
+
 $header_padding: 0.3em;
 
 header {
-  background-color: black;
+  border: solid black;
+  border-width: 1px 0;
+  background-color: #685c53;
   color: white;
   position: relative;
   padding: 0 $header_padding; /* the top and bottom padding is added *within* the links */
@@ -33,7 +77,6 @@ header {
   }
   ul {
     padding-left: 0;
-    margin-left: 4em;
     list-style-type: none;
   }
   li {
@@ -41,19 +84,13 @@ header {
     margin: 0 $header_padding;
   }
   li.active {
-    background-color: #6B6B6B;
+    background-color: #917E70;
   }
 }
 #account {
   position: absolute;
   top: 0;
   right: $header_padding;
-}
-@media (max-width: 450px) {
-  nav ul {
-    padding-top: 1.8em;
-    margin-left: 0;
-  }
 }
 
 #flash, #header {
@@ -66,7 +103,7 @@ header {
 }
 
 #header {
-  background-color: #ddd;
+  background-color: white;
   h1 + div {
     margin-top: $header_padding;
   }

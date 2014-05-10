@@ -12,6 +12,16 @@
       $(function(){<%= yield :js_ready %>});
     </script>
   <% end %>
+
+  <%# metadata etc here copied from source of http://notfarfromthetree.org/ %>
+  <link rel="apple-touch-icon" href="http://notfarfromthetree.org/nfftt_2014/wp-content/themes/nfftt/library/images/apple-icon-touch.png">
+  <link rel="icon" href="http://notfarfromthetree.org/nfftt_2014/wp-content/themes/nfftt/favicon.png?v=2">
+  <!--[if IE]>
+  <link rel="shortcut icon" href="http://notfarfromthetree.org/nfftt_2014/wp-content/themes/nfftt/favicon.ico">
+  <![endif]-->
+  <meta name="msapplication-TileColor" content="#f01d4f">
+  <meta name="msapplication-TileImage" content="http://notfarfromthetree.org/nfftt_2014/wp-content/themes/nfftt/library/images/win8-tile-icon.png">
+
   <%= csrf_meta_tags %>
 </head>
 <body
@@ -20,9 +30,14 @@
   data-lng="<%= (user_signed_in? ? current_user.lng : nil) || -79.4 %>"
   >
 
+  <div id="preheader">
+   <div id="logo_bg"></div>
+   <a id="logo" href="http://notfarfromthetree.org/"><img src="http://notfarfromthetree.org/nfftt_2014/wp-content/themes/nfftt/library/images/nfftt_logo.png" height="179" width="310" alt="Not Far From The Tree logo" /></a>
+   <h1><%= link_to Configurable.title, root_path %></h1>
+  </div>
+
   <header>
     <% if user_signed_in? %>
-      <h1><%= link_to Configurable.title_short, root_path, title: Configurable.title %></h1>
       <nav>
         <ul>
           <li<%= ' class="active"'.html_safe if controller_name == 'events' %>><%= link_to 'Events', root_path %></li>

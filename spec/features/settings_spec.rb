@@ -35,16 +35,14 @@ describe "Settings" do
     # and that after changing settings, you're back on the settings page
     it "changes the short site title" do
       login_as create :admin
+      visit root_path
+      expect(page).to have_content 'Event-Participant Manager' # default short title
       visit settings_path
-      within 'header h1' do
-        expect(page).to have_content 'EPM' # default short title
-      end
-      fill_in 'Title (short)', with: 'Foo'
+      fill_in 'Title', with: 'Fruit-Picking Portal'
       click_button 'Save'
       expect(current_path).to eq settings_path
-      within 'header h1' do
-        expect(page).to have_content 'Foo'
-      end
+      visit root_path
+      expect(page).to have_content 'Fruit-Picking Portal'
     end
 
   end

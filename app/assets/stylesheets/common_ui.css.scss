@@ -1,8 +1,8 @@
-html, textarea {
-  font-family: Helvetica, sans-serif;  
+html, textarea, input, select, button {
+  font-family: 'ITC Officina Sans Std Book', Helvetica, sans-serif;
 }
 body {
-  font-size: 1.1em;
+  font-size: 1.2em;
 }
 
 h1, h2 {
@@ -67,7 +67,7 @@ ul, ol {
 
 small {
   font-style: italic;
-  color: #ccc;
+  color: #685c53;
 }
 
 .loading {
@@ -77,6 +77,7 @@ small {
 /* map stuff */
 .map {
   height: 23em;
+  border: 1px solid black;
 }
 #instruction {
   font-style: italic;
@@ -95,6 +96,9 @@ small {
 }
 .leaflet-popup-content {
   font-size: 1.4em;
+  a {
+    color: $link_colour !important;
+  }
 }
 
 .mapicon {
