@@ -4,6 +4,9 @@ class User < ActiveRecord::Base
 
   strip_attributes
 
+  attr_accessor :signed_waiver
+  validates :signed_waiver, acceptance: true, if: :new_record?
+
   def self.csv
     CSV.generate force_quotes: true do |csv|
       csv << ['id', 'first name', 'last name', 'email', 'phone number', 'address', 'joined', 'events attended', 'roles']
