@@ -230,7 +230,7 @@ describe "Events" do
         it "emails participants but not coordinator upon the coordinator significantly changing an event" do
           login_as @coordinator
           visit edit_event_path @e
-          fill_in 'Name', with: 'New name'
+          fill_in 'Time', with: '1:57'
           expect{ click_button 'Save & Notify' }.to change{ActionMailer::Base.deliveries.size}.by 1
           expect(last_email.bcc).to eq [@participant.email]
         end
@@ -362,10 +362,10 @@ describe "Events" do
         login_as @coordinator
         visit edit_event_path e
         name = 'some name'
-        fill_in 'Name', with: name
+        fill_in 'Time', with: '2:12'
         click_button 'Save'
         expect(current_path).to eq event_path e
-        expect(page).to have_content name
+        expect(page).to have_content '2:12'
       end
 
       it "does not allow a coordinator to edit an event with another coordinator" do
@@ -384,6 +384,29 @@ describe "Events" do
         login_as @admin
         visit edit_event_path e
         expect(page).to have_link e.coordinator.display_name
+      end
+
+      it "does not allow a coordinator to edit certain attributes" do
+        e  = create :event, coordinator: @coordinator
+        login_as @admin
+        visit edit_event_path e
+        expect(page).to have_field 'Time'
+        expect(page).to have_field 'Name'
+        expect(page).to have_field 'Description'
+        expect(page).to have_field 'Notes'
+        expect(page).to have_field 'Min'
+        expect(page).to have_field 'Max'
+        expect(page).to have_field 'Hide specific location'
+        logout
+        login_as @coordinator
+        visit edit_event_path e
+        expect(page).to have_field 'Time'
+        expect(page).not_to have_field 'Name'
+        expect(page).not_to have_field 'Description'
+        expect(page).not_to have_field 'Notes'
+        expect(page).not_to have_field 'Min'
+        expect(page).not_to have_field 'Max'
+        expect(page).not_to have_field 'Hide specific location'
       end
 
     end

@@ -26,6 +26,14 @@ class Event < ActiveRecord::Base
 
   enum status: [:proposed, :approved, :cancelled]
 
+  def self.read_only_for_coordinators
+    [:hide_specific_location, :min, :max, :name, :description, :notes, :coordinator]
+  end
+  def can_edit_attribute?(attribute, user)
+    return false unless user.ability.can?(:edit, self)
+    user.has_role?(:admin) || !self.class.read_only_for_coordinators.include?(attribute)
+  end
+
   validate :must_not_be_empty
   def must_not_be_empty
     if start.blank? && name.blank? && description.blank? && address.blank? && !coords

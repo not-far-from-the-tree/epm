@@ -12,68 +12,80 @@
     </fieldset>
   <% end %>
 
-  <div class="field">
-    <%= f.label :name %><br>
-    <%= f.text_field :name %>
-  </div>
-
-  <fieldset id="when">
+  <% if @event.can_edit_attribute? :name, current_user %>
     <div class="field">
-      <%= f.label :start_day, 'Date' %>
-      <%= f.date_field :start_day, value: @event.start ? @event.start.to_date.to_s : nil %>
+      <%= f.label :name %><br>
+      <%= f.text_field :name %>
     </div>
-    <% content_for :js_ready do %>
-      $('#event_start_day').datepicker({
-        dateFormat: 'yy-mm-dd',
-        <%= "defaultDate: '#{@event.start.to_date}',".html_safe if @event.start  %>
-        nextText: '»',
-        prevText: '«',
-        showButtonPanel: true,
-        showOn: 'button',
-        closeText: 'Okay',
-        buttonText: '<%= @event.start ? date(@event.start) : 'Not set' %>',
-        onSelect: function(){
-          $('.ui-datepicker-trigger').text($.datepicker.formatDate('DD MM d, yy', $(this).datepicker('getDate')));
-          <%# js-formatted date above to be kept in same format as date() in helpers/events %>
-          $('#time_fields').css('visibility', 'visible');
-        }
-      });
-    <% end %>
-    <div class="field" id="time_fields">
-      <%= f.label :start_time_12, 'Time' %>
-      <%= f.text_field :start_time_12, size: 5, maxlength: 5, class: 'time', value: (@event.start.present? ? @event.start_time_12 : '12:00') %>
-      <%= f.select :start_time_p, options_for_select(['AM', 'PM'], @event.start_time_p) %>
+  <% end %>
 
-      <%= f.label :duration, 'For', style: 'margin-left:0.7em' %>
-      <%= f.select :duration, options_for_select((1..6).map{|n| [pluralize(n, 'hour'), n.hours]}, @event.duration) %>
-    </div>
-  </fieldset>
-  <% unless @event.start %>
-    <% content_for :js_ready do %>
-      $('#time_fields').css('visibility', 'hidden');
+  <% if @event.can_edit_attribute? :start, current_user %>
+    <fieldset id="when">
+      <div class="field">
+        <%= f.label :start_day, 'Date' %>
+        <%= f.date_field :start_day, value: @event.start ? @event.start.to_date.to_s : nil %>
+      </div>
+      <% content_for :js_ready do %>
+        $('#event_start_day').datepicker({
+          dateFormat: 'yy-mm-dd',
+          <%= "defaultDate: '#{@event.start.to_date}',".html_safe if @event.start  %>
+          nextText: '»',
+          prevText: '«',
+          showButtonPanel: true,
+          showOn: 'button',
+          closeText: 'Okay',
+          buttonText: '<%= @event.start ? date(@event.start) : 'Not set' %>',
+          onSelect: function(){
+            $('.ui-datepicker-trigger').text($.datepicker.formatDate('DD MM d, yy', $(this).datepicker('getDate')));
+            <%# js-formatted date above to be kept in same format as date() in helpers/events %>
+            $('#time_fields').css('visibility', 'visible');
+          }
+        });
+      <% end %>
+      <div class="field" id="time_fields">
+        <%= f.label :start_time_12, 'Time' %>
+        <%= f.text_field :start_time_12, size: 5, maxlength: 5, class: 'time', value: (@event.start.present? ? @event.start_time_12 : '12:00') %>
+        <%= f.select :start_time_p, options_for_select(['AM', 'PM'], @event.start_time_p) %>
+
+        <%= f.label :duration, 'For', style: 'margin-left:0.7em' %>
+        <%= f.select :duration, options_for_select((1..6).map{|n| [pluralize(n, 'hour'), n.hours]}, @event.duration) %>
+      </div>
+    </fieldset>
+    <% unless @event.start %>
+      <% content_for :js_ready do %>
+        $('#time_fields').css('visibility', 'hidden');
+      <% end %>
     <% end %>
   <% end %>
 
-  <div class="field">
-    <%= f.label :notes %> <span class="hint">for <%= Configurable.admin.pluralize.titlecase %> and <%= Configurable.coordinator.titlecase %> only</span><br>
-    <%= f.text_area :notes %>
-  </div>
+  <% if @event.can_edit_attribute? :notes, current_user %>
+    <div class="field">
+      <%= f.label :notes %> <span class="hint">for <%= Configurable.admin.pluralize.titlecase %> and <%= Configurable.coordinator.titlecase %> only</span><br>
+      <%= f.text_area :notes %>
+    </div>
+  <% end %>
 
-  <div class="field">
-    <%= f.label :description %><br>
-    <%= f.text_area :description %>
-  </div>
+  <% if @event.can_edit_attribute? :description, current_user %>
+    <div class="field">
+      <%= f.label :description %><br>
+      <%= f.text_area :description %>
+    </div>
+  <% end %>
 
   <%= next_col %>
 
-  <%= render layout: 'shared/address_form', locals: { f: f } do %>
-    <%= f.check_box :hide_specific_location %>
-    <%= f.label :hide_specific_location, 'Hide specific location for non-attendees', style: 'font-weight:normal' %>
-    <% if Ward.any? %>
-      <div>
-        <%= f.label :ward_id %>
-        <%= f.collection_select :ward_id, Ward.all, :id, :name, include_blank: true %>
-      </div>
+  <% if @event.can_edit_attribute? :address, current_user %>
+    <%= render layout: 'shared/address_form', locals: { f: f } do %>
+      <% if @event.can_edit_attribute? :hide_specific_location, current_user %>
+        <%= f.check_box :hide_specific_location %>
+      <%= f.label :hide_specific_location, 'Hide specific location for non-attendees', style: 'font-weight:normal' %>
+      <% end %>
+      <% if Ward.any? && @event.can_edit_attribute?(:ward, current_user) %>
+        <div>
+          <%= f.label :ward_id, style: 'font-weight:normal' %>
+          <%= f.collection_select :ward_id, Ward.all, :id, :name, include_blank: true %>
+        </div>
+      <% end %>
     <% end %>
   <% end %>
 
@@ -81,63 +93,68 @@
 
   <%= start_cols %>
 
-  <fieldset>
-    <legend>Number of Participants</legend>
-    <%= f.label :min %>
-    <%= f.number_field :min, min: 0 %><br>
-    <%= f.label :max %>
-    <%= f.number_field :max, min: 0 %>
-    <span class="hint">leave blank for unlimited</span>
-  <fieldset>
+  <% if @event.can_edit_attribute?(:min, current_user) && @event.can_edit_attribute?(:max, current_user) %>
+    <fieldset>
+      <legend>Number of Participants</legend>
+      <%= f.label :min %>
+      <%= f.number_field :min, min: 0 %><br>
+      <%= f.label :max %>
+      <%= f.number_field :max, min: 0 %>
+      <span class="hint">leave blank for unlimited</span>
+    <fieldset>
+  <% end %>
 
   <%= next_col %>
 
-  <%
-    if current_user.has_role? :admin
-      coordinators = @event.coordinator ? User.coordinators.order("users.id = #{@event.coordinator_id} DESC") : User.coordinators
-      if @event.coordinator && !coordinators.include?(@event.coordinator)
-        # the user set as coordinator may no longer be a coordinator;
-        #   this forces them to be listed anyway to prevent problems;
-        #   they still won't have any coordinatior privileges
-        coordinators.unshift @event.coordinator
+
+  <% if @event.can_edit_attribute? :coordinator, current_user %>
+    <%
+      if current_user.has_role? :admin
+        coordinators = @event.coordinator ? User.coordinators.order("users.id = #{@event.coordinator_id} DESC") : User.coordinators
+        if @event.coordinator && !coordinators.include?(@event.coordinator)
+          # the user set as coordinator may no longer be a coordinator;
+          #   this forces them to be listed anyway to prevent problems;
+          #   they still won't have any coordinatior privileges
+          coordinators.unshift @event.coordinator
+        end
+      else
+        coordinators = User.where id: current_user.id
       end
-    else
-      coordinators = User.where id: current_user.id
-    end
-  %>
-  <fieldset id="coordinator" class="users">
-    <legend><%= Configurable.coordinator.titlecase %></legend>
-    <label style="padding:0.2em 0">
-      <%= f.radio_button :coordinator_id, nil %>
-      Not set
-    </label>
-    <% coordinators.each do |coordinator| %>
-      <label>
-        <%= f.radio_button :coordinator_id, coordinator.id %>
-        <%= render 'users/user', user: coordinator %>
+    %>
+    <fieldset id="coordinator" class="users">
+      <legend><%= Configurable.coordinator.titlecase %></legend>
+      <label style="padding:0.2em 0">
+        <%= f.radio_button :coordinator_id, nil %>
+        Not set
       </label>
-    <% end %>
-    <% content_for :js_ready do %>
-      var coordinators = $('#coordinator label');
-      if (coordinators.length > 4) {
-        coordinators.each(function(){
-          if ($(this).find('input:checked').length == 0) {
-            $(this).hide();
-          }
-          else {
-            $(this).find('input').css('visibility', 'hidden');
-          }
-        });
-        $('<button class="default" style="margin-left:0.6em">Change</button>')
-          .click(function(){
-            $('#coordinator input:checked').css('visibility', 'visible');
-            $('#coordinator label').show();
-            $(this).remove();
-          })
-          .appendTo('#coordinator');
-      }
-    <% end %>
-  </fieldset>
+      <% coordinators.each do |coordinator| %>
+        <label>
+          <%= f.radio_button :coordinator_id, coordinator.id %>
+          <%= render 'users/user', user: coordinator %>
+        </label>
+      <% end %>
+      <% content_for :js_ready do %>
+        var coordinators = $('#coordinator label');
+        if (coordinators.length > 4) {
+          coordinators.each(function(){
+            if ($(this).find('input:checked').length == 0) {
+              $(this).hide();
+            }
+            else {
+              $(this).find('input').css('visibility', 'hidden');
+            }
+          });
+          $('<button class="default" style="margin-left:0.6em">Change</button>')
+            .click(function(){
+              $('#coordinator input:checked').css('visibility', 'visible');
+              $('#coordinator label').show();
+              $(this).remove();
+            })
+            .appendTo('#coordinator');
+        }
+      <% end %>
+    </fieldset>
+  <% end %>
 
   <%= end_cols %>
 
