@@ -44,11 +44,11 @@
       <% end %>
       <div class="field" id="time_fields">
         <%= f.label :start_time_12, 'Time' %>
-        <%= f.text_field :start_time_12, size: 5, maxlength: 5, class: 'time', value: (@event.start.present? ? @event.start_time_12 : '12:00') %>
-        <%= f.select :start_time_p, options_for_select(['AM', 'PM'], @event.start_time_p) %>
+        <%= f.text_field :start_time_12, size: 5, maxlength: 5, class: 'time', value: (@event.start.present? ? @event.start_time_12 : Event.default_time.split(' ').first) %>
+        <%= f.select :start_time_p, options_for_select(['AM', 'PM'], @event.start_time_p || Event.default_time.split(' ').last) %>
 
         <%= f.label :duration, 'For', style: 'margin-left:0.7em' %>
-        <%= f.select :duration, options_for_select((1..6).map{|n| [pluralize(n, 'hour'), n.hours]}, @event.duration) %>
+        <%= f.select :duration, options_for_select((1..6).map{|n| [pluralize(n, 'hour'), n.hours]}, @event.duration || 7200) %>
       </div>
     </fieldset>
     <% unless @event.start %>

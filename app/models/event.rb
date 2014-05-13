@@ -176,6 +176,9 @@ class Event < ActiveRecord::Base
   def duration_hours
     duration.present? ? (duration / 3600) : nil
   end
+  def self.default_time
+    '5:00 PM'
+  end
 
   def past?
     finish.present? ? finish < Time.zone.now : nil

@@ -98,7 +98,7 @@ class EventsController < ApplicationController
 
   def new
     attrs = {}
-    attrs[:start] = params['start_day'] if params['start_day']
+    attrs[:start] = "#{params['start_day']} #{Event.default_time}" if params['start_day']
     @event = Event.new(attrs)
   end
 
