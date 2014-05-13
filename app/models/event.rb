@@ -336,12 +336,20 @@ class Event < ActiveRecord::Base
     can_accept_participants? && ward && !full? && event_users.where(status: EventUser.statuses_array(:invited, :not_attending)).none? && User.invitable_to(self).any?
   end
 
-  def invite(users)
+  def invite
+    return 0 unless ward
     n = 0
-    [*users].uniq.each do |participant|
+    User.participated_in_no_events.invitable_to(self).each do |participant|
       eu = event_users.create user: participant, status: :invited
       if eu.valid?
         Invitation.create event: self, user: participant
+        n += 1
+      end
+    end
+    User.invitable_to(self).each do |participant|
+      eu = event_users.create user: participant, status: :invited
+      if eu.valid?
+        Invitation.create event: self, user: participant, send_by: 5.hours.from_now
         n += 1
       end
     end

@@ -352,45 +352,33 @@ describe Event do
 
       end
 
-      it "invites one person" do
+      it "invites no one if there is no ward" do
         e = create :participatable_event
-        p = create :participant
-        invited = e.invite p
-        expect(invited).to eq 1
-        eus = e.event_users.to_a
-        expect(eus.length).to eq 1
-        expect(eus.first.user).to eq p
-        expect(eus.first.status).to eq 'invited'
+        expect(e.invite).to eq 0
+      end
+
+      it "invites uninvolved participants who are interested in the ward" do
+        w = create :ward # creating a new ward ensures there are no existing participants interested in it
+        e = create :participatable_event, ward: w
+        virgin = create :participant
+        virgin.user_wards.create ward: w
+        experienced = create :participant
+        experienced.user_wards.create ward: w
+        e_past = create :participatable_event, coordinator: e.coordinator, start: 1.month.ago
+        e_past.event_users.create user: experienced, status: :attended
+        already_attending = create :participant
+        already_attending.user_wards.create ward: w
+        e.attend already_attending
+        in_other_ward = create :participant
+        in_other_ward.user_wards.create ward: create(:ward)
+
+        expect(e.invite).to eq 2
+        expect(virgin.open_invites).to eq [e]
+        expect(experienced.open_invites).to eq [e]
+
         invitations = Invitation.where(event_id: e.id).to_a
-        expect(invitations.length).to eq 1
-        expect(invitations.first.user).to eq p
-      end
-
-      it "invites multiple people" do
-        e = create :participatable_event
-        expect(e.invite [create(:participant), create(:participant)]).to eq 2
-      end
-
-      it "does not doubly invite duplicates" do
-        e = create :participatable_event
-        p = create :participant
-        p_dup = User.where(id: p.id).first
-        expect(e.invite [p, p_dup]).to eq 1
-      end
-
-      it "does not invite those already involved" do
-        e = create :participatable_event
-        attending = create :participant
-        e.attend attending
-        already_invited = create :participant
-        e.event_users.create user: already_invited, status: :invited
-        cancelled = create :participant
-        e.event_users.create user: cancelled, status: :cancelled
-        uninvolved = create :participant
-        expect(e.invite [attending, uninvolved, cancelled, already_invited]).to eq 1
-        invitation = Invitation.last
-        expect(invitation.user).to eq uninvolved
-        expect(invitation.event).to eq e
+        expect(invitations.length).to eq 2
+        expect(invitations.find{|i| i.user_id == virgin.id}.send_by).to be < invitations.find{|i| i.user_id == experienced.id}.send_by
       end
 
     end

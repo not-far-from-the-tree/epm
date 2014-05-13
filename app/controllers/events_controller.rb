@@ -217,13 +217,10 @@ class EventsController < ApplicationController
 
   include ActionView::Helpers::TextHelper # needed for pluralize()
   def invite
-    if @event.ward
-      invites = @event.invite User.invitable_to @event
-      if invites > 0
-        flash[:notice] = "#{pluralize invites, 'invitation'} will be sent shortly."
-      end
-    end
-    unless flash[:notice].present?
+    invites = @event.invite
+    if invites > 0
+      flash[:notice] = "#{pluralize invites, 'invitation'} will be sent."
+    else
       flash[:notice] = 'No invitations sent.'
     end
     redirect_to who_event_path @event
