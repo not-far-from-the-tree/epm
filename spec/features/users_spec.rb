@@ -50,12 +50,12 @@ describe "Users" do
       login_as @admin
       visit users_path
       expect(page).to have_content @participant.display_name
-      select 'Admins', from: :role
+      select 'Admins', from: :show_only
       click_button 'Search'
       expect(find('option[selected]').text).to eq 'Admins'
       expect(page).to have_content @admin.display_name
       expect(page).not_to have_content @participant.display_name
-      select 'Participants', from: :role
+      select 'Participants', from: :show_only
       click_button 'Search'
       expect(find('option[selected]').text).to eq 'Participants'
       expect(page).not_to have_content @admin.display_name

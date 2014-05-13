@@ -4,6 +4,19 @@ describe User do
 
   context "attributes" do
 
+    # all fields should be stripped, this just tests two (excessive to check them all)
+    context "normalizing attributes" do
+
+      it "strips the first name" do
+        expect(create(:user, fname: "  Joe\n").fname).to eq 'Joe'
+      end
+
+      it "nullifies empty phone number" do
+        expect(create(:user, phone: " \n").phone).to be_nil
+      end
+
+    end
+
     context "validity" do
 
       it "has a valid factory" do
@@ -65,17 +78,18 @@ describe User do
       expect(build(:user).avatar).to match URI::regexp(%w(http https))
     end
 
-    # all fields should be stripped, this just tests two (excessive to check them all)
-    context "normalizing attributes" do
-
-      it "strips the first name" do
-        expect(create(:user, fname: "  Joe\n").fname).to eq 'Joe'
-      end
-
-      it "nullifies empty phone number" do
-        expect(create(:user, phone: " \n").phone).to be_nil
-      end
-
+    it "returns the number of events the user didn't show up to" do
+      p = create :participant
+      p2 = create :participant
+      e1 = create :participatable_event
+      e1.event_users.create user: p, status: :no_show
+      e2 = create :participatable_event, coordinator: e1.coordinator
+      e2.event_users.create user: p, status: :no_show
+      e3 = create :participatable_event, coordinator: e1.coordinator
+      e3.event_users.create user: p, status: :attended
+      e3.event_users.create user: p2, status: :no_show
+      expect(p.no_show_count).to eq 2
+      expect(p2.no_show_count).to eq 1
     end
 
   end
@@ -135,6 +149,17 @@ describe User do
       cz = create :user, lname: 'c', fname: 'z'
       ca = create :user, lname: 'c', fname: 'a'
       expect(User.by_name).to eq [a, b, ca, cz]
+    end
+
+    it "lists no show users, by date of most recent no show" do
+      e = create :participatable_event
+      no_show = create :participant
+      no_show.event_users.create event: e, status: :no_show
+      later_no_show = create :participant
+      later_no_show.event_users.create event: e, status: :no_show
+      attended = create :participant
+      attended.event_users.create event: e, status: :attended
+      expect(User.no_shows).to eq [later_no_show, no_show]
     end
 
     it "lists users that have coordinates" do

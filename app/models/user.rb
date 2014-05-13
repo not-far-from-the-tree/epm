@@ -58,6 +58,14 @@ class User < ActiveRecord::Base
     return none unless event.ward
     participants.interested_in_ward(event.ward).not_involved_in(event)
   }
+  scope :no_shows, -> {
+    joins("INNER JOIN event_users ON event_users.user_id = users.id AND event_users.status = #{EventUser.statuses[:no_show]}")
+      .group('users.id')
+      .reorder('MAX(event_users.updated_at) DESC, COUNT(users.id)')
+  }
+  def no_show_count
+    event_users.where(status: EventUser.statuses[:no_show]).count
+  end
 
   has_many :event_users, dependent: :destroy
   has_many :coordinating_events, -> { where.not(status: Event.statuses[:cancelled]) }, class_name: 'Event', foreign_key: 'coordinator_id'
