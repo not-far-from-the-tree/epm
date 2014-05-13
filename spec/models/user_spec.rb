@@ -92,6 +92,15 @@ describe User do
       expect(p2.no_show_count).to eq 1
     end
 
+    it "returns whether a user has attended any events" do
+      p = create :participant
+      e = create :participatable_event
+      eu = e.attend p
+      expect(p.virgin).to be_true
+      e.take_attendance [eu.id]
+      expect(p.reload.virgin).to be_false
+    end
+
   end
 
   context "roles" do
@@ -208,25 +217,6 @@ describe User do
       expect(bobs).to include u3
       expect(bobs).to include u4
       expect(User.search('Jack').length).to eq 0
-    end
-
-    it "lists users who have not attended and are not attending any events" do
-      c = create :coordinator
-      p_virgin = create :participant
-      p_cancelled = create :participant
-      cancelled = create :participatable_event, coordinator: c, status: :cancelled
-      cancelled.event_users.create user: p_cancelled, status: :attending
-      p_attending = create :participant
-      future = create :participatable_event, coordinator: c
-      future.attend p_attending
-      p_attended = create :participant
-      past = create :participatable_event, coordinator: c, start: 1.month.ago
-      past.event_users.create user: p, status: :attended
-      virgins = User.participated_in_no_events
-      expect(virgins).to include p_virgin
-      expect(virgins).to include p_cancelled
-      expect(virgins).not_to include p_attending
-      expect(virgins).to include p_attended
     end
 
     it "lists coordinators not taking attendance" do

@@ -360,12 +360,10 @@ describe Event do
       it "invites uninvolved participants who are interested in the ward" do
         w = create :ward # creating a new ward ensures there are no existing participants interested in it
         e = create :participatable_event, ward: w
+        experienced = create :participant, virgin: false
+        experienced.user_wards.create ward: w
         virgin = create :participant
         virgin.user_wards.create ward: w
-        experienced = create :participant
-        experienced.user_wards.create ward: w
-        e_past = create :participatable_event, coordinator: e.coordinator, start: 1.month.ago
-        e_past.event_users.create user: experienced, status: :attended
         already_attending = create :participant
         already_attending.user_wards.create ward: w
         e.attend already_attending
