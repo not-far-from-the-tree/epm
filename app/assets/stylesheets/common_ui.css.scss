@@ -56,6 +56,15 @@ p {
     margin-right: 0;
   }
 }
+@media (max-width: $col_limit * 1.5) {
+  .cols .cols .colA, .cols .cols .colB {
+    width: 100%;
+    float: none;
+  }
+  .cols .cols .colA {
+    margin-right: 0;
+  }
+}
 .cols > div > *:first-child, .cols > div > *:first-child, .cols > div > *:first-child {
   margin-top: 0;
 }

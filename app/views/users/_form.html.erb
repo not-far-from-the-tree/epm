@@ -28,14 +28,21 @@
 
   <% if Ward.any? %>
     <fieldset>
-      <legend>Wards I am Interested In</legend>
+      <legend>Wards I am Interested In <span class="hint"><%= wards_link %></span></legend>
       <%= hidden_field_tag "user[ward_ids][]" %>
-      <% Ward.all.each do |ward| %>
+      <%= start_cols %>
+      <%= start_cols %>
+      <% Ward.all.each_with_index do |ward, i| %>
+        <%= end_cols if i == 22 %>
+        <%= next_col if i % 11 == 0 %>
+        <%= start_cols if i == 22 %>
         <div>
           <%= check_box_tag "user[ward_ids][]", ward.id, @user.ward_ids.include?(ward.id), id: "ward_#{ward.id}" %>
           <label for="<%= "ward_#{ward.id}" %>"><%= ward.name %></label>
         </div>
       <% end %>
+      <%= end_cols %>
+      <%= end_cols %>
     </fieldset>
   <% end %>
 
