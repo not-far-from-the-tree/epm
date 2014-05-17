@@ -26,5 +26,6 @@ en:
         phone: Phone Number
         email: E-mail Address
         signed_waiver: Release of liability
+        snail_mail: Allow Not Far From The Tree to send me snail mail
       event:
         start_time_12: Start time

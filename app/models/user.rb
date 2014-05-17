@@ -9,9 +9,9 @@ class User < ActiveRecord::Base
 
   def self.csv
     CSV.generate force_quotes: true do |csv|
-      csv << ['id', 'first name', 'last name', 'email', 'phone number', 'address', 'joined', 'events attended', 'roles']
+      csv << ['id', 'first name', 'last name', 'email', 'phone number', 'address', 'allow snail mail', 'joined', 'events attended', 'roles']
       all.each do |user|
-        csv << [user.id, user.fname, user.lname, user.email, user.phone, user.address, user.created_at.to_date.to_s, user.events.past.count, user.roles.map{|r| Configurable.send(r.name)}.join(', ')]
+        csv << [user.id, user.fname, user.lname, user.email, user.phone, user.address, user.snail_mail, user.created_at.to_date.to_s, user.events.past.count, user.roles.map{|r| Configurable.send(r.name)}.join(', ')]
       end
     end
   end

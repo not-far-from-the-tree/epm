@@ -58,7 +58,10 @@
       <%= link_to @user.phone, "tel:#{@user.phone}" %>
     <% end %>
     <% if @user.address %>
-      <p><%= with_br(@user.address) if @user.address %></p>
+      <p>
+        <%= with_br @user.address %><br>
+        <small>Snail mail <%= 'not' unless @user.snail_mail %> allowed</small>
+      </p>
     <% end %>
   </div>
 <% end %>
