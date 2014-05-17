@@ -276,6 +276,16 @@ describe "Event Attendance" do
       expect(page).to have_content '1 invitation was declined'
     end
 
+    it "auto invites participants upon approving an event which is ready for them" do
+      e = create :participatable_event, status: :proposed, ward: create(:ward)
+      create(:participant).user_wards.create ward: e.ward # make sure there's somebody to invite
+      login_as @admin
+      visit event_path e
+      click_link 'Approve'
+      expect(page).not_to have_button 'Invite'
+      expect(page).to have_content 'Invitations will be sent'
+    end
+
   end
 
   context "taking attendance" do

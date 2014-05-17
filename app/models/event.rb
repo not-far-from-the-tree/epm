@@ -221,6 +221,7 @@ class Event < ActiveRecord::Base
   end
 
   def to_ical(host = nil)
+    # todo: upgrade to latest icalendar gem
     vevent = Icalendar::Event.new
     vevent.klass = 'PRIVATE'
     vevent.url = Rails.application.routes.url_helpers.event_url(self, host: host) unless host.nil?
@@ -342,7 +343,7 @@ class Event < ActiveRecord::Base
     User.invitable_to(self).each do |participant|
       eu = event_users.create user: participant, status: :invited
       if eu.valid?
-        Invitation.create event: self, user: participant, send_by: (participant.virgin ? Time.zone.now : 5.hours.from_now)
+        Invitation.create event: self, user: participant, send_by: (participant.virgin ? Time.zone.now : 4.hours.from_now)
         n += 1
       end
     end

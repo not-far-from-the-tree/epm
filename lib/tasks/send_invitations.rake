@@ -3,7 +3,11 @@ task :send_invitations => :environment do
   # todo: don't invite people to full events (?)
 
   Invitation.where("send_by < ?", Time.zone.now).find_each do |invitation|
-    EventMailer.invite(invitation.event, invitation.user).deliver
+    e = Event.find invitation.event
+    if e.approved?
+      eu = e.event_users.find_by user_id: invitation.user_id
+      EventMailer.invite(invitation.event, invitation.user).deliver if eu.invited?
+    end
     invitation.destroy
   end
 

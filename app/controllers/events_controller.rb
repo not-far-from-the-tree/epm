@@ -159,12 +159,17 @@ class EventsController < ApplicationController
 
   def approve
     if @event.proposed?
-      @event.update(status: :approved)
+      @event.update status: :approved
       if @event.coordinator && @event.coordinator != current_user
         EventMailer.approve(@event).deliver
       end
       flash[:notice] = 'Event approved.'
-    else
+      if @event.should_invite?
+        if @event.invite > 0
+          flash[:notice] += ' Invitations will be sent.'
+        end
+      end
+    elsif @event.cancelled?
       flash[:notice] = 'Cannot approve cancelled events.'
     end
     redirect_to @event

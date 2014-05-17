@@ -34,7 +34,7 @@
 
 <% end %>
 
-<%= render 'rsvp' %>
+<%= render 'rsvp' unless @event.cancelled? %>
 
 <% if can?(:invite, @event) && @event.should_invite? %>
   <%= clear %>
