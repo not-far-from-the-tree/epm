@@ -12,7 +12,7 @@ class Ability
       can :index, :geocode
 
       can :me, User
-      can [:show, :read_contact, :read_attendance, :read_address, :update], User, id: user.id
+      can [:show, :read_contact, :read_attendance, :update], User, id: user.id
       can :destroy, Role, user_id: user.id
       can :deactivate, User do |u|
         u.roles.reject{|r| can? :destroy, r }.empty?
@@ -21,7 +21,7 @@ class Ability
       if user.has_role? :admin
         can :manage, [Event, Role, :setting]
         cannot :claim, Event
-        can [:index, :map, :show, :read_contact, :read_attendance], User
+        can [:index, :map, :show, :read_contact, :read_attendance, :update], User
       end
 
       if user.has_role? :coordinator

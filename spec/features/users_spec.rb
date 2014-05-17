@@ -88,6 +88,17 @@ describe "Users" do
 
   end
 
+  it "allows admins to edit any profile" do
+    u = create :user
+    login_as @admin
+    visit user_path u
+    click_link 'Edit'
+    fill_in 'E-mail Address', with: 'whatever@some-site.com'
+    click_button 'Save'
+    expect(current_path).to eq user_path u
+    expect(page).to have_content 'whatever@some-site.com'
+  end
+
   context "profile" do
 
     before :each do
@@ -175,7 +186,7 @@ describe "Users" do
       expect(page).to have_content @u.display_name
       expect(page).to have_link @u.email
       expect(page).to have_link @u.phone
-      expect(page).not_to have_content @u.address
+      expect(page).to have_content @u.address
       expect(page).to have_link @e.display_name
     end
 

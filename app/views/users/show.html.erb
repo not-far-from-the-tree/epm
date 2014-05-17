@@ -57,7 +57,7 @@
     <% if @user.phone %>
       <%= link_to @user.phone, "tel:#{@user.phone}" %>
     <% end %>
-    <% if @user.address && can?(:read_address, @user) %>
+    <% if @user.address %>
       <p><%= with_br(@user.address) if @user.address %></p>
     <% end %>
   </div>
