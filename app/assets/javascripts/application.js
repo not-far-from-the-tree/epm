@@ -10,9 +10,9 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
+//= require fonts
 //= require jquery
 //= require after_jquery
-//= require fonts
 //= require jquery_ujs
 //= require jquery.ui.datepicker
 //= require leaflet
