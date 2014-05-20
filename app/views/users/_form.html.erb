@@ -23,7 +23,7 @@
   <%= next_col %>
 
   <%= render layout: 'shared/address_form', locals: { f: f } do %>
-    <div><%= f.check_box :snail_mail %> <%= f.label :snail_mail %></div>
+    <div><%= f.check_box :snail_mail %> <%= f.label :snail_mail, style: 'font-weight:normal' %></div>
   <% end %>
 
   <%= end_cols %>
