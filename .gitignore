@@ -17,6 +17,7 @@
 
 # private information
 /config/application.yml
+/public/dispatch.fcgi
 .secret
 
 .DS_Store

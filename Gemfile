@@ -32,14 +32,9 @@ gem 'icalendar' # export
 gem 'whenever', :require => false # cron
 
 group :production do
-  # Heroku
-  gem 'pg'
-  gem 'rails_12factor'
-
-  # Dreamhost Shared Hosting
-  # gem 'mysql2'
-  # gem 'fcgi'
-  # gem 'therubyracer'
+  gem 'mysql2'
+  gem 'fcgi'
+  gem 'therubyracer'
 end
 
 group :development, :test do
