@@ -101,111 +101,149 @@ describe "Users" do
 
   context "profile" do
 
-    before :each do
-      login_as @participant
+    context "access and crud" do
+
+      before :each do
+        login_as @participant
+      end
+
+      it "has a profile page" do
+        visit root_path
+        click_link 'My Profile'
+        expect(current_path).to eq user_path @participant
+        expect(page).to have_content @participant.display_name
+      end
+
+      it "can access profile page from /me" do
+        visit me_path
+        expect(current_path).to eq user_path @participant
+      end
+
+      it "edits own profile" do
+        visit user_path @participant
+        click_link 'Edit'
+        expect(current_path).to eq edit_user_path @participant
+        fill_in 'user_fname', with: 'Joe'
+        fill_in 'user_lname', with: 'Smith'
+        click_button 'Save'
+        expect(current_path).to eq user_path @participant
+        expect(page).to have_content 'Joe Smith'
+        end
+
+      it "prevents editing another's profile" do
+        other_user = create :user
+        visit user_path(other_user)
+        expect(page).not_to have_content 'Edit'
+        visit edit_user_path(other_user)
+        expect(current_path).to eq root_path
+        expect(page).to have_content 'Sorry'
+      end
+
+      it "cancels editing one's profile" do
+        visit user_path @participant
+        click_link 'Edit'
+        fill_in 'user_fname', with: 'Joe'
+        click_button 'Cancel'
+        expect(current_path).to eq user_path @participant
+        expect(page).not_to have_content 'Joe'
+      end
+
+      it "sets one's wards" do
+        create :ward, name: 'ward one'
+        create :ward, name: 'ward two'
+        visit edit_user_path @participant
+        check 'ward one'
+        click_button 'Save'
+        expect(page).to have_content 'ward one'
+        expect(page).not_to have_content 'ward two'
+      end
+
     end
 
-    it "has a profile page" do
-      visit root_path
-      click_link 'My Profile'
-      expect(current_path).to eq user_path @participant
-      expect(page).to have_content @participant.display_name
+    context "profile permissions" do
+
+      before :all do
+        @u = create :full_user, address: '123 Fake Street, City' # set address without newlines so we don't have to worry about matching that
+        @u.roles.create name: :participant
+        @e = create :participatable_event
+        @e.attend @u
+        @e.update(start: 1.month.ago, finish: 1.month.ago + 1.hour)
+      end
+
+      it "shows profile with all contact info and attendance history to self" do
+        login_as @u
+        visit user_path @u
+        expect(current_path).to eq user_path @u
+        expect(page).to have_content @u.display_name
+        expect(page).to have_link @u.email
+        expect(page).to have_link @u.phone
+        expect(page).to have_content @u.address
+        expect(page).to have_link @e.display_name
+      end
+
+      it "shows profile with contact info and attendance history to admins" do
+        login_as create :admin
+        visit user_path @u
+        expect(current_path).to eq user_path @u
+        expect(page).to have_content @u.display_name
+        expect(page).to have_link @u.email
+        expect(page).to have_link @u.phone
+        expect(page).to have_content @u.address
+        expect(page).to have_link @e.display_name
+      end
+
+      it "shows profile with contact info and attendance history to admins" do
+        login_as create :admin
+        visit user_path @u
+        expect(current_path).to eq user_path @u
+        expect(page).to have_content @u.display_name
+        expect(page).to have_link @u.email
+        expect(page).to have_link @u.phone
+        expect(page).to have_content @u.address
+        expect(page).to have_link @e.display_name
+      end
+
+      it "does not show other user profiles to participants" do
+        login_as create :participant
+        visit user_path @u
+        expect(current_path).not_to eq user_path @u
+        expect(page).to have_content 'Sorry'
+      end
+
     end
 
-    it "can access profile page from /me" do
-      visit me_path
-      expect(current_path).to eq user_path @participant
-    end
+    context "filling out" do
 
-    it "edits own profile" do
-      visit user_path @participant
-      click_link 'Edit'
-      expect(current_path).to eq edit_user_path @participant
-      fill_in 'user_fname', with: 'Joe'
-      fill_in 'user_lname', with: 'Smith'
-      click_button 'Save'
-      expect(current_path).to eq user_path @participant
-      expect(page).to have_content 'Joe Smith'
-    end
+      it "sends new user to edit profile" do
+        pass = Faker::Internet.password
+        u = create :user, password: pass
+        visit new_user_session_path
+        fill_in 'E-mail', with: u.email
+        fill_in 'Password', with: pass
+        click_button 'Sign in'
+        expect(current_path).to eq edit_user_path u
+      end
 
-    it "prevents editing another's profile" do
-      other_user = create :user
-      visit user_path(other_user)
-      expect(page).not_to have_content 'Edit'
-      visit edit_user_path(other_user)
-      expect(current_path).to eq root_path
-      expect(page).to have_content 'Sorry'
-    end
+      it "does not send new user to edit profile when already filled out" do
+        pass = Faker::Internet.password
+        u = create :full_user, password: pass
+        visit new_user_session_path
+        fill_in 'E-mail', with: u.email
+        fill_in 'Password', with: pass
+        click_button 'Sign in'
+        expect(current_path).not_to eq edit_user_path u
+      end
 
-    it "cancels editing one's profile" do
-      visit user_path @participant
-      click_link 'Edit'
-      fill_in 'user_fname', with: 'Joe'
-      click_button 'Cancel'
-      expect(current_path).to eq user_path @participant
-      expect(page).not_to have_content 'Joe'
-    end
+      it "does not send a non-new user to edit their profile even when not filled out" do
+        pass = Faker::Internet.password
+        u = create :full_user, password: pass, sign_in_count: 10 # fake that they've signed in a lot
+        visit new_user_session_path
+        fill_in 'E-mail', with: u.email
+        fill_in 'Password', with: pass
+        click_button 'Sign in'
+        expect(current_path).not_to eq edit_user_path u
+      end
 
-    it "sets one's wards" do
-      create :ward, name: 'ward one'
-      create :ward, name: 'ward two'
-      visit edit_user_path @participant
-      check 'ward one'
-      click_button 'Save'
-      expect(page).to have_content 'ward one'
-      expect(page).not_to have_content 'ward two'
-    end
-
-  end
-
-  context "profile permissions" do
-
-    before :all do
-      @u = create :full_user, address: '123 Fake Street, City' # set address without newlines so we don't have to worry about matching that
-      @u.roles.create name: :participant
-      @e = create :participatable_event
-      @e.attend @u
-      @e.update(start: 1.month.ago, finish: 1.month.ago + 1.hour)
-    end
-
-    it "shows profile with all contact info and attendance history to self" do
-      login_as @u
-      visit user_path @u
-      expect(current_path).to eq user_path @u
-      expect(page).to have_content @u.display_name
-      expect(page).to have_link @u.email
-      expect(page).to have_link @u.phone
-      expect(page).to have_content @u.address
-      expect(page).to have_link @e.display_name
-    end
-
-    it "shows profile with contact info and attendance history to admins" do
-      login_as create :admin
-      visit user_path @u
-      expect(current_path).to eq user_path @u
-      expect(page).to have_content @u.display_name
-      expect(page).to have_link @u.email
-      expect(page).to have_link @u.phone
-      expect(page).to have_content @u.address
-      expect(page).to have_link @e.display_name
-    end
-
-    it "shows profile with attendance history but not contact info to coordinators" do
-      login_as create :coordinator
-      visit user_path @u
-      expect(current_path).to eq user_path @u
-      expect(page).to have_content @u.display_name
-      expect(page).not_to have_link @u.email
-      expect(page).not_to have_link @u.phone
-      expect(page).not_to have_content @u.address
-      expect(page).to have_link @e.display_name
-    end
-
-    it "does not show other user profiles to participants" do
-      login_as create :participant
-      visit user_path @u
-      expect(current_path).not_to eq user_path @u
-      expect(page).to have_content 'Sorry'
     end
 
   end
