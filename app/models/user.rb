@@ -127,6 +127,21 @@ class User < ActiveRecord::Base
     @ability ||= Ability.new(self)
   end
 
+  def add_to_mailing_list # note: does not first check whether user is already on the mailing list
+    return false unless self.valid? && email.present?
+    return true unless Rails.env.production? # temporary solution to avoiding API calls
+    Gibbon::API.throws_exceptions = false
+    gb = Gibbon::API.new(ENV['mailing_list_api_key'])
+    resp = gb.lists.subscribe( # http://apidocs.mailchimp.com/api/2.0/lists/subscribe.php
+        id: ENV['mailing_list_id'],
+        email: {email: email},
+        merge_vars: {:FNAME => fname, :LNAME => lname},
+        double_optin: false,
+        send_welcome: true
+      )
+    !resp['email'].nil? && resp['status'] != 'error'
+  end
+
   def coords
     (lat.present? && lng.present?) ? [lat, lng] : nil
   end

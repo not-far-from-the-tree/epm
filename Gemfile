@@ -30,6 +30,7 @@ gem 'kaminari' # pagination
 gem 'strip_attributes' # clean form input
 gem 'icalendar' # export
 gem 'whenever', :require => false # cron
+gem 'gibbon' # mailchimp
 
 group :production do
   gem 'mysql2'

@@ -392,4 +392,20 @@ describe User do
 
   end
 
+  context "mailing list" do
+
+    it "subscribes a user to the mailing list" do
+      u = build :user
+      # note: the api is currently disabled for non-production, in test it will always return true
+      # todo: http://robots.thoughtbot.com/how-to-stub-external-services-in-tests
+      expect(u.add_to_mailing_list).to be_true
+    end
+
+    it "does not subscribe a user with no email address to the mailing list" do
+      u = build :user, email: nil
+      expect(u.add_to_mailing_list).to be_false
+    end
+
+  end
+
 end
