@@ -18,6 +18,13 @@
     <%= f.password_field :password_confirmation %>
   </div>
 
+  <div class="checkbox_field">
+    <label>
+      <%= check_box_tag :add_to_mailing_list, true, true %>
+      Subscribe me to the Not Far From The Tree mailing list
+    </label>
+  </div>
+
   <fieldset>
     <legend>Volunteer release of liability</legend>
     <% waiver_label = 'I have read and agree to the above release of liability' %>
