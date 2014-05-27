@@ -10,7 +10,6 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require fonts
 //= require jquery
 //= require after_jquery
 //= require jquery_ujs
