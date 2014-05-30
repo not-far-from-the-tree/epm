@@ -27,7 +27,7 @@ class Event < ActiveRecord::Base
   enum status: [:proposed, :approved, :cancelled]
 
   def self.read_only_for_coordinators
-    [:hide_specific_location, :min, :max, :name, :description, :notes, :coordinator]
+    [:address, :ward, :lat, :lng, :hide_specific_location, :min, :max, :name, :description, :notes, :coordinator]
   end
   def can_edit_attribute?(attribute, user)
     return false unless user.ability.can?(:edit, self)
