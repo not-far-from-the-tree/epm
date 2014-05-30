@@ -98,10 +98,16 @@ div.field_with_errors {
   margin-top: 0.3em;
 }
 
-span.hint {
+.hint {
   font-style: italic;
-  padding-left: 0.2em;
   color: #685c53;
+}
+span.hint {
+  padding-left: 0.2em;
+}
+legend span.hint {
+  padding-left: 0.8em;
+  font-weight: normal;
 }
 
 html.js form #coords {

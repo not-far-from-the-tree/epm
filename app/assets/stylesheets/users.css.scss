@@ -44,3 +44,12 @@ img.avatar {
 .pagination .next {
   margin-left: 1em;
 }
+
+#wards label {
+  border-radius: 5px;
+  display: block;
+  cursor: pointer;
+  &:hover {
+    background-color: $hover_background_colour;
+  }
+}

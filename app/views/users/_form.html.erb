@@ -29,8 +29,12 @@
   <%= end_cols %>
 
   <% if Ward.any? %>
-    <fieldset>
-      <legend>Wards I am Interested In <span class="hint"><%= wards_link %></span></legend>
+    <fieldset id="wards">
+      <legend>My Wards<span class="hint"><%= wards_link %></span></legend>
+      <p class="hint">
+        You will be invited by email to picks in the wards you select.
+        We currently run picks in the <span style="text-decoration:underline">underlined</span> wards, and may expand in the future.
+      </p>
       <%= hidden_field_tag "user[ward_ids][]" %>
       <%= start_cols %>
       <%= start_cols %>
@@ -38,10 +42,10 @@
         <%= end_cols if i == 22 %>
         <%= next_col if i % 11 == 0 %>
         <%= start_cols if i == 22 %>
-        <div>
+        <label<%= ' style="text-decoration:underline"'.html_safe if ward.active? %>>
           <%= check_box_tag "user[ward_ids][]", ward.id, @user.ward_ids.include?(ward.id), id: "ward_#{ward.id}" %>
-          <label for="<%= "ward_#{ward.id}" %>"><%= ward.name %></label>
-        </div>
+          <%= ward.name %>
+        </label>
       <% end %>
       <%= end_cols %>
       <%= end_cols %>
