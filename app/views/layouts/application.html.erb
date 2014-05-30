@@ -70,8 +70,12 @@
   <% end %>
 
   <div id="main">
-    <% if user_signed_in? && current_user.roles.none? %>
-      <div class="highlight">Your account has been deactivated. For more information, please contact <%= mail_to 'info@notfarfromthetree.org' %> or call 647-774-7425.</div>
+    <% if user_signed_in? %>
+      <% if current_user.roles.none? %>
+        <div class="highlight">Your account has been deactivated. For more information, please contact <%= mail_to 'info@notfarfromthetree.org' %> or call 647-774-7425.</div>
+      <% elsif current_user.has_role?(:participant) && !current_user.has_participant_fields? %>
+        <div class="highlight">Note: Your name and phone number are required to attend picks.</div>
+      <% end %>
     <% end %>
     <%= yield %>
   </div>

@@ -24,6 +24,9 @@ FactoryGirl.define do
 
     factory :participant do
       roles_attributes [name: :participant]
+      fname { Faker::Name.first_name }
+      email { Faker::Internet.free_email("#{fname} #{Faker::Name.last_name}") }
+      phone { Faker::PhoneNumber.phone_number }
     end
 
     factory :full_user do

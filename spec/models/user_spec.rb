@@ -302,6 +302,28 @@ describe User do
 
   context "events" do
 
+    context "participatability" do
+
+      it "does not allow participanting in events without a name" do
+        u = create :participant, fname: nil, lname: nil
+        e = create :participatable_event
+        expect(u.ability.can? :attend, e).to be_false
+        u.update fname: 'Joe'
+        expect(u.ability.can? :attend, e).to be_true
+        u.update fname: nil, lname: 'Smith'
+        expect(u.ability.can? :attend, e).to be_true
+      end
+
+      it "does not allow participanting in events without a phone number" do
+        u = create :participant, phone: nil
+        e = create :participatable_event
+        expect(u.ability.can? :attend, e).to be_false
+        u.update phone: Faker::PhoneNumber.phone_number
+        expect(u.ability.can? :attend, e).to be_true
+      end
+
+    end
+
     it "lists events a user is coordinating" do
       u = create :coordinator
       create :event, coordinator: u

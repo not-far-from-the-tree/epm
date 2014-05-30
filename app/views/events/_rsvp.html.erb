@@ -4,7 +4,7 @@
   # determine what string to use to describe the existing rsvp
   attend_str = nil
   is_the_coordinator = current_user == @event.coordinator
-  if current_user.has_any_role?(:participant, :coordinator) || eu.status
+  if can?(:attend, @event) || current_user.has_role?(:coordinator) || eu.status
     attend_str = 'You '
     if @event.past?
       attend_str += (eu.attending? || eu.attended? || is_the_coordinator) ? 'attended' : 'did not attend'

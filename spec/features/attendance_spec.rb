@@ -36,6 +36,22 @@ describe "Event Attendance" do
     end
   end
 
+  it "does not allow participants without a name to attend" do
+    p = create :participant, fname: nil, lname: nil
+    e = create :participatable_event
+    login_as p
+    visit event_path e
+    expect(page).not_to have_button 'Attend'
+    expect(page).to have_content 'name and phone number are required'
+    click_link 'My Profile'
+    click_link 'Edit'
+    fill_in 'user_fname', with: 'Joe'
+    click_button 'Save'
+    expect(page).not_to have_content 'name and phone number are required'
+    visit event_path e
+    expect(page).to have_button 'Attend'
+  end
+
   it "joins an event" do
     e = create :participatable_event
     login_as @participant

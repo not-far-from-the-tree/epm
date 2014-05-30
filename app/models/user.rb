@@ -20,6 +20,10 @@ class User < ActiveRecord::Base
     end
   end
 
+  def has_participant_fields?
+    phone.present? && (fname.present? || lname.present?)
+  end
+
   # this section identical to that in model event.rb
   acts_as_mappable
   attr_accessor :no_geocode # force geocoding to not happen. used for testing

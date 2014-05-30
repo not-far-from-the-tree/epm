@@ -20,7 +20,7 @@ class Ability
 
       if user.has_role? :admin
         can :manage, [Event, Role, :setting]
-        cannot :claim, Event
+        cannot [:claim, :attend, :unattend], Event
         can [:index, :map, :show, :read_contact, :read_attendance, :update], User
       end
 
@@ -35,7 +35,9 @@ class Ability
       end
 
       if user.has_role? :participant
-        can [:attend, :unattend], Event
+        can [:attend, :unattend], Event do |event|
+          user.has_participant_fields?
+        end
         can :read_specific_location, Event do |event|
           !event.hide_specific_location || event.participants.include?(user)
         end

@@ -213,7 +213,7 @@ class Event < ActiveRecord::Base
     can_have_participants? && approved? && (time_until > 2.hours) # todo: allow configurability of time_until threshhold
   end
   def participatable_by?(user)
-    can_accept_participants? && (user != coordinator) && user.has_role?(:participant) && !event_users.find_or_initialize_by(user_id: user.id).denied?
+    can_accept_participants? && (user != coordinator) && user.ability.can?(:attend, self) && !event_users.find_or_initialize_by(user_id: user.id).denied?
   end
 
   def self.ical_date(datetime)

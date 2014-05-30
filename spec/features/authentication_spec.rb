@@ -4,9 +4,9 @@ describe "Authentication" do
 
   it "signs up a new user" do
     visit new_user_registration_path
-    fill_in 'E-mail', :with => Faker::Internet.email
+    fill_in 'E-mail', with: Faker::Internet.email
     pass = Faker::Internet.password
-    fill_in 'Password', :with => pass
+    fill_in 'Password', with: pass
     fill_in 'Password confirmation', :with => pass
     check 'I have read and agree to the above release of liability'
     expect{ click_button 'Sign up' }.to change{ActionMailer::Base.deliveries.size}.by 1
@@ -27,9 +27,9 @@ describe "Authentication" do
 
   it "fails to sign up a user without accepting the liability waiver" do
     visit new_user_registration_path
-    fill_in 'E-mail', :with => Faker::Internet.email
+    fill_in 'E-mail', with: Faker::Internet.email
     pass = Faker::Internet.password
-    fill_in 'Password', :with => pass
+    fill_in 'Password', with: pass
     fill_in 'Password confirmation', :with => pass
     click_button 'Sign up'
     expect(current_path).to eq user_registration_path
