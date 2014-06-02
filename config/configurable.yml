@@ -26,3 +26,8 @@ participant:
 active_wards:
   name: Active Wards (list numbers separated by commas)
   type: string
+
+webmaster:
+  name: Webmaster's email address
+  type: string
+  default: ''
