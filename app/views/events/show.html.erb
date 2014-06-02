@@ -22,7 +22,7 @@
   <% if can?(:take_attendance, @event) && @event.past? && @event.approved? && @event.event_users.where(status: EventUser.statuses[:attending]).any? %>
     <%= link_to 'Take Attendance', who_event_path(@event) %>
   <% end %>
-  <% if can? :update, @event %>
+  <% if @event.can_edit_something? current_user # needed as attributes have their own permissions %>
     <%= link_to 'Edit', edit_event_path(@event) %>
   <% end %>
   <% if can?(:approve, @event) && @event.proposed? %>

@@ -227,13 +227,14 @@ describe "Events" do
           expect(last_email.bcc).to eq [@coordinator.email]
         end
 
-        it "emails participants but not coordinator upon the coordinator significantly changing an event" do
-          login_as @coordinator
-          visit edit_event_path @e
-          fill_in 'Time', with: '1:57'
-          expect{ click_button 'Save & Notify' }.to change{ActionMailer::Base.deliveries.size}.by 1
-          expect(last_email.bcc).to eq [@participant.email]
-        end
+        # this test no longer makes sense as coordinators cannot edit events once approved
+        # it "emails participants but not coordinator upon the coordinator significantly changing an event" do
+        #   login_as @coordinator
+        #   visit edit_event_path @e
+        #   fill_in 'Time', with: '1:57'
+        #   expect{ click_button 'Save & Notify' }.to change{ActionMailer::Base.deliveries.size}.by 1
+        #   expect(last_email.bcc).to eq [@participant.email]
+        # end
 
         it "emails attendees but not coordinator upon significantly changing an event and also assigning a coordinator" do
           new_coordinator = create :coordinator
@@ -358,7 +359,7 @@ describe "Events" do
       end
 
       it "allows a coordinator to edit an event they are coordinating" do
-        e = create :event, coordinator: @coordinator
+        e = create :event, status: :proposed, coordinator: @coordinator
         login_as @coordinator
         visit edit_event_path e
         name = 'some name'
@@ -369,7 +370,7 @@ describe "Events" do
       end
 
       it "does not allow a coordinator to edit an event with another coordinator" do
-        e = create :event, coordinator: @coordinator
+        e = create :event, status: :proposed, coordinator: @coordinator
         login_as create :coordinator
         visit event_path e
         expect(page).not_to have_content 'Edit'
@@ -387,7 +388,7 @@ describe "Events" do
       end
 
       it "does not allow a coordinator to edit certain attributes" do
-        e  = create :event, coordinator: @coordinator
+        e  = create :event, status: :proposed, coordinator: @coordinator
         login_as @admin
         visit edit_event_path e
         expect(page).to have_field 'Time'
