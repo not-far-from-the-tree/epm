@@ -58,10 +58,15 @@
     <% end %>
   <% end %>
 
-  <% if @event.can_edit_attribute? :notes, current_user %>
-    <div class="field">
-      <%= f.label :notes %> <span class="hint">for <%= Configurable.admin.pluralize.titlecase %> and <%= Configurable.coordinator.titlecase %> only</span><br>
-      <%= f.text_area :notes %>
+  <% if @event.can_edit_attribute?(:notes, current_user) || can?(:read_notes, @event) && @event.notes %>
+    <div class="field"<%= 'id="notes"'.html_safe unless @event.can_edit_attribute?(:notes, current_user) %>>
+      <% if @event.can_edit_attribute?(:notes, current_user) %>
+        <%= f.label :notes %> <span class="hint">for <%= Configurable.admin.pluralize.titlecase %> and <%= Configurable.coordinator.titlecase %> only</span><br>
+        <%= f.text_area :notes %>
+      <% else %>
+        <strong>Notes for <%= Configurable.admin.titlecase.pluralize %> and <%= Configurable.coordinator.titlecase %></strong>
+        <%= paragraphs @event.notes %>
+      <% end %>
     </div>
   <% end %>
 
