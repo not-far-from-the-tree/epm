@@ -25,6 +25,8 @@ en:
       user:
         phone: Phone Number
         email: E-mail Address
+        fname: First Name
+        lname: Last Name
         signed_waiver: Release of liability
         snail_mail: Allow Not Far From The Tree to send me snail mail
       event:

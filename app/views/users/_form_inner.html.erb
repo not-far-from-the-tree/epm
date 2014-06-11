@@ -1,33 +1,33 @@
 <%= start_cols %>
 
 <fieldset>
-  <legend>Name</legend>
+  <legend>Name <%= required %></legend>
   <%= f.text_field :fname, placeholder: 'First' %><br>
   <%= f.text_field :lname, placeholder: 'Last' %>
 </fieldset>
 
 <div class="field">
-  <%= f.label :email %><br>
+  <%= f.label :email %> <%= required %><br>
+  <%= f.email_field :email %>
   <% if user.new_record? %>
+    <br>
     <label style="font-weight:normal">
       <%= check_box_tag :add_to_mailing_list, true, true %>
       Subscribe me to the Not Far From The Tree mailing list
     </label>
-    <br>
   <% end %>
-  <%= f.email_field :email %>
 </div>
 
 <% if user.new_record? %>
   <fieldset>
-    <legend>Password</legend>
+    <legend>Password  <%= required %></legend>
     <%= f.password_field :password, placeholder: 'password' %><br>
     <%= f.password_field :password_confirmation, placeholder: 'repeat password' %>
   </fieldset>
 <% end %>
 
 <div class="field">
-  <%= f.label :phone %><br>
+  <%= f.label :phone %>  <%= required %><br>
   <%= f.phone_field :phone %>
 </div>
 

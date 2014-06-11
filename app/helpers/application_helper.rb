@@ -30,6 +30,12 @@ module ApplicationHelper
     "</div></div>#{clear}".html_safe
   end
 
+  def required
+    content_tag 'span', style: "color:red;font-weight:bold", title: 'this is required' do
+      '*'
+    end
+  end
+
   def cancel(str = 'Cancel', html_options = {})
     submit str, html_options.merge(class: 'default')
   end

@@ -2,7 +2,7 @@
   <div id="errors">
     <h2><%= pluralize(thing.errors.count, 'Problem') %></h2>
     <ul>
-      <% thing.errors.full_messages.each do |msg| %>
+      <% thing.errors.full_messages.uniq.each do |msg| %>
         <li><%= msg %></li>
       <% end %>
     </ul>
