@@ -22,13 +22,6 @@ class ApplicationController < ActionController::Base
 
   protected
 
-    def after_sign_in_path_for(user)
-      if (user.has_role?(:participant) && !user.has_participant_fields?) || (user.sign_in_count < 3 && !user.has_full_profile?)
-        return edit_user_path user
-      end
-      super user
-    end
-
     def record_not_found
       render 'shared/404', status: 404
     end

@@ -11,8 +11,8 @@ describe User do
         expect(create(:user, fname: "  Joe\n").fname).to eq 'Joe'
       end
 
-      it "nullifies empty phone number" do
-        expect(create(:user, phone: " \n").phone).to be_nil
+      it "nullifies empty address" do
+        expect(create(:user, address: " \n").address).to be_nil
       end
 
     end
@@ -99,19 +99,6 @@ describe User do
       expect(p.virgin).to be_true
       e.take_attendance [eu.id]
       expect(p.reload.virgin).to be_false
-    end
-
-    it "indicates whether 'all' attributes have a value" do
-      expect(build(:user).has_full_profile?).to be_false
-      expect(build(:full_user).has_full_profile?).to be_true
-      expect(build(:full_user, fname: nil).has_full_profile?).to be_false
-      expect(build(:full_user, lname: nil).has_full_profile?).to be_false
-      expect(build(:full_user, address: nil).has_full_profile?).to be_false
-      expect(build(:full_user, lat: nil).has_full_profile?).to be_false
-      expect(build(:full_user, lng: nil).has_full_profile?).to be_false
-      expect(build(:full_user, email: nil).has_full_profile?).to be_false
-      expect(build(:full_user, phone: nil).has_full_profile?).to be_false
-      expect(build(:full_user, fname: nil, lname: nil).has_full_profile?).to be_false
     end
 
   end
@@ -301,28 +288,6 @@ describe User do
   end
 
   context "events" do
-
-    context "participatability" do
-
-      it "does not allow participanting in events without a name" do
-        u = create :participant, fname: nil, lname: nil
-        e = create :participatable_event
-        expect(u.ability.can? :attend, e).to be_false
-        u.update fname: 'Joe'
-        expect(u.ability.can? :attend, e).to be_true
-        u.update fname: nil, lname: 'Smith'
-        expect(u.ability.can? :attend, e).to be_true
-      end
-
-      it "does not allow participanting in events without a phone number" do
-        u = create :participant, phone: nil
-        e = create :participatable_event
-        expect(u.ability.can? :attend, e).to be_false
-        u.update phone: Faker::PhoneNumber.phone_number
-        expect(u.ability.can? :attend, e).to be_true
-      end
-
-    end
 
     it "lists events a user is coordinating" do
       u = create :coordinator

@@ -221,7 +221,7 @@ describe "Users" do
         fill_in 'E-mail', with: u.email
         fill_in 'Password', with: pass
         click_button 'Sign in'
-        expect(current_path).to eq edit_user_path u
+        expect(current_path).to eq root_path
       end
 
       it "does not send new user to edit profile when already filled out" do

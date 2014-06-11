@@ -7,9 +7,7 @@ class User < ActiveRecord::Base
   attr_accessor :signed_waiver
   validates :signed_waiver, acceptance: true, if: :new_record?
 
-  def has_full_profile?
-    fname.present? && lname.present? && email.present? && phone.present? && address.present? && lat.present? && lng.present?
-  end
+  validates :email, :fname, :lname, :phone, presence: true
 
   def self.csv
     CSV.generate force_quotes: true do |csv|
@@ -18,10 +16,6 @@ class User < ActiveRecord::Base
         csv << [user.id, user.fname, user.lname, user.email, user.phone, user.address, user.snail_mail, user.created_at.to_date.to_s, user.events.past.count, user.roles.map{|r| Configurable.send(r.name)}.join(', ')]
       end
     end
-  end
-
-  def has_participant_fields?
-    phone.present? && (fname.present? || lname.present?)
   end
 
   # this section identical to that in model event.rb
