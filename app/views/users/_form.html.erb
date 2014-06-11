@@ -2,55 +2,7 @@
 
   <%= render 'shared/errors', thing: @user %>
 
-  <%= start_cols %>
-
-  <fieldset>
-    <legend>Name</legend>
-    <%= f.text_field :fname, placeholder: 'First' %><br>
-    <%= f.text_field :lname, placeholder: 'Last' %>
-  </fieldset>
-
-  <div class="field">
-    <%= f.label :email %><br>
-    <%= f.email_field :email %>
-  </div>
-
-  <div class="field">
-    <%= f.label :phone %><br>
-    <%= f.phone_field :phone %>
-  </div>
-
-  <%= next_col %>
-
-  <%= render layout: 'shared/address_form', locals: { f: f } do %>
-    <div><%= f.check_box :snail_mail %> <%= f.label :snail_mail, style: 'font-weight:normal' %></div>
-  <% end %>
-
-  <%= end_cols %>
-
-  <% if Ward.any? %>
-    <fieldset id="wards">
-      <legend>My Wards<span class="hint"><%= wards_link %></span></legend>
-      <p class="hint">
-        You will be invited by email to picks in the wards you select.<br>
-        We run picks in the <span style="text-decoration:underline">underlined wards</span>, and may expand in the future.
-      </p>
-      <%= hidden_field_tag "user[ward_ids][]" %>
-      <%= start_cols %>
-      <%= start_cols %>
-      <% Ward.all.each_with_index do |ward, i| %>
-        <%= end_cols if i == 22 %>
-        <%= next_col if i % 11 == 0 %>
-        <%= start_cols if i == 22 %>
-        <label<%= ' style="text-decoration:underline"'.html_safe if ward.active? %>>
-          <%= check_box_tag "user[ward_ids][]", ward.id, @user.ward_ids.include?(ward.id), id: "ward_#{ward.id}" %>
-          <%= ward.name %>
-        </label>
-      <% end %>
-      <%= end_cols %>
-      <%= end_cols %>
-    </fieldset>
-  <% end %>
+  <%= render 'form_inner', f: f, user: @user %>
 
   <%= cancel %>
   <%= submit 'Save Profile' %>

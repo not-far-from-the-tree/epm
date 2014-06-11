@@ -1,50 +1,31 @@
 <% title 'Sign up' %>
 
 <%= form_for(resource, :as => resource_name, :url => registration_path(resource_name)) do |f| %>
-  <%= devise_error_messages! %>
 
-  <div class="field">
-    <%= f.label :email %><br>
-    <%= f.email_field :email, :autofocus => true %>
-  </div>
+  <%= render 'shared/errors', thing: resource %>
 
-  <div class="field">
-    <%= f.label :password %><br>
-    <%= f.password_field :password %>
-  </div>
-
-  <div class="field">
-    <%= f.label :password_confirmation %><br>
-    <%= f.password_field :password_confirmation %>
-  </div>
-
-  <div class="checkbox_field">
-    <label>
-      <%= check_box_tag :add_to_mailing_list, true, true %>
-      Subscribe me to the Not Far From The Tree mailing list
-    </label>
-  </div>
+  <%= render 'users/form_inner', f: f, user: resource %>
 
   <fieldset>
     <legend>Volunteer release of liability</legend>
     <% waiver_label = 'I have read and agree to the above release of liability' %>
     <div style="height:10em;overflow:auto;margin:0.4em;border:solid grey;border-width:1px 0">
-RELEASE OF LIABILITY, WAIVER OF CLAIMS, ASSUMPTION OF RISKS AND INDEMNITY AGREEMENT (Hereinafter “Release Agreement”)<br>
-To: “Not far from the tree” and their volunteers, employees, guides, agents, representatives, successors and assigns (all of whom are hereinafter collectively referred to as "the Releasees")<br>
-I RECOGNIZE AND ACKNOWLEDGE that there are inherent risks and hazards involved in harvesting fruit. I agree to assume all such risks and hazards and bear all costs of medical attention. The following is a non-exclusive list of possible risks that could be encountered while volunteer fruit picking:
-<ul>
-<li>Falling from a tree</li>
-<li>Falling off a ladder</li>
-<li>Allergic reaction to an insect bite</li>
-<li>Being poked in the eye by a tree branch</li>
-<li>Having fruit or branches fall on your body</li>
-<li>Damage to another person’s property</li>
-<li>Damage as a result of negligence on the part of the Releasees, including the failure by the Releasees to take reasonable steps to safeguard or protect me from the risks, dangers and hazards of fruit harvesting activities</li>
-</ul>
-I hereby agree to hold harmless and indemnify the Releasees from any and all liability for any property damage or personal injury to any third party resulting from my participation as a volunteer with "Not far from the tree";<br>
-This Release Agreement shall be effective and binding upon my heirs, next of kin, executors, administrators, assigns and representatives, in the event of my death or incapacity;<br>
-In entering into this Release Agreement I am not relying on any oral or written representations or statements made by the Releasees with respect to the safety of harvesting fruit, other than what is set forth in this Release Agreement;<br>
-I CONFIRM THAT I HAVE READ AND UNDERSTOOD THIS RELEASE AGREEMENT PRIOR TO SIGNING IT, AND I AM AWARE THAT BY CLICKING "<%= waiver_label %>" BELOW I AM WAIVING CERTAIN LEGAL RIGHTS WHICH I OR MY HEIRS, NEXT OF KIN, EXECUTORS, ADMINISTRATORS, ASSIGNS AND REPRESENTATIVES MAY HAVE AGAINST THE RELEASEES.
+      RELEASE OF LIABILITY, WAIVER OF CLAIMS, ASSUMPTION OF RISKS AND INDEMNITY AGREEMENT (Hereinafter “Release Agreement”)<br>
+      To: “Not far from the tree” and their volunteers, employees, guides, agents, representatives, successors and assigns (all of whom are hereinafter collectively referred to as "the Releasees")<br>
+      I RECOGNIZE AND ACKNOWLEDGE that there are inherent risks and hazards involved in harvesting fruit. I agree to assume all such risks and hazards and bear all costs of medical attention. The following is a non-exclusive list of possible risks that could be encountered while volunteer fruit picking:
+      <ul>
+        <li>Falling from a tree</li>
+        <li>Falling off a ladder</li>
+        <li>Allergic reaction to an insect bite</li>
+        <li>Being poked in the eye by a tree branch</li>
+        <li>Having fruit or branches fall on your body</li>
+        <li>Damage to another person’s property</li>
+        <li>Damage as a result of negligence on the part of the Releasees, including the failure by the Releasees to take reasonable steps to safeguard or protect me from the risks, dangers and hazards of fruit harvesting activities</li>
+      </ul>
+      I hereby agree to hold harmless and indemnify the Releasees from any and all liability for any property damage or personal injury to any third party resulting from my participation as a volunteer with "Not far from the tree";<br>
+      This Release Agreement shall be effective and binding upon my heirs, next of kin, executors, administrators, assigns and representatives, in the event of my death or incapacity;<br>
+      In entering into this Release Agreement I am not relying on any oral or written representations or statements made by the Releasees with respect to the safety of harvesting fruit, other than what is set forth in this Release Agreement;<br>
+      I CONFIRM THAT I HAVE READ AND UNDERSTOOD THIS RELEASE AGREEMENT PRIOR TO SIGNING IT, AND I AM AWARE THAT BY CLICKING "<%= waiver_label %>" BELOW I AM WAIVING CERTAIN LEGAL RIGHTS WHICH I OR MY HEIRS, NEXT OF KIN, EXECUTORS, ADMINISTRATORS, ASSIGNS AND REPRESENTATIVES MAY HAVE AGAINST THE RELEASEES.
     </div>
     <%= f.check_box :signed_waiver %>
     <%= f.label :signed_waiver, waiver_label %>

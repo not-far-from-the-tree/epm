@@ -6,8 +6,8 @@ describe "Authentication" do
     visit new_user_registration_path
     fill_in 'E-mail', with: Faker::Internet.email
     pass = Faker::Internet.password
-    fill_in 'Password', with: pass
-    fill_in 'Password confirmation', :with => pass
+    fill_in 'user_password', with: pass
+    fill_in 'user_password_confirmation', :with => pass
     check 'I have read and agree to the above release of liability'
     expect{ click_button 'Sign up' }.to change{ActionMailer::Base.deliveries.size}.by 1
     user = User.last
@@ -29,8 +29,8 @@ describe "Authentication" do
     visit new_user_registration_path
     fill_in 'E-mail', with: Faker::Internet.email
     pass = Faker::Internet.password
-    fill_in 'Password', with: pass
-    fill_in 'Password confirmation', :with => pass
+    fill_in 'user_password', with: pass
+    fill_in 'user_password_confirmation', :with => pass
     click_button 'Sign up'
     expect(current_path).to eq user_registration_path
     expect(page).to have_content 'Problem'
