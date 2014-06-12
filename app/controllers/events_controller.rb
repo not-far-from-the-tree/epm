@@ -190,6 +190,14 @@ class EventsController < ApplicationController
     redirect_to @event
   end
 
+  def unclaim
+    if @event.proposed? && @event.coordinator == current_user
+      @event.update coordinator: nil
+      flash[:notice] = 'You are no longer running this event.'
+    end
+    redirect_to @event
+  end
+
   def ask_to_cancel
   end
 

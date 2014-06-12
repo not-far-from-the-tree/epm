@@ -323,6 +323,7 @@ describe "Events" do
         e = create :event, coordinator: nil
         login_as @coordinator
         visit event_path e
+        expect(page).not_to have_link 'Unclaim'
         click_link 'Claim'
         expect(current_path).to eq event_path e
         expect(page).to have_content 'You are now running this event'
@@ -356,6 +357,28 @@ describe "Events" do
         login_as @coordinator
         visit event_path e
         expect(page).not_to have_link 'Claim'
+      end
+
+      it "allows a coordinator to unclaim an event" do
+        e = create :event, coordinator: @coordinator, status: :proposed
+        login_as @coordinator
+        visit event_path e
+        click_link 'Unclaim'
+        expect(current_path).to eq event_path e
+        expect(page).not_to have_link 'Unclaim'
+        expect(page).to have_link 'Claim'
+        expect(page).not_to have_link 'Who' # you have to be the coordinator to see who is coming
+      end
+
+      it "does not allow a coordinator to unclaim an approved event" do
+        e = create :event, coordinator: @coordinator, status: :proposed
+        login_as @coordinator
+        visit event_path e
+        click_link 'Unclaim'
+        expect(current_path).to eq event_path e
+        expect(page).not_to have_link 'Unclaim'
+        expect(page).to have_link 'Claim'
+        expect(page).not_to have_link 'Who' # you have to be the coordinator to see who is coming
       end
 
       it "allows a coordinator to edit an event they are coordinating" do
