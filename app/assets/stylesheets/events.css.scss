@@ -4,11 +4,6 @@ ol.events {
 ol.events li, .month_calendar .event {
   margin: 0.2em 0;
 }
-@media (max-width: 400px) {
-  ol.events small {
-    display: none; /* if we showed this on tiny screens, each event would wrap to a second line */
-  }
-}
 
 .highlight { /* on events#show and #who */
   margin-bottom: 1em;
