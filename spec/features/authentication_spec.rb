@@ -17,9 +17,8 @@ describe "Authentication" do
     user = User.last
     expect(last_email.to).to eq [user.email]
     expect(last_email.from).to eq ['no-reply@example.com']
-    expect(current_path).to eq root_path
-    expect(page).to have_content 'signed up successfully'
-    expect(page).to have_content 'Log out'
+    expect(current_path).to eq new_user_session_path
+    expect(page).to have_content 'confirmation link has been sent'
   end
 
   it "fails to sign up an invalid user" do
@@ -84,7 +83,7 @@ describe "Authentication" do
   end
 
   it "resends a confirmation email upon request" do
-    user = create :user
+    user = create :user, confirmed_at: nil
     visit new_user_session_path
     click_link "Didn't receive confirmation instructions?"
     fill_in 'E-mail', with: user.email

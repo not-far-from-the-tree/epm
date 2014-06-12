@@ -1,6 +1,7 @@
 FactoryGirl.define do
 
   factory :user do
+
     fname { Faker::Name.first_name }
     lname { Faker::Name.last_name }
     email { Faker::Internet.free_email("#{fname} #{lname}") }
@@ -11,6 +12,7 @@ FactoryGirl.define do
       pass
     end
     # password confirmation is only checked if a confirmation is attempted. decided this is okay
+    confirmed_at { Time.zone.now }
 
     factory :roleless_user do
       no_roles true
