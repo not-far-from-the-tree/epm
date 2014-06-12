@@ -44,7 +44,7 @@
     <legend>My Wards<span class="hint"><%= wards_link %></span></legend>
     <p class="hint">
       You will be invited by email to events in the wards you select.<br>
-      We run picks in the <span style="text-decoration:underline">underlined wards</span>, and may expand in the future.
+      Wards in <span style="color:gray">grey</span> will have few/no picks this year, but may have more in the future.
     </p>
     <%= hidden_field_tag "user[ward_ids][]" %>
     <%= start_cols %>
@@ -53,7 +53,7 @@
       <%= end_cols if i == 22 %>
       <%= next_col if i % 11 == 0 %>
       <%= start_cols if i == 22 %>
-      <label<%= ' style="text-decoration:underline"'.html_safe if ward.active? %>>
+      <label<%= ' style="color:gray"'.html_safe unless ward.active? %>>
         <%= check_box_tag "user[ward_ids][]", ward.id, @user.ward_ids.include?(ward.id), id: "ward_#{ward.id}" %>
         <%= ward.name %>
       </label>
