@@ -177,7 +177,7 @@ describe "Event Attendance" do
         click_button 'Cancel'
       end
       expect(last_email.bcc).to eq [will_attend.email]
-      expect(last_email.subject).to match 'are attending'
+      expect(last_email.subject).to match 'Attending'
       logout
       login_as will_attend
       visit root_path

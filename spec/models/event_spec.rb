@@ -499,7 +499,7 @@ describe Event do
         # first person cancells, should bump up newbie
         e.unattend will_cancel
         expect(e.participants.reload).to eq [newbie]
-        expect(last_email.subject).to match 'are attending'
+        expect(last_email.subject).to match 'Attending'
         expect(last_email.bcc).to eq [newbie.email]
         # further cancellations
         e.waitlisted.reload

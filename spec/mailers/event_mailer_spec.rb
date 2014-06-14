@@ -56,7 +56,7 @@ describe EventMailer do
     mail = EventMailer.attend(@event, participant)
     expect(mail.bcc.length).to eq 1
     expect(mail.bcc.first).to eq participant.email
-    expect(mail.subject).to eq 'You are attending an event'
+    expect(mail.subject).to match 'Attending'
     # checks that there is both email and plain text, and they both have the right content
     expect(mail.body.parts.length).to eq 2
     mail.body.parts.each do |part|
@@ -71,7 +71,7 @@ describe EventMailer do
     expect(mail.bcc.length).to eq 2
     expect(mail.bcc).to include participant.email
     expect(mail.bcc).to include participant2.email
-    expect(mail.subject).to eq 'You are attending an event'
+    expect(mail.subject).to match 'Attending'
     # checks that there is both email and plain text, and they both have the right content
     expect(mail.body.parts.length).to eq 2
     mail.body.parts.each do |part|
@@ -97,7 +97,7 @@ describe EventMailer do
     participant = create :participant
     mail = EventMailer.invite(@event, [participant])
     expect(mail.bcc).to eq [participant.email]
-    expect(mail.subject).to match 'invited'
+    expect(mail.subject).to match 'Invite'
     # checks that there is both email and plain text, and they both have the right content
     expect(mail.body.parts.length).to eq 2
     mail.body.parts.each do |part|
@@ -110,7 +110,7 @@ describe EventMailer do
     mail = EventMailer.coordinator_assigned(@event)
     expect(mail.to.length).to eq 1
     expect(mail.to.first).to match @event.coordinator.email
-    expect(mail.subject).to eq 'You have been assigned an event'
+    expect(mail.subject).to match 'You have been assigned'
     # checks that there is both email and plain text, and they both have the right content
     expect(mail.body.parts.length).to eq 2
     mail.body.parts.each do |part|

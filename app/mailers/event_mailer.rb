@@ -12,7 +12,7 @@ class EventMailer < ActionMailer::Base
     @event = event
     # users are all participants, but as some could also be admins, need to do this for permissions:
     @user = users.find{|u| u.ability.cannot?(:read_notes, event)} || users.first
-    mail bcc: to(users), subject: "You are attending #{Configurable.event.indefinitize}"
+    mail bcc: to(users), subject: "Attending: event.display_name(@user)"
   end
 
   def unattend(event, users, reason = nil)
@@ -24,12 +24,12 @@ class EventMailer < ActionMailer::Base
   def coordinator_needed(event, users)
     @event = event
     @user = users.first
-    mail bcc: to(users), subject: "#{Configurable.event.indefinitize.capitalize} needs #{Configurable.coordinator.capitalize.indefinitize}"
+    mail bcc: to(users), subject: "#{@event.display_name(@user)} needs #{Configurable.coordinator.capitalize.indefinitize}"
   end
 
   def coordinator_assigned(event)
     @event = event
-    mail to: to(@event.coordinator), subject: "You have been assigned #{Configurable.event.indefinitize}"
+    mail to: to(@event.coordinator), subject: "You have been assigned to lead #{@event.display_name(@event.coordinator)}"
   end
 
   def cancel(event, users)
@@ -41,18 +41,18 @@ class EventMailer < ActionMailer::Base
   def change(event, users)
     @event = event
     @user = users.first
-    mail bcc: to(users), subject: "Changes to #{Configurable.event.indefinitize} you are attending"
+    mail bcc: to(users), subject: "Changes to #{@event.display_name(@user)}"
   end
 
   def awaiting_approval(event, users)
     @event = event
     @user = users.first
-    mail bcc: to(users), subject: "#{Configurable.event.indefinitize.capitalize} is awaiting approval"
+    mail bcc: to(users), subject: "#{@event.display_name(@user)} is awaiting approval"
   end
 
   def approve(event)
     @event = event
-    mail to: to(event.coordinator), subject: "Your #{Configurable.event} has been approved"
+    mail to: to(event.coordinator), subject: "Approved: #{@event.display_name(event.coordinator)}"
   end
 
   def invite(event, users)
@@ -60,7 +60,7 @@ class EventMailer < ActionMailer::Base
     users = [*users]
     # users are all participants, but as some could also be admins, need to do this for permissions:
     @user = users.find{|u| u.ability.cannot?(:read_notes, event)} || users.first
-    mail bcc: to(users), subject: "You are invited to #{Configurable.event.indefinitize}"
+    mail bcc: to(users), subject: "Invite: #{event.display_name(@user)}"
   end
 
   def remind(event, users = nil)
