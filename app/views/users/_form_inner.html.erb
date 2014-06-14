@@ -43,7 +43,7 @@
   <fieldset id="wards">
     <legend>My Wards<span class="hint"><%= wards_link %></span></legend>
     <p class="hint">
-      You will be invited by email to events in the wards you select.<br>
+      You will be invited by email to <%= Configurable.event.pluralize %> in the wards you select.<br>
       Wards in <span style="color:gray">grey</span> will have few/no picks this year, but may have more in the future.
     </p>
     <%= hidden_field_tag "user[ward_ids][]" %>

@@ -9,13 +9,13 @@
 %>
 
 <% content_for :header do %>
-  <%= link_to 'Event Details', @event %>
+  <%= link_to "#{Configurable.event.titlecase} Details", @event %>
 
   <%# this is duplicated in who.html.erb %>
   <% if can?(:claim, @event) && !@event.cancelled? && !@event.past? %>
-    <%= link_to 'Claim This Event', claim_event_path(@event), method: :patch %>
+    <%= link_to "Claim This #{Configurable.event.titlecase}", claim_event_path(@event), method: :patch %>
   <% elsif can?(:unclaim, @event) && @event.proposed? && @event.coordinator == current_user %>
-    <%= link_to 'Unclaim This Event', unclaim_event_path(@event), method: :patch %>
+    <%= link_to "Unclaim This #{Configurable.event.titlecase}", unclaim_event_path(@event), method: :patch %>
   <% end %>
 
   <%= link_to('Edit Attendance', take_attendance: true) if @can_take_attendance && !@taking_attendance %>
