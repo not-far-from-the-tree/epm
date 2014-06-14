@@ -1,3 +1,10 @@
 Your <%= Configurable.event %> is now approved. <%= @event.display_name(@user) %>, <%= event_url(@event) %>
 
+Hi <%= @event.coordinator.fname %>,
+
+The <%= Configurable.event %> you scheduled, <%= @event.display_name(@user) %> <%= event_url(@event) %> , has been approved! Thank you for being so Supreme and signing up to lead this <%= Configurable.event %>.
+
+Please note that we are counting on your to lead this <%= Configurable.event %> so if an emergency situation comes up and you are no longer available to do so, please contact us as soon as you can at 647-774-7425 or picks@notfarfromthetree.org .
+
+
 <%= render 'event', event: @event, user: @event.coordinator %>

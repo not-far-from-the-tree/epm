@@ -1,5 +1,7 @@
-<p>Welcome <%= @email %>!</p>
+<p>Hi <%= @resource.fname %>,</p>
 
-<p>You can confirm your account email through the link below:</p>
+<p>Thank you for signing up to pick fruit with Not Far From The Tree!</p>
+
+<p>To activate your account, please confirm your email through the link below:</p>
 
 <p><%= link_to 'Confirm my account', confirmation_url(@resource, :confirmation_token => @token) %></p>

@@ -105,14 +105,14 @@ describe EventMailer do
 
   it "sends correct invite emails" do
     participant = create :participant
-    mail = EventMailer.invite(@event, [participant])
-    expect(mail.bcc).to eq [participant.email]
+    mail = EventMailer.invite(@event, participant)
+    expect(mail.to).to eq [participant.email]
     expect(mail.subject).to match 'Invite'
     # checks that there is both email and plain text, and they both have the right content
     expect(mail.body.parts.length).to eq 2
     mail.body.parts.each do |part|
       expect(part.to_s).to match event_url(@event)
-      expect(part.to_s).to match 'RSVP'
+      expect(part.to_s).to match 'to sign up'
     end
   end
 
@@ -230,7 +230,7 @@ describe EventMailer do
     c = create :coordinator
     mail = EventMailer.coordinator_needed(@event, [c])
     expect(mail.bcc).to eq [c.email]
-    expect(mail.subject).to match 'needs a Coordinator'
+    expect(mail.subject).to match 'invited to lead'
     # checks that there is both email and plain text, and they both have the right content
     expect(mail.body.parts.length).to eq 2
     mail.body.parts.each do |part|

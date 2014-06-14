@@ -1,3 +1,7 @@
-<p>You have been assigned to run <%= Configurable.event.indefinitize %>: <%= link_to @event.display_name(@user), event_url(@event) %>.<p>
+<p>Hi <%= @event.coordinator.fname %>,</p>
+
+<p>You have been assigned to lead <%= Configurable.event.indefinitize %>: <%= link_to @event.display_name(@user), event_url(@event) %>.<p>
 
 <%= render 'event', event: @event, user: @event.coordinator %>
+
+<p>Thank you for being so Supreme!</p>

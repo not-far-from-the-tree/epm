@@ -105,7 +105,7 @@ describe "Events" do
           select w.name, from: 'Ward'
           expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
           expect(last_email.bcc).to include c.email
-          expect(last_email.subject).to match 'needs a Coordinator'
+          expect(last_email.subject).to match 'invited to lead'
         end
 
         it "does not notify coordinators when an event is created coordinatorlessly but with a ward that has no coordinators" do

@@ -1,5 +1,7 @@
-You are invited to attend <%= @event.display_name(@user) %>, <%= event_url(@event) %>
+Hi <%= @user.fname %>,
+
+You are invited to attend the <%= Configurable.event %> <%= @event.display_name(@user) %>, <%= event_url(@event) %>
 
 <%= render 'event', event: @event, user: @user %>
 
-Please visit the <%= Configurable.event %> page to RSVP, even if you are not planning to attend.
+Please visit the <%= Configurable.event %> page to sign up.
