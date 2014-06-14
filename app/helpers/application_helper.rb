@@ -16,10 +16,6 @@ module ApplicationHelper
     content_tag 'div', nil, class: 'clearfix'
   end
 
-  def wards_link
-    link_to 'ward map', 'http://app.toronto.ca/wards/jsp/wards.jsp'
-  end
-
   def start_cols
     '<div class="cols"><div class="colA">'.html_safe
   end

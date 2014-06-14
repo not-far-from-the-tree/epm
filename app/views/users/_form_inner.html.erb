@@ -41,24 +41,32 @@
 
 <% if Ward.any? %>
   <fieldset id="wards">
-    <legend>My Wards<span class="hint"><%= wards_link %></span></legend>
+    <legend>My Wards</legend>
     <p class="hint">
       You will be invited by email to <%= Configurable.event.pluralize %> in the wards you select.<br>
-      Wards in <span style="color:gray">grey</span> will have few/no picks this year, but may have more in the future.
+      Wards in <span style="color:gray">grey</span> will have few/no <%= Configurable.event.pluralize %> this year, but may have more in the future.
     </p>
     <%= hidden_field_tag "user[ward_ids][]" %>
     <%= start_cols %>
+
     <%= start_cols %>
     <% Ward.all.each_with_index do |ward, i| %>
-      <%= end_cols if i == 22 %>
-      <%= next_col if i % 11 == 0 %>
-      <%= start_cols if i == 22 %>
+      <%= next_col if i % 22 == 0 %>
       <label<%= ' style="color:gray"'.html_safe unless ward.active? %>>
         <%= check_box_tag "user[ward_ids][]", ward.id, @user.ward_ids.include?(ward.id), id: "ward_#{ward.id}" %>
         <%= ward.name %>
       </label>
     <% end %>
     <%= end_cols %>
+
+    <%= next_col %>
+
+    <a href="http://app.toronto.ca/wards/jsp/wards.jsp" style="display:block;text-align:right">
+      <img src="http://www.toronto.ca/wards2000/images/wards_keymap.gif" width="602" height="334" alt="map of Toronto wards">
+      <br>
+      Check which ward you live in
+    </a>
+
     <%= end_cols %>
   </fieldset>
 <% end %>

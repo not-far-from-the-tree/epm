@@ -89,7 +89,7 @@
         <div>
           <%= f.label :ward_id, style: 'font-weight:normal' %>
           <%= f.collection_select :ward_id, Ward.all, :id, :name, include_blank: true %>
-          <span class="hint"><%= wards_link %></span>
+          <span class="hint"><%= link_to 'ward map', 'http://app.toronto.ca/wards/jsp/wards.jsp' %></span>
         </div>
       <% end %>
     <% end %>
