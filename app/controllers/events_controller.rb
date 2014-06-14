@@ -111,8 +111,13 @@ class EventsController < ApplicationController
     redirect_to(root_path, notice: "#{Configurable.event.capitalize} not saved.") and return if params['commit'] && params['commit'].downcase == 'cancel'
     @event = Event.new event_params
     if @event.save
-      if @event.coordinator && @event.coordinator != current_user && !@event.past?
-        EventMailer.coordinator_assigned(@event).deliver
+      if !@event.past?
+        if @event.coordinator && @event.coordinator != current_user
+          EventMailer.coordinator_assigned(@event).deliver
+        elsif !@event.coordinator && @event.ward
+          coordinators = User.coordinators.interested_in_ward(@event.ward).where.not(id: current_user.id)
+          EventMailer.coordinator_needed(@event, coordinators).deliver if coordinators.any?
+        end
       end
       redirect_to @event, notice: "#{Configurable.event.capitalize} saved."
     else

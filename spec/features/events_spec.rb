@@ -91,6 +91,51 @@ describe "Events" do
         expect(page).to have_select 'Ward', selected: w.name
       end
 
+      context "notifying coordinators" do
+
+        it "notifies coordinators for the appropriate ward when an event is created without a coordinator" do
+          w = create :ward
+          c = create :coordinator
+          c.user_wards.create ward: w
+          c2 = create :coordinator
+          c2.user_wards.create ward: create(:ward)
+          login_as @admin
+          visit new_event_path
+          fill_in 'Name', with: 'some event name'
+          select w.name, from: 'Ward'
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+          expect(last_email.bcc).to include c.email
+          expect(last_email.subject).to match 'needs a Coordinator'
+        end
+
+        it "does not notify coordinators when an event is created coordinatorlessly but with a ward that has no coordinators" do
+          w = create :ward
+          c = create :coordinator
+          login_as @admin
+          visit new_event_path
+          fill_in 'Name', with: 'some event name'
+          select w.name, from: 'Ward'
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 0
+        end
+
+        it "does not notify coordinators when an event is created with one" do
+          w = create :ward
+          c = create :coordinator
+          c.user_wards.create ward: w
+          c2 = create :coordinator
+          c2.user_wards.create ward: create(:ward)
+          login_as @admin
+          visit new_event_path
+          fill_in 'Name', with: 'some event name'
+          select w.name, from: 'Ward'
+          choose "event_coordinator_id_#{c.id}"
+          # expecting no notification to all coordinators, but instead there would be a notification for the coordinator assigned
+          expect{ click_button 'Save' }.to change{ActionMailer::Base.deliveries.size}.by 1
+          expect(last_email.subject).not_to match 'needs a Coordinator'
+        end
+
+      end
+
     end
 
     context "show" do

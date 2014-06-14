@@ -21,6 +21,12 @@ class EventMailer < ActionMailer::Base
     mail bcc: to(users), subject: "You are no longer attending #{event.display_name}"
   end
 
+  def coordinator_needed(event, users)
+    @event = event
+    @user = users.first
+    mail bcc: to(users), subject: "#{Configurable.event.indefinitize.capitalize} needs #{Configurable.coordinator.capitalize.indefinitize}"
+  end
+
   def coordinator_assigned(event)
     @event = event
     mail to: to(@event.coordinator), subject: "You have been assigned #{Configurable.event.indefinitize}"

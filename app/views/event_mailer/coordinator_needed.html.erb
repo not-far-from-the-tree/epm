@@ -1,0 +1,3 @@
+<p><%= Configurable.event.indefinitize.capitalize %>, <%= link_to @event.display_name(@user), event_url(@event) %>, is looking for <%= Configurable.coordinator.indefinitize %>.<p>
+
+<%= render 'event', event: @event, user: @user %>

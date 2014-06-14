@@ -216,4 +216,16 @@ describe EventMailer do
     expect(mail.bcc).to eq [p.email]
   end
 
+  it "sends correct coordinator_needed emails" do
+    c = create :coordinator
+    mail = EventMailer.coordinator_needed(@event, [c])
+    expect(mail.bcc).to eq [c.email]
+    expect(mail.subject).to match 'needs a Coordinator'
+    # checks that there is both email and plain text, and they both have the right content
+    expect(mail.body.parts.length).to eq 2
+    mail.body.parts.each do |part|
+      expect(part.to_s).to match event_url(@event)
+    end
+  end
+
 end
