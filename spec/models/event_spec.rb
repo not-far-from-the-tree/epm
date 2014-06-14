@@ -357,7 +357,7 @@ describe Event do
         expect(e.invite).to eq 0
       end
 
-      it "invites uninvolved participants who are interested in the ward" do
+      it "invites involved participants who are interested in the ward" do
         w = create :ward # creating a new ward ensures there are no existing participants interested in it
         e = create :participatable_event, ward: w
         experienced = create :participant, virgin: false
@@ -376,7 +376,6 @@ describe Event do
 
         invitations = Invitation.where(event_id: e.id).to_a
         expect(invitations.length).to eq 2
-        expect(invitations.find{|i| i.user_id == virgin.id}.send_by).to be < invitations.find{|i| i.user_id == experienced.id}.send_by
       end
 
     end

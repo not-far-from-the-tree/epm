@@ -349,7 +349,7 @@ class Event < ActiveRecord::Base
     User.invitable_to(self).each do |participant|
       eu = event_users.create user: participant, status: :invited
       if eu.valid?
-        Invitation.create event: self, user: participant, send_by: (participant.virgin ? Time.zone.now : 4.hours.from_now)
+        Invitation.create event: self, user: participant, send_by: Time.zone.now # (participant.virgin ? Time.zone.now : 4.hours.from_now) # use commented-out code to invite virgins first
         n += 1
       end
     end
