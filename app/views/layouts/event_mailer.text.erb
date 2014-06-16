@@ -1,3 +1,5 @@
 <%= yield %>
 
 <%= Configurable.email_signature if Configurable.email_signature.present? %>
+
+Visit your profile to deactivate your account: <%= me_url %>

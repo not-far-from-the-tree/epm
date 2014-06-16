@@ -1,3 +1,5 @@
 <%= yield %>
 
 <%= paragraphs(Configurable.email_signature) if Configurable.email_signature.present? %>
+
+<p>Visit <%= link_to 'your profile', me_url %> to deactivate your account.</p>

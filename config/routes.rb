@@ -9,6 +9,7 @@ Epm::Application.routes.draw do
     patch 'deactivate', on: :member
   end
   get 'me', to: 'users#me'
+  get 'my_wards', to: 'users#my_wards'
 
   resources :events, except: :destroy do
     get 'calendar', on: :collection

@@ -119,6 +119,16 @@ describe "Users" do
         expect(current_path).to eq user_path @participant
       end
 
+      it "can edit one's wards from /my_wards" do
+        w = create :ward, name: 'foo and stuff'
+        visit my_wards_path
+        expect(current_path).to eq edit_user_path @participant
+        check 'foo and stuff'
+        click_button 'Save'
+        expect(current_path).to eq user_path @participant
+        expect(page).to have_content 'foo and stuff'
+      end
+
       it "edits own profile" do
         visit user_path @participant
         click_link 'Edit'

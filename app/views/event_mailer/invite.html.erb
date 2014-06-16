@@ -4,4 +4,7 @@
 
 <%= render 'event', event: @event, user: @user %>
 
-<p>Please visit the <%= link_to "#{Configurable.event} page", event_url(@event) %> to sign up.</p>
+<p>
+  Please visit the <%= link_to "#{Configurable.event} page", event_url(@event) %> to sign up.
+  Change what invitations you receive by <%= link_to 'editing your wards', my_wards_url %>.
+</p>

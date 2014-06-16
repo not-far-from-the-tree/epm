@@ -11,7 +11,7 @@ class Ability
       can :calendar, Event
       can :index, :geocode
 
-      can :me, User
+      can [:me, :my_wards], User
       can [:show, :read_contact, :read_attendance, :update], User, id: user.id
       can :destroy, Role, user_id: user.id
       can :deactivate, User do |u|

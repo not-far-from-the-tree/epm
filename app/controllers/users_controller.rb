@@ -5,6 +5,9 @@ class UsersController < ApplicationController
   def me
     redirect_to current_user
   end
+  def my_wards
+    redirect_to edit_user_path(current_user, anchor: 'wards')
+  end
 
   def index
     @users = User.by_name
