@@ -561,45 +561,13 @@ describe "Events" do
       end
     end
 
-    context "needing participants" do
-
-      it "shows events needing participants to admins" do
-        create :participatable_event, min: 1, name: 'needs one person'
-        login_as @admin
-        visit root_path
-        within '#needing_more_participants' do
-          expect(page).to have_link 'needs one person'
-        end
-      end
-
-      it "shows events needing participants to participants if they are not attending" do
-        create :participatable_event, min: 1, name: 'needs one person'
-        e = create :participatable_event, min: 2, name: 'needs two people'
-        e.attend @participant
-        login_as @participant
-        visit root_path
-        within '#needing_more_participants' do
-          expect(page).to have_link 'needs one person'
-          expect(page).not_to have_content 'needs two people'
-        end
-      end
-
-      it "does not show events needing participants to coordinators" do
-        create :participatable_event, min: 1
-        login_as create :coordinator
-        visit root_path
-        expect(all('#needing_more_participants').length).to eq 0
-      end
-
-    end
-
     context "accepting participants" do
 
       it "shows events accepting participants to admins" do
         create :participatable_event, name: 'foo'
         login_as @admin
         visit root_path
-        within '#accepting_more_participants' do
+        within '#not_full' do
           expect(page).to have_link 'foo'
         end
       end
@@ -610,7 +578,7 @@ describe "Events" do
         e.attend @participant
         login_as @participant
         visit root_path
-        within '#accepting_more_participants' do
+        within '#not_full' do
           expect(page).to have_link 'foo'
           expect(page).not_to have_link 'bar'
         end
@@ -620,7 +588,7 @@ describe "Events" do
         create :participatable_event
         login_as create :coordinator
         visit root_path
-        expect(all('#accepting_more_participants').length).to eq 0
+        expect(all('#not_full').length).to eq 0
       end
 
     end
@@ -679,7 +647,7 @@ describe "Events" do
       current = create :participatable_event
       login_as @admin
       visit root_path
-      within '#accepting_more_participants' do
+      within '#not_full' do
         expect(page).to have_link current.display_name
       end
     end
@@ -874,7 +842,7 @@ describe "Events" do
       within '#needing_a_coordinator' do
         expect(page).to have_link no_coordinator.display_name
       end
-      within '#missing_a_date_or_location' do
+      within '#missing_info' do
         expect(page).not_to have_link no_coordinator.display_name
         expect(page).to have_link no_date.display_name
         expect(page).to have_link no_location.display_name

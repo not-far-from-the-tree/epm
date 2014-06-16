@@ -760,6 +760,21 @@ describe Event do
       expect(Event.needing_participants).to eq [needs]
     end
 
+    it "lists events which can take more participants" do
+      c = create :coordinator
+      p = create :participant
+      full = create :participatable_event, coordinator: c, max: 1
+      full.attend p
+      needs_more = create :participatable_event, coordinator: c, min: 2
+      needs_more.attend p
+      can_take_more = create :participatable_event, coordinator: c, max: 2
+      can_take_more.attend p
+      accepting_more = Event.accepting_participants
+      expect(accepting_more.length).to eq 2
+      expect(accepting_more).to include needs_more
+      expect(accepting_more).to include can_take_more
+    end
+
     it "lists events which do not need but can take more participants" do
       c = create :coordinator
       p = create :participant

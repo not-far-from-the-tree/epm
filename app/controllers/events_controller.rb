@@ -18,45 +18,33 @@ class EventsController < ApplicationController
           @sections << { q: Event.awaiting_approval, name: 'Awaiting Approval' }
         end
         if current_user.has_role? :participant
-          @sections << { q: current_user.open_invites, name: 'Invited' }
+          @sections << { q: current_user.open_invites, name: "#{Configurable.event.pluralize.titlecase} in My Wards", id: 'invited' }
         end
         if current_user.has_role? :coordinator
           @sections << { q: current_user.coordinating_events.needing_attendance_taken, name: 'Needing Attendance Taken' }
-          @sections << { q: current_user.coordinating_events.not_past, name: "Run by Me", id: 'coordinating' }
+          @sections << { q: current_user.coordinating_events.not_past, name: "#{Configurable.event.pluralize.titlecase} Led By Me", id: 'coordinating' }
         end
         if current_user.has_role? :participant
-          @sections << { q: current_user.participating_events.not_past, name: 'Attending' }
-          @sections << { q: current_user.potential_events, name: 'May be Attending' }
+          @sections << { q: current_user.participating_events.not_past, name: "#{Configurable.event.pluralize.titlecase} I’m Attending", id: 'attending' }
+          @sections << { q: current_user.potential_events, name: "#{Configurable.event.pluralize.titlecase} I’m Waitlisted For", id: 'may_be_attending' }
         end
         if current_user.has_any_role? :coordinator, :admin
-          @sections << { q: Event.where(coordinator_id: nil).not_past.not_cancelled, name: "Needing #{Configurable.coordinator.titlecase.indefinitize}" }
+          @sections << { q: Event.where(coordinator_id: nil).not_past.not_cancelled, name: "#{Configurable.event.pluralize.titlecase} Needing #{Configurable.coordinator.titlecase.indefinitize}", id: 'needing_a_coordinator' }
         end
         if current_user.has_role? :admin
-          @sections << { q: Event.where.not(coordinator_id: nil).where('start IS NULL OR lat IS NULL').not_past.not_cancelled, name: 'Missing a Date or Location' }
+          @sections << { q: Event.where.not(coordinator_id: nil).where('start IS NULL OR lat IS NULL').not_past.not_cancelled, name: "#{Configurable.event.pluralize.titlecase} Missing a Date or Location", id: 'missing_info' }
         end
         if current_user.has_any_role? :admin, :participant
-          q = Event.needing_participants
+          q = Event.accepting_participants
           q = q.participatable_by(current_user) unless current_user.has_role? :admin
-          @sections << { q: q, name: "Needing More #{Configurable.participant.pluralize.titlecase}" }
-        end
-        if current_user.has_any_role? :admin, :participant
-          q = Event.accepting_not_needing_participants.limit(max)
-          q = q.participatable_by(current_user) unless current_user.has_role? :admin
-          @sections << { q: q, name: "Accepting More #{Configurable.participant.pluralize.titlecase}" }
-        end
-        if current_user.has_any_role? :admin, :participant
+          @sections << { q: q, name: "#{Configurable.event.pluralize.titlecase} Needing More #{Configurable.participant.pluralize.titlecase}", id: 'not_full' }
+
           q = Event.participatable.not_past.where(reached_max: true).limit(max)
           q = q.participatable_by(current_user) unless current_user.has_role? :admin
-          @sections << { q: q, name: 'Upcoming', id: 'full' }
-          @sections[0..-2].each do |section| # add the word 'more' to the name if there were any events already listed
-            if section[:q].any?
-              @sections.last[:name] = "More #{@sections.last[:name]}"
-              break
-            end
-          end
+          @sections << { q: q, name: "#{Configurable.event.pluralize.titlecase} That Are Full (Join Waitlist)", id: 'full' }
         end
         if current_user.has_role? :admin
-          @sections << { q: Event.participatable.past.limit(max) , name: 'Past' }
+          @sections << { q: Event.participatable.past.limit(max) , name: "Past #{Configurable.event.pluralize.titlecase}", id: 'past' }
         end
       end
       format.ics do
