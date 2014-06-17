@@ -18,7 +18,7 @@ class EventsController < ApplicationController
           @sections << { q: Event.awaiting_approval, name: 'Awaiting Approval' }
         end
         if current_user.has_role? :participant
-          @sections << { q: current_user.open_invites, name: "#{Configurable.event.pluralize.titlecase} in My Wards", id: 'invited' }
+          @sections << { q: current_user.open_invites, name: "Recommended #{Configurable.event.pluralize.titlecase}", id: 'invited' }
         end
         if current_user.has_role? :coordinator
           @sections << { q: current_user.coordinating_events.needing_attendance_taken, name: 'Needing Attendance Taken' }

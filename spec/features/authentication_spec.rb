@@ -18,7 +18,7 @@ describe "Authentication" do
     expect(last_email.to).to eq [user.email]
     expect(last_email.from).to eq ['no-reply@example.com']
     expect(current_path).to eq new_user_session_path
-    expect(page).to have_content 'confirmation link has been sent'
+    expect(page).to have_content 'Check your inbox and spam folder for a confirmation email'
   end
 
   it "fails to sign up an invalid user" do
