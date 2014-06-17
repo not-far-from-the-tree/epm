@@ -79,7 +79,7 @@ class EventsController < ApplicationController
       end
       if can?(:invite, @event) && @event.should_invite?
         @show_invite = true
-      elsif @event.past?
+      elsif Time.zone.now >= @event.start
         @can_take_attendance = can?(:take_attendance, @event) && @event.approved? && @event.event_users.where(status: EventUser.statuses_array(:attending, :attended, :no_show)).any?
         @taking_attendance = @can_take_attendance && (params['take_attendance'] || @event.event_users.where(status: EventUser.statuses[:attending]).any?)
       end
