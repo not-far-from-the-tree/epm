@@ -58,7 +58,7 @@ class EventMailer < ActionMailer::Base
   def invite(event, user)
     @event = event
     @user = user
-    mail to: to(user), subject: "Invite: #{event.display_name(@user)}"
+    mail to: to(user), subject: "Invite: #{event.display_name(@user)}, #{@event.start.strftime('%a %b %e %l:%M %p')}"
   end
 
   def remind(event, users = nil)
