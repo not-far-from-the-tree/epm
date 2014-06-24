@@ -12,7 +12,7 @@ class EventMailer < ActionMailer::Base
     @event = event
     # users are all participants, but as some could also be admins, need to do this for permissions:
     @user = users.find{|u| u.ability.cannot?(:read_notes, event)} || users.first
-    mail bcc: to(users), subject: "Attending: event.display_name(@user)"
+    mail bcc: to(users), subject: "Attending: #{event.display_name(@user)}"
   end
 
   def unattend(event, users, reason = nil)
