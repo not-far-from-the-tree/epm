@@ -68,18 +68,15 @@ class EventsController < ApplicationController
   def who
     @can_take_attendance = false
     @taking_attendance = false
-    @show_invites = false
-    @show_invite = false
+    @invites = {}
     if @event.start
       if (current_user.has_role?(:admin) || @event.coordinator == current_user) && @event.can_accept_participants?
         eus = @event.event_users.where(status: EventUser.statuses_array(:invited, :not_attending)).group_by{|eu| eu.status}
-        @num_invited = (eus['invited'] || []).length
-        @num_declined = (eus['not_attending'] || []).length
-        @show_invites = (@num_invited > 0) || (@num_declined > 0)
+        @invites['awaiting a response'] = (eus['invited'] || []).length
+        @invites['declined'] = (eus['not_attending'] || []).length
+        @invites['not yet sent'] = Invitation.where(event_id: @event.id).count
       end
-      if can?(:invite, @event) && @event.should_invite?
-        @show_invite = true
-      elsif Time.zone.now >= @event.start
+      if Time.zone.now >= @event.start
         @can_take_attendance = can?(:take_attendance, @event) && @event.approved? && @event.event_users.where(status: EventUser.statuses_array(:attending, :attended, :no_show)).any?
         @taking_attendance = @can_take_attendance && (params['take_attendance'] || @event.event_users.where(status: EventUser.statuses[:attending]).any?)
       end

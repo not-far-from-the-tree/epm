@@ -40,12 +40,6 @@
 
 <%= render 'rsvp' unless @event.cancelled? %>
 
-<% if can?(:invite, @event) && @event.should_invite? %>
-  <%= clear %>
-  <div class="highlight">Please <%= button_to "Invite #{Configurable.participant.pluralize.titlecase}", invite_event_path(@event), method: :patch %>.</div>
-<% end %>
-
-
 <%= start_cols %>
 
 <p>

@@ -49,16 +49,14 @@
 <%# no need to tell coordinators they're attending, as they are listed already, right after this %>
 <%= render('rsvp') unless (@event.coordinator == current_user) || @event.cancelled? %>
 
-<% if @show_invites || @show_invite %>
+<% unless @invites.select{|k,n| n > 0}.length.zero? %>
   <section>
     <h2>Invitations</h2>
-    <% if @num_invited > 0 %>
-      <p><%= pluralize @num_invited, 'invitation' %> <%= 'is'.pluralize(@num_invited) %> awaiting a response (<%= Invitation.where(event_id: @event.id).count %> unsent).</p>
-    <% end %>
-    <% if @num_declined > 0 %>
-      <p><%= pluralize @num_declined, 'invitation' %> <%= 'was'.pluralize(@num_declined) %> declined.</p>
-    <% end %>
-    <%= button_to("Invite #{Configurable.participant.pluralize.titlecase}", invite_event_path(@event), method: :patch) if @show_invite %>
+    <ul>
+      <% @invites.each do |type, num| %>
+        <li><%= num %> <%= type.capitalize %>.</li>
+      <% end %>
+    </ul>
 <% end %>
 
 <section>

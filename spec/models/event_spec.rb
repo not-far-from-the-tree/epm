@@ -382,6 +382,7 @@ describe Event do
         expect(e.invite).to eq 0
       end
 
+      # here 'invites' refers to putting them in the invite queue
       it "invites involved participants who are interested in the ward" do
         w = create :ward # creating a new ward ensures there are no existing participants interested in it
         e = create :participatable_event, ward: w
@@ -396,11 +397,10 @@ describe Event do
         in_other_ward.user_wards.create ward: create(:ward)
 
         expect(e.invite).to eq 2
-        expect(virgin.open_invites).to eq [e]
-        expect(experienced.open_invites).to eq [e]
-
-        invitations = Invitation.where(event_id: e.id).to_a
-        expect(invitations.length).to eq 2
+        invites = Invitation.where event_id: e.id
+        expect(invites.length).to eq 2
+        expect(invites.find{|i| i.user_id == virgin.id}).not_to be_nil
+        expect(invites.find{|i| i.user_id == experienced.id}).not_to be_nil
       end
 
     end

@@ -350,15 +350,26 @@ class Event < ActiveRecord::Base
 
   def invite
     return 0 unless ward
-    n = 0
-    User.invitable_to(self).each do |participant|
-      eu = event_users.create user: participant, status: :invited
-      if eu.valid?
-        Invitation.create event: self, user: participant, send_by: Time.zone.now # (participant.virgin ? Time.zone.now : 4.hours.from_now) # use commented-out code to invite virgins first
-        n += 1
-      end
+    potential_participants = User.participants.interested_in_ward(ward).to_a
+    already_involved = event_users.pluck :user_id
+    potential_participants.reject!{|p| already_involved.include? p.id}
+    geocoded_potentials = []
+    if coords
+      # if the event and participants are geocoded, we'll want to sort them by distance, not randomly
+      # - so remove them for now, readd them later
+      grouped = potential_participants.partition{|p| p.lat }
+      geocoded_potentials = grouped.first
+      potential_participants = grouped.last
     end
-    n
+    potential_participants.shuffle # randomize order
+    if geocoded_potentials.any? # re-add geocoded participants, list them first
+      geocoded_potentials.sort_by{|p| p.distance_to self}.reverse!
+      potential_participants = geocoded_potentials + potential_participants
+    end
+    potential_participants.each do |participant|
+      Invitation.create event: self, user: participant, send_by: Time.zone.now
+    end
+    potential_participants.length
   end
 
   def take_attendance(attended_eu_ids) # eu_ids which exist but are not passed in are no shows

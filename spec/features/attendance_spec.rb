@@ -209,44 +209,26 @@ describe "Event Attendance" do
 
   context "invitations" do
 
-    it "allows coordinators to invite users to an event" do
-      e = create :participatable_event, max: 1, ward: create(:ward)
-      p = create :participant
-      p.user_wards.create ward: e.ward
-      login_as e.coordinator
-      visit event_path e
-      click_button 'Invite'
-      # hmn, is it confusing to have both of these?
-      expect(page).to have_content '1 invitation will be sent'
-      expect(page).to have_content '1 invitation is awaiting a response'
-      expect(current_path).to eq who_event_path e
-      expect(page).not_to have_button 'Invite'
-      click_link 'Event Details'
-      expect(page).not_to have_button 'Invite'
-    end
-
-    it "does not allow participants to invite users to an event" do
-      e = create :participatable_event
-      login_as @participant
-      visit event_path e
-      expect(all('#invite').length).to eq 0
-    end
-
-    # also tests that admins can invite users
-    it "invites people to an event, one accepts and one declines" do
+    it "auto invites participants upon approving an event which is ready for them, one accepts and one declines" do
       w = create :ward
       p1 = create :participant
       p1.user_wards.create ward: w
       p2 = create :participant
       p2.user_wards.create ward: w
-      e = create :participatable_event, ward: w
+      e = create :participatable_event, ward: w, status: :proposed
       login_as @admin
       visit event_path e
-      click_button 'Invite'
-      expect(current_path).to eq who_event_path e
-      expect(page).to have_content '2 invitations will be sent'
-      logout
-      login_as Invitation.first.user
+      click_link 'Approve'
+      expect(page).to have_content 'Invitations will be sent'
+      click_link 'Who'
+      expect(page).to have_content '2 Not yet sent'
+
+      run_task 'send_invitations'
+      visit who_event_path e
+      expect(page).not_to have_content '2 Not yet sent'
+      expect(page).to have_content '2 Awaiting a response'
+
+      login_as p1
       visit root_path
       within '#invited' do
         click_link e.display_name
@@ -260,7 +242,7 @@ describe "Event Attendance" do
         expect(page).to have_content 'are attending'
       end
       logout
-      login_as Invitation.last.user
+      login_as p2
       visit event_path e
       within '#rsvp' do
         expect(page).to have_content 'been invited'
@@ -273,17 +255,39 @@ describe "Event Attendance" do
       logout
       login_as @admin
       visit who_event_path e
-      expect(page).to have_content '1 invitation was declined'
+      expect(page).to have_content '1 Declined'
     end
 
-    it "auto invites participants upon approving an event which is ready for them" do
-      e = create :participatable_event, status: :proposed, ward: create(:ward)
-      create(:participant).user_wards.create ward: e.ward # make sure there's somebody to invite
+    it "sends five invitations at a time" do
+      w = create :ward
+      6.times do
+        p = create :participant
+        p.user_wards.create ward: w
+      end
+      e = create :participatable_event, ward: w, status: :proposed
       login_as @admin
       visit event_path e
       click_link 'Approve'
-      expect(page).not_to have_button 'Invite'
-      expect(page).to have_content 'Invitations will be sent'
+      expect(e.event_users.count).to eq 0
+      expect(Invitation.all.count).to eq 6
+      run_task 'send_invitations'
+      expect(e.event_users.reload.count).to eq 5
+      expect(Invitation.all.reload.count).to eq 1
+    end
+
+    it "does not send invitations to full events" do
+      w = create :ward
+      p = create :participant
+      p.user_wards.create ward: w
+      p2 = create :participant
+      p2.user_wards.create ward: w
+      e = create :participatable_event, ward: w, max: 1, status: :proposed
+      login_as @admin
+      visit event_path e
+      click_link 'Approve'
+      e.attend p
+      run_task 'send_invitations'
+      expect(e.event_users.count).to eq 1 # ie just 'attending' for p, no one with status 'invited' for p2
     end
 
   end
