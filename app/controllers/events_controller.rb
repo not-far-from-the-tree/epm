@@ -18,7 +18,7 @@ class EventsController < ApplicationController
           @sections << { q: Event.awaiting_approval, name: 'Awaiting Approval' }
         end
         if current_user.has_role? :participant
-          @sections << { q: current_user.open_invites, name: "Recommended #{Configurable.event.pluralize.titlecase}", id: 'invited' }
+          @sections << { q: current_user.recommended_events, name: "Recommended #{Configurable.event.pluralize.titlecase}", id: 'recommended' }
         end
         if current_user.has_role? :coordinator
           @sections << { q: current_user.coordinating_events.needing_attendance_taken, name: 'Needing Attendance Taken' }
@@ -36,7 +36,7 @@ class EventsController < ApplicationController
         end
         if current_user.has_any_role? :admin, :participant
           q = Event.accepting_participants
-          q = q.participatable_by(current_user) unless current_user.has_role? :admin
+          q = q.participatable_by(current_user).where.not(ward_id: current_user.user_wards.pluck(:ward_id)) unless current_user.has_role? :admin
           @sections << { q: q, name: "#{Configurable.event.pluralize.titlecase} Needing More #{Configurable.participant.pluralize.titlecase}", id: 'not_full' }
 
           q = Event.participatable.not_past.where(reached_max: true).limit(max)

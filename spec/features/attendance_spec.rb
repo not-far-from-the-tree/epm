@@ -230,7 +230,7 @@ describe "Event Attendance" do
 
       login_as p1
       visit root_path
-      within '#invited' do
+      within '#recommended' do
         click_link e.display_name
       end
       within '#rsvp' do

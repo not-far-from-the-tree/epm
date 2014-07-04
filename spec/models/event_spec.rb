@@ -623,6 +623,32 @@ describe Event do
 
     end
 
+    it "lists recommended events for a user" do
+      p = create :participant
+      p2 = create :participant
+      w = create :ward
+      w2 = create :ward
+      w3 = create :ward
+      p.user_wards.create ward: w
+      p.user_wards.create ward: w2
+      c = create :coordinator
+      e = create :participatable_event, coordinator: c, ward: w
+      e_participating = create :participatable_event, coordinator: c, ward: w
+      e_participating.attend p
+      e_w2 = create :participatable_event, coordinator: c, ward: w2
+      e_w3 = create :participatable_event, coordinator: c, ward: w3
+      e_past = create :participatable_event, coordinator: c, ward: w, start: 1.week.ago
+      e_full = create :participatable_event, coordinator: c, ward: w, max: 1
+      e_full.attend p2
+      recommended = p.recommended_events
+      expect(recommended).to include e
+      expect(recommended).not_to include e_participating
+      expect(recommended).to include e_w2
+      expect(recommended).not_to include e_w3
+      expect(recommended).not_to include e_past
+      expect(recommended).not_to include e_full
+    end
+
     context "taking attendance" do
 
       it "takes attendance when everyone showed up" do

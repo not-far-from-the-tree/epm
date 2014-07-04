@@ -66,6 +66,9 @@ class User < ActiveRecord::Base
 
   has_many :event_users, dependent: :destroy
   has_many :coordinating_events, -> { where.not(status: Event.statuses[:cancelled]) }, class_name: 'Event', foreign_key: 'coordinator_id'
+  def recommended_events
+    Event.participatable.not_past.where(reached_max: false).participatable_by(self).where(ward_id: user_wards.pluck(:ward_id))
+  end
   has_many :participating_events, -> {
       where('event_users.status' => EventUser.statuses_array(:attending, :attended)).where('events.status = ?', Event.statuses[:approved])
     }, through: :event_users, source: :event
