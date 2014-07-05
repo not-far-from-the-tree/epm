@@ -1,15 +1,18 @@
-<% user ||= User.new %>
+<%
+  user ||= User.new
+  force_show_address ||= false # this should never be necessary, but set in attend view. not sure why needed...
+%>
 
 <dl>
   <% if event.description %>
-    <dt>Description</dt>
+    <dt><strong>Description</strong></dt>
     <dd><%= paragraphs event.description %></dd>
   <% end %>
   <% if event.notes && user.ability.can?(:read_notes, event) %>
-    <dt>Notes for <%= Configurable.admin.pluralize %> and <%= Configurable.coordinator %></dt>
+    <dt><strong>Notes for <%= Configurable.admin.pluralize %> and <%= Configurable.coordinator %></strong></dt>
     <dd><%= paragraphs event.notes %></dd>
   <% end %>
-  <dt>When</dt>
+  <dt><strong>When</strong></dt>
   <dd>
     <% if event.start %>
       <%= date event.start %>, <%= time event.start %> to <%= time event.finish %> (<%= pluralize event.duration_hours, 'hour' %>)
@@ -17,7 +20,7 @@
       Date not set.
     <% end %>
   </dd>
-  <% if event.address && user.ability.can?(:read_specific_location, event) %>
-    <dt>Where</dt>
+  <% if event.address && (user.ability.can?(:read_specific_location, event) || force_show_address) %>
+    <dt><strong>Where</strong></dt>
     <dd><%= with_br event.address if event.address %></dd>
   <% end %>

@@ -1,6 +1,6 @@
 <p>This email confirms that you are attending <%= link_to @event.display_name(@user), event_url(@event) %>.<p>
 
-<%= render 'event', event: @event, user: @user %>
+<%= render 'event', event: @event, user: @user, force_show_address: true %>
 
 <p>If you are unable to attend the <%= Configurable.event %>, please visit the <%= link_to "#{Configurable.event} page", event_url(@event) %> to cancel.</p>
 
