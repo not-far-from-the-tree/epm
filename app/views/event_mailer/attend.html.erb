@@ -1,9 +1,3 @@
 <p>This email confirms that you are attending <%= link_to @event.display_name(@user), event_url(@event) %>.<p>
 
 <%= render 'event', event: @event, user: @user, force_show_address: true %>
-
-<p>If you are unable to attend the <%= Configurable.event %>, please visit the <%= link_to "#{Configurable.event} page", event_url(@event) %> to cancel.</p>
-
-<p>Please note: Once you have signed up for <%= Configurable.event.indefinitize %>, we are counting on you to be there. If you cancel last minute, we likely won't be able to fill your spot.</p>
-
-<p>If you fail to show up for <%= Configurable.event.indefinitize %> you are signed up for without a valid excuse you will be removed from our fruit-picking list.</p>

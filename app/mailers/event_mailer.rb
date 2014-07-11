@@ -12,7 +12,7 @@ class EventMailer < ActionMailer::Base
     @event = event
     # users are all participants, but as some could also be admins, need to do this for permissions:
     @user = users.find{|u| u.ability.cannot?(:read_notes, event)} || users.first
-    mail bcc: to(users), subject: "Attending: #{event.display_name(@user)}"
+    mail bcc: to(users), subject: "Attending: #{event.display_name(@user)} at #{@event.start.strftime('%a %b %e %l:%M %p')}"
   end
 
   def unattend(event, users, reason = nil)
@@ -58,7 +58,7 @@ class EventMailer < ActionMailer::Base
   def invite(event, user)
     @event = event
     @user = user
-    mail to: to(user), subject: "Invite: #{event.display_name(@user)}, #{@event.start.strftime('%a %b %e %l:%M %p')}"
+    mail to: to(user), subject: "#{event.display_name(@user)} at #{@event.start.strftime('%a %b %e %l:%M %p')}"
   end
 
   def remind(event, users = nil)

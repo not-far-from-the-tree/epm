@@ -1,9 +1,15 @@
 <% user ||= User.new -%><%= "Description: #{event.description}" if event.description -%>
 
-<%= "Notes for #{Configurable.admin.pluralize} and #{Configurable.coordinator}: #{event.notes}" if event.notes && user.ability.can?(:read_notes, event) -%>
-
 When: <% if event.start %><%= date event.start %>, <%= time event.start %> to <%= time event.finish %> (<%= pluralize event.duration_hours, 'hour' %>)<% else %>Date not set<% end %>
 
-<% if event.address && user.ability.can?(:read_specific_location, event) %>
-Where: <%= event.address %>
+<% if event.address %>
+Where:
+<% if user.ability.can? :read_specific_location, event %>
+<%= event.address %>
+<% else %>
+The exact location of this <%= Configurable.event %> will be shared with you if you secure a spot on the <%= Configurable.event %>.
 <% end %>
+<% end %>
+
+
+<%= "Notes for #{Configurable.admin.pluralize} and #{Configurable.coordinator}: #{event.notes}" if event.notes && user.ability.can?(:read_notes, event) -%>

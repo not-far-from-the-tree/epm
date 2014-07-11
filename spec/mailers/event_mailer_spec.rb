@@ -3,7 +3,7 @@ require "spec_helper"
 describe EventMailer do
 
   before :each do
-    @event = create :participatable_event
+    @event = create :participatable_event, name: 'Some Event Name'
   end
 
   # signature is set in the layout, no need to check every mailer
@@ -107,7 +107,7 @@ describe EventMailer do
     participant = create :participant
     mail = EventMailer.invite(@event, participant)
     expect(mail.to).to eq [participant.email]
-    expect(mail.subject).to match 'Invite'
+    expect(mail.subject).to match @event.display_name
     # checks that there is both email and plain text, and they both have the right content
     expect(mail.body.parts.length).to eq 2
     mail.body.parts.each do |part|

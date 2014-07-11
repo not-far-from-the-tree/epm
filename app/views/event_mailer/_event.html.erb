@@ -4,14 +4,6 @@
 %>
 
 <dl>
-  <% if event.description %>
-    <dt><strong>Description</strong></dt>
-    <dd><%= paragraphs event.description %></dd>
-  <% end %>
-  <% if event.notes && user.ability.can?(:read_notes, event) %>
-    <dt><strong>Notes for <%= Configurable.admin.pluralize %> and <%= Configurable.coordinator %></strong></dt>
-    <dd><%= paragraphs event.notes %></dd>
-  <% end %>
   <dt><strong>When</strong></dt>
   <dd>
     <% if event.start %>
@@ -20,7 +12,22 @@
       Date not set.
     <% end %>
   </dd>
-  <% if event.address && (user.ability.can?(:read_specific_location, event) || force_show_address) %>
+  <% if event.address %>
     <dt><strong>Where</strong></dt>
-    <dd><%= with_br event.address if event.address %></dd>
+    <dd>
+      <% if user.ability.can?(:read_specific_location, event) || force_show_address %>
+        <%= with_br event.address %>
+      <% else %>
+        The exact location of this <%= Configurable.event %> will be shared with you if you secure a spot on the <%= Configurable.event %>.
+      <% end %>
+    </dd>
   <% end %>
+  <% if event.description %>
+    <dt><strong>Description</strong></dt>
+    <dd><%= paragraphs event.description %></dd>
+  <% end %>
+  <% if event.notes && user.ability.can?(:read_notes, event) %>
+    <dt><strong>Notes for <%= Configurable.admin.pluralize %> and <%= Configurable.coordinator %></strong></dt>
+    <dd><%= paragraphs event.notes %></dd>
+  <% end %>
+</dl>

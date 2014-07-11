@@ -1,10 +1,7 @@
 <p>Hi <%= @user.fname %>,</p>
 
-<p>You are invited to attend the <%= Configurable.event %> <%= link_to @event.display_name(@user), event_url(@event) %>.<p>
+<p><%= Configurable.event.indefinitize.capitalize %> is just around the corner: <%= link_to @event.display_name(@user), event_url(@event) %>.<p>
+
+<p>Want to go on this <%= Configurable.event %>? Please visit the <%= link_to "#{Configurable.event} page", event_url(@event) %> to sign up to attend the <%= Configurable.event %> or to join the waitlist. If you're on the waitlist and a spot opens up, we'll let you know by email.</p>
 
 <%= render 'event', event: @event, user: @user %>
-
-<p>
-  Please visit the <%= link_to "#{Configurable.event} page", event_url(@event) %> to sign up.
-  Change what invitations you receive by <%= link_to 'editing your wards', my_wards_url %>.
-</p>

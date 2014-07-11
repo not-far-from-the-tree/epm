@@ -2,10 +2,3 @@ This email confirms that you are attending <%= @event.display_name(@user) %>, <%
 
 
 <%= render 'event', event: @event, user: @user -%>
-
-
-If you are unable to attend the <%= Configurable.event %>, please visit the <%= Configurable.event %> page to cancel.
-
-Please note: Once you have signed up for <%= Configurable.event.indefinitize %>, we are counting on you to be there. If you cancel last minute, we likely won't be able to fill your spot.
-
-If you fail to show up for <%= Configurable.event.indefinitize %> you are signed up for without a valid excuse you will be removed from our fruit-picking list.

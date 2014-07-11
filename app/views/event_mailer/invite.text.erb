@@ -1,7 +1,7 @@
 Hi <%= @user.fname %>,
 
-You are invited to attend the <%= Configurable.event %> <%= @event.display_name(@user) %>, <%= event_url(@event) %>
+<%= Configurable.event.indefinitize.capitalize %> is just around the corner: <%= @event.display_name(@user) %>, <%= event_url(@event) %>
+
+Want to go on this <%= Configurable.event %>? Please visit the <%= Configurable.event %> page to sign up to attend the <%= Configurable.event %> or to join the waitlist. If you're on the waitlist and a spot opens up, we'll let you know by email.
 
 <%= render 'event', event: @event, user: @user %>
-
-Please visit the <%= Configurable.event %> page to sign up. Change what invitations you receive by editing your wards: <%= my_wards_url %>
