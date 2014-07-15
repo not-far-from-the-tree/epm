@@ -8,10 +8,10 @@ class EventMailer < ActionMailer::Base
   #   usually passing in an array of users who all have the same permissions so can just use the first
 
   def attend(event, users)
-    users = [*users]
+    @users = [*users]
     @event = event
     # users are all participants, but as some could also be admins, need to do this for permissions:
-    @user = users.find{|u| u.ability.cannot?(:read_notes, event)} || users.first
+    @user = @users.find{|u| u.ability.cannot?(:read_notes, event)} || @users.first
     mail bcc: to(users), subject: "Attending: #{event.display_name(@user)} at #{@event.start.strftime('%a %b %e %l:%M %p')}"
   end
 

@@ -1,3 +1,5 @@
+<%= "Hi {@user.fname}," if @users.length == 1 %>
+
 This email confirms that you are attending <%= @event.display_name(@user) %>, <%= event_url(@event) %>
 
 
