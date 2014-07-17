@@ -137,7 +137,7 @@ describe "Event Attendance" do
         click_button 'Add To Waitlist'
       end
       expect(current_path).to eq event_path e
-      expect(page).to have_content 'You are on the waitlist'
+      expect(page).to have_content 'on the waitlist'
       within 'header' do
         click_link 'Events'
       end
@@ -153,7 +153,7 @@ describe "Event Attendance" do
       login_as @participant
       visit event_path e
       within '#rsvp' do
-        expect(page).to have_content 'You are on the waitlist'
+        expect(page).to have_content 'on the waitlist'
         expect(all('button').length).to eq 1
         click_button 'Withdraw Request'
       end
