@@ -354,7 +354,7 @@ class Event < ActiveRecord::Base
     User.invitable_to(self).each do |participant|
       eu = event_users.create user: participant, status: :invited
       if eu.valid?
-        Invitation.create event: self, user: participant, send_by: Time.zone.now # (participant.virgin ? Time.zone.now : 4.hours.from_now) # use commented-out code to invite virgins first
+        Invitation.create event: self, user: participant, send_by: Time.zone.now
         n += 1
       end
     end
@@ -363,12 +363,12 @@ class Event < ActiveRecord::Base
 
   def take_attendance(attended_eu_ids) # eu_ids which exist but are not passed in are no shows
     eus = event_users.where(status: EventUser.statuses_array(:attending, :attended, :no_show)).includes(:user)
-    no_longer_virgin_ids = []
     eus.each do |eu|
-      eu.update status: attended_eu_ids.include?(eu.id) ? :attended : :no_show
-      no_longer_virgin_ids << eu.user.id if eu.user.virgin
+      eu.status = attended_eu_ids.include?(eu.id) ? :attended : :no_show
+      user_attendance_changed = eu.changed?
+      eu.save
+      eu.user.update num_participated_events: eu.user.participated_events.count if user_attendance_changed # update cached # of attended events
     end
-    User.where(id: no_longer_virgin_ids).update_all(virgin: false)
   end
 
   private

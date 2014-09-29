@@ -92,13 +92,15 @@ describe User do
       expect(p2.no_show_count).to eq 1
     end
 
-    it "returns whether a user has attended any events" do
+    it "returns how many events a user has participated in" do
       p = create :participant
       e = create :participatable_event
       eu = e.attend p
-      expect(p.virgin).to be_true
+      expect(p.num_participated_events).to eq 0
       e.take_attendance [eu.id]
-      expect(p.reload.virgin).to be_false
+      expect(p.reload.num_participated_events).to eq 1
+      e.take_attendance [] # i.e. indicate that the user did *not* attend
+      expect(p.reload.num_participated_events).to eq 0
     end
 
   end

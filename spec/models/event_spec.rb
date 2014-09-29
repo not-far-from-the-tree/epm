@@ -385,7 +385,7 @@ describe Event do
       it "invites involved participants who are interested in the ward" do
         w = create :ward # creating a new ward ensures there are no existing participants interested in it
         e = create :participatable_event, ward: w
-        experienced = create :participant, virgin: false
+        experienced = create :participant, num_participated_events: 10
         experienced.user_wards.create ward: w
         virgin = create :participant
         virgin.user_wards.create ward: w
