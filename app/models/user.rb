@@ -9,10 +9,10 @@ class User < ActiveRecord::Base
 
   validates :email, :fname, :lname, :phone, presence: true
 
-  def self.csv
+  def self.csv(users)
     CSV.generate force_quotes: true do |csv|
       csv << ['id', 'first name', 'last name', 'email', 'phone number', 'address', 'allow snail mail', 'joined', "events attended as #{Configurable.participant.indefinitize}", 'roles']
-      all.each do |user|
+      users.each do |user|
         csv << [user.id, user.fname, user.lname, user.email, user.phone, user.address, user.snail_mail, user.created_at.to_date.to_s, user.num_participated_events, user.roles.map{|r| Configurable.send(r.name)}.join(', ')]
       end
     end
