@@ -25,7 +25,7 @@ class EventsController < ApplicationController
           @sections << { q: current_user.coordinating_events.not_past, name: "#{Configurable.event.pluralize.titlecase} Led By Me", id: 'coordinating' }
         end
         if current_user.has_role? :participant
-          @sections << { q: current_user.participating_events.not_past, name: "#{Configurable.event.pluralize.titlecase} I’m Attending", id: 'attending' }
+          @sections << { q: current_user.participating_events, name: "#{Configurable.event.pluralize.titlecase} I’m Attending", id: 'attending' }
           @sections << { q: current_user.potential_events, name: "#{Configurable.event.pluralize.titlecase} I’m Waitlisted For", id: 'may_be_attending' }
         end
         if current_user.has_any_role? :coordinator, :admin
