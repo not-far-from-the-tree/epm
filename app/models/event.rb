@@ -8,7 +8,7 @@ class Event < ActiveRecord::Base
       eu_statuses = EventUser.statuses.keys.map{|s| "#{Configurable.participant.pluralize} #{s}"}
       csv << ['id', 'name', 'status', 'created', 'updated', 'start', 'finish', 'description', 'notes', Configurable.coordinator, 'address', "min #{Configurable.participant.pluralize}", "max #{Configurable.participant.pluralize}"] + eu_statuses
       events.each do |event|
-        row = [event.id, event.name, event.status, event.created_at, event.updated_at, event.start, event.finish, event.description, event.notes, event.coordinator ? event.coordinator.name : nil, event.address, event.min, event.max]
+        row = [event.id, event.name, event.status, event.created_at, event.updated_at, event.start, event.finish, event.description, event.notes, event.coordinator ? event.coordinator.display_name : nil, event.address, event.min, event.max]
         eus = event.event_users.group('event_users.status').count
         EventUser.statuses.each{|status, status_id| row << (eus[status_id] || 0) }
         csv << row
