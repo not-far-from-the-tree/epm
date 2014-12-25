@@ -1,4 +1,4 @@
-#!/home/michaelfagan/.rbenv/versions/2.0.0-p247/bin/ruby
+#!/home/michaelfagan/.rbenv/versions/2.1.1/bin/ruby
 
 require 'fcgi'
 require File.join(File.dirname(__FILE__), '../config/environment.rb')
