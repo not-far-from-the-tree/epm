@@ -1,7 +1,5 @@
 Epm::Application.routes.draw do
 
-  resources :trees
-
   root 'events#index'
 
   devise_for :users, controllers: { registrations: 'registrations' }
