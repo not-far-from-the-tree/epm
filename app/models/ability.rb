@@ -6,7 +6,7 @@ class Ability
     user ||= User.new
 
     if user.persisted?
-
+      can :manage, Tree
       can :read, Event, can_have_participants?: true
       can :calendar, Event
       can :index, :geocode

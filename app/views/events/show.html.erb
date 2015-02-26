@@ -70,23 +70,6 @@
 
 <%= next_col unless @event.description.blank? && @event.start.blank? && (@event.notes.blank? || cannot?(:read_notes, @event)) %>
 
-<% if @event.address || @event.coords %>
-  <% coords = @event.coords(current_user) %>
-  <section id="where"<%= "data-map=\"true\" data-lat=\"#{coords[0]}\" data-lng=\"#{coords[1]}\"".html_safe if coords %>>
-    <%
-      output = []
-      output << content_tag(:small, "#{@event.distance_to(current_user).round(1)} kms away") if @event.coords && current_user.coords
-      output << with_br(@event.address) if @event.address && can?(:read_specific_location, @event)
-    %>
-    <%= output.join('<br>').html_safe if output.any? %>
-    <% if @event.coords %>
-      <% content_for :js_ready do %>
-        <% if cannot? :read_specific_location, @event %>
-          $('.map').before('note: exact location and address shown only to attendees');
-        <% end %>
-      <% end %>
-    <% end %>
-  </section>
-<% end %>
+<%= render 'shared/address_and_map', thing: @event %>
 
 <%= end_cols %>
