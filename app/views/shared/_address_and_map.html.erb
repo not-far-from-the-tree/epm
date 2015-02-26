@@ -1,0 +1,10 @@
+<% if thing.address || thing.coords %>
+  <section id="where"<%= " data-map=\"true\" data-lat=\"#{thing.lat}\" data-lng=\"#{thing.lng}\"".html_safe if thing.coords %>>
+    <%
+      output = []
+      output << content_tag(:small, "#{thing.distance_to(current_user).round(1)} kms away") if thing.coords && current_user.coords
+      output << with_br(thing.address) if thing.address
+    %>
+    <%= output.join('<br>').html_safe if output.any? %>
+  </section>
+<% end %>
