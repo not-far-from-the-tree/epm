@@ -11,7 +11,7 @@ Epm::Application.routes.draw do
   get 'me', to: 'users#me'
   get 'my_wards', to: 'users#my_wards'
 
-  resources :events, except: :destroy do
+  resources :events do
     get 'calendar', on: :collection
     member do
       get 'who'
