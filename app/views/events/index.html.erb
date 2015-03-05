@@ -1,55 +1,20 @@
-<% content_for :header  do %>
-  <% if can? :calendar, Event %>
-    <%= link_to 'Monthly Calendar', calendar_events_path %>
-  <% end %>
-  <% if can? :create, Event %>
-    <%= link_to "Add New #{Configurable.event.titlecase}", new_event_path %>
-  <% end %>
-  <% if can? :export, Event %>
-    <%= link_to "Export #{Configurable.event.pluralize.titlecase}", events_path(format: 'csv') %>
-  <% end %>
-<% end %>
-
-
-<% if defined? @coordinators_not_taking_attendance %>
-  <section id="coordinators_not_taking_attendance">
-    <h2><%= Configurable.coordinator.pluralize.titlecase %> Not Taking Attendance</h2>
-    <p><%= @coordinators_not_taking_attendance.map{|c| link_to c.display_name, c}.to_sentence.html_safe %>.</p>
-  </section>
-<% end %>
-
-<%
-  sections_shown = 0
-  events_shown = 0
-%>
-<% @sections.each do |section| %>
-  <% if section[:q].any? %>
-    <%
-      sections_shown += 1
-      events_shown += section[:q].length
-    %>
-    <% section_id = section[:id] || section[:name].downcase.gsub(' ', '_') %>
-    <%# these maps turned off for now %>
-    <section id="<%= section_id %>"<%= ' data-map="side"'.html_safe if section[:q].find{|e|e.coords} && false %>>
-      <h2><%= section[:name] %></h2>
-      <%= render 'events', events: section[:q] %>
-    </section>
-  <% end %>
-<% end %>
-
-<%# not using toggle functionality for the time being %>
-<% if false && sections_shown > 3 && events_shown > 20 %>
+<%= form_tag events_path, method: :get do %>
   <% content_for :js_ready do %>
-    $('section').each(function(){
-      $('<button title="minimize this section">-</button>')
-        .prependTo($(this).children('h2'))
-        .click(function(){
-          $(this).parent().next().toggle();
-          $(this).text($(this).text() == '-' ? '+' : '-');
-          $(this).attr('title', $(this).attr('title').indexOf('min') ? 'minimize this section' : 'maximize this section');
-        });
+    $('checkbox').change(function(){
+      $(this).closest('form').submit();
     });
   <% end %>
+
+  <% Event.statuses.each do | k, v| %>
+    <%= check_box "statuses", k, checked: params['statuses'][k] == "1" %>
+    <%= label "statuses", k %>
+  <% end %>
+  <%= submit 'Search' %>
 <% end %>
 
-<%= content_tag(:p, "There are no #{Configurable.event.pluralize} to display.") if sections_shown.zero? %>
+<% if @events.any? %>
+  <%= render layout: 'events', locals: {events: @events, tag: 'li'} do %>
+<% end %>
+<% else %>
+  <p>No events found.</p>
+<% end %>

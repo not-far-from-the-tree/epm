@@ -1,10 +1,37 @@
 class EventsController < ApplicationController
  
   load_and_authorize_resource :event
-
+  #load_and_authorize_resource :events
+  #<%= pluralize @events.total_count, 'Event' %>
+  #  <ul class="events">
+  #  <% @events.each_with_index do |event, i| %>
+  #    <%= "</ul>#{next_col}<ul class=\"events\">".html_safe if defined?(switch_col) && switch_col == i %>
+  #    
+  #    <% end %>
+  #  <% end %>
+  #</ul>
   include ActionView::Helpers::TextHelper # needed for pluralize()
 
   def index
+    #render text: params.to_yaml
+    #return
+    @events = Event.all
+    if params[:commit] == "Search"
+      statuses_array = []
+      st = params[:statuses].select{|statusi, statusbool| statusbool == "1" }
+      st.each do | k,v |
+        if Event.statuses[k.to_sym]
+          statuses_array << Event.statuses[k]
+        end
+      end
+
+      @events = @events.where(status: statuses_array)
+      #render text: statuses_array
+      #return
+    end
+  end
+
+  def dashboard
     respond_to do |format|
       format.html do
         if current_user.has_role? :admin
