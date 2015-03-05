@@ -4,8 +4,6 @@ class EventsController < ApplicationController
   include ActionView::Helpers::TextHelper # needed for pluralize()
 
   def index
-    #render text: params.to_yaml
-    #return
     @events = Event.all
     if params[:commit] == "Search"
       statuses_array = []
@@ -17,8 +15,6 @@ class EventsController < ApplicationController
       end
 
       @events = @events.where(status: statuses_array)
-      #render text: statuses_array
-      #return
     end
   end
 
