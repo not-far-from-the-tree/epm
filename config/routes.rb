@@ -13,6 +13,7 @@ Epm::Application.routes.draw do
 
   resources :events do
     get 'calendar', on: :collection
+    get 'dashboard', on: :collection
     member do
       get 'who'
       get 'cancel', to: 'events#ask_to_cancel'

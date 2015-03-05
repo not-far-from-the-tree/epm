@@ -1,15 +1,6 @@
 class EventsController < ApplicationController
  
   load_and_authorize_resource :event
-  #load_and_authorize_resource :events
-  #<%= pluralize @events.total_count, 'Event' %>
-  #  <ul class="events">
-  #  <% @events.each_with_index do |event, i| %>
-  #    <%= "</ul>#{next_col}<ul class=\"events\">".html_safe if defined?(switch_col) && switch_col == i %>
-  #    
-  #    <% end %>
-  #  <% end %>
-  #</ul>
   include ActionView::Helpers::TextHelper # needed for pluralize()
 
   def index
