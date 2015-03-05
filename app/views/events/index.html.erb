@@ -6,7 +6,7 @@
   <% end %>
 
   <% Event.statuses.each do | k, v| %>
-    <%= check_box "statuses", k, checked: params['statuses'][k] == "1" %>
+    <%= check_box "statuses", k, checked: params['statuses'] ? params['statuses'][k] == "1" : false %>
     <%= label "statuses", k %>
   <% end %>
   <%= submit 'Search' %>
