@@ -21,7 +21,7 @@ describe "Events" do
         click_link 'Add New Event'
         click_button 'Cancel'
         expect(current_path).to eq root_path
-      end
+      end 
 
       it "creates a dateless event" do
         login_as @admin
@@ -41,7 +41,7 @@ describe "Events" do
         visit new_event_path
         fill_in 'Date', with: e.start.to_date
         select (e.duration / 3600), from: 'For'
-        click_button 'Save'
+        click_button 'Save' 
         expect(current_path).to eq event_path Event.last
         # expect(page).to have_content Event.humanize(e.start) # todo: figure out timezone issues causing this to fail
         expect(page).to have_content "#{e.duration_hours} hour"
@@ -543,7 +543,7 @@ describe "Events" do
       it "does not show events awaiting approval to coordinators" do
         e = create :participatable_event, status: :proposed
         login_as create :coordinator
-        visit root_path
+        visit dashboard_events_path
         expect(page).not_to have_link e.display_name
       end
 
@@ -577,7 +577,7 @@ describe "Events" do
         e = create :participatable_event, name: 'bar'
         e.attend @participant
         login_as @participant
-        visit root_path
+        visit dashboard_events_path
         within '#not_full' do
           expect(page).to have_link 'foo'
           expect(page).not_to have_link 'bar'
@@ -587,7 +587,7 @@ describe "Events" do
       it "does not show events accepting participants to coordinators" do
         create :participatable_event
         login_as create :coordinator
-        visit root_path
+        visit dashboard_events_path
         expect(all('#not_full').length).to eq 0
       end
 
@@ -639,11 +639,18 @@ describe "Events" do
     it "does not show non-participatable events to participants" do
       e = create :event, coordinator: nil, name: 'bla'
       login_as @participant
-      visit root_path
+      visit dashboard_events_path
       expect(page).not_to have_link 'bla'
     end
 
     it "shows next upcoming events on home page" do
+      current = create :participatable_event
+      login_as @admin
+      visit root_path
+      expect(page).to have_link current.display_name
+    end
+
+    it "shows next upcoming events on dashboard page" do
       current = create :participatable_event
       login_as @admin
       visit root_path
@@ -686,7 +693,7 @@ describe "Events" do
       e = create :participatable_past_event, coordinator: c
       e.event_users.create user: create(:participant), status: :attending
       login_as c
-      visit root_path
+      visit dashboard_events_path
       within '#needing_attendance_taken' do
         expect(page).to have_link e.display_name
       end
@@ -879,7 +886,7 @@ describe "Events" do
         expect(page).to have_link no_date.display_name
         expect(page).to have_link no_location.display_name
         expect(page).not_to have_link okay.display_name
-      end
+      end   
     end
 
     context "notes" do
@@ -930,19 +937,19 @@ describe "Events" do
 
       it "does not allow participants to export" do
         login_as create :participant
-        visit root_path
+        #visit root_path
         expect(page).not_to have_link 'Export Events'
       end
 
       it "does not allow coordinators to export" do
         login_as create :coordinator
-        visit root_path
+        visit events_path
         expect(page).not_to have_link 'Export Events'
       end
 
       it "exports" do
         login_as create :admin
-        visit root_path
+        visit dashboard_events_path
         click_link 'Export Events'
         csv = CSV.parse(source) # using source as page has normalized the whitespace (thus having no newlines)
         expect(csv.length).to eq (Event.count + 1)
@@ -950,7 +957,7 @@ describe "Events" do
           expect(csv.first).to include field
         end
       end
-
+ 
     end
 
   end

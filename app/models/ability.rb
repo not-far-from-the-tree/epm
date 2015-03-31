@@ -8,7 +8,7 @@ class Ability
     if user.persisted?
 
       can :read, Event, can_have_participants?: true
-      can :calendar, Event
+      can [:dashboard, :calendar], Event
       can :index, :geocode
 
       can [:me, :my_wards], User
