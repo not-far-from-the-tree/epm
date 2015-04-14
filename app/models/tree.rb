@@ -69,23 +69,23 @@ class Tree < ActiveRecord::Base
   private
 
   def check_user
-    puts "START CHECK USER"
-    puts self.to_yaml
+    # puts "START CHECK USER"
+    # puts self.to_yaml
     # puts self.user.to_yaml
-    puts self.owner.changes
+    # puts self.owner.changes
     # first, check if anything has changed
-    puts self.owner.changed?
+    # puts self.owner.changed?
     if self.owner.changed?
       # check if the name has changed, if so, create a new user
       if (self.owner.fname_changed? || self.owner.lname_changed?) && self.owner.email_changed?
         new_user_hash = self.owner.attributes
         new_user_hash.delete('id')
         new_user_hash['password'] = Devise.friendly_token.first(8)
-        puts new_user_hash.to_yaml
+        # puts new_user_hash.to_yaml
         new_user = User.create(new_user_hash)
-        puts new_user.to_yaml
-        puts new_user.errors.full_messages
-        puts new_user.id
+        # puts new_user.to_yaml
+        # puts new_user.errors.full_messages
+        # puts new_user.id
         self.submitter_id = self.owner.id
         self.owner_id = new_user.id
       end

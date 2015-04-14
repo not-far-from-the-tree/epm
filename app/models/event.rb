@@ -308,7 +308,7 @@ class Event < ActiveRecord::Base
     true
   end
   after_save do |event|
-    puts event
+    # puts event
     # check against max
     if event.max_was_changed && event.can_accept_participants?
       if !event.full? && event.waitlisted.any?

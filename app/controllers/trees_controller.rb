@@ -43,7 +43,7 @@ class TreesController < ApplicationController
     @tree = Tree.new tree_params
       
     owner_params = params.require(:tree).permit(owner_attributes: [:id, :fname, :lname, :email, :phone, :ladder, :contactnotes, :propertynotes, :address, :lat, :lng])
-    puts owner_params["owner_attributes"] 
+    # puts owner_params["owner_attributes"] 
 
     @tree.owner = User.find(owner_params["owner_attributes"]["id"].to_i)
     @tree.owner.attributes = owner_params["owner_attributes"]

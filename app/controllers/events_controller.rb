@@ -99,19 +99,25 @@ class EventsController < ApplicationController
     @event = Event.new(attrs)
     if (params["tree_id"])
       @event.trees = [Tree.find(params["tree_id"])]
-      puts @event.trees.to_yaml
+      # puts @event.trees.to_yaml
+      @trees = Tree.joins(:owner).by_distance(:origin => [@event.trees.first.owner.lat, @event.trees.first.owner.lng]).where.not({'trees.id' => [params['tree_id']]})
+      @event.address = @event.trees.first.owner.address
+      @event.lat = @event.trees.first.owner.lat
+      @event.lng = @event.trees.first.owner.lng
+    else
+      @trees = Tree.none
     end
-    @trees = Tree.joins(:owner).by_distance(:origin => [@event.trees.first.owner.lat, @event.trees.first.owner.lng]).where.not({'trees.id' => [params['tree_id']]}).page(@page).per(10)
-
-    @event.address = @event.trees.first.owner.address
-    @event.lat = @event.trees.first.owner.lat
-    @event.lng = @event.trees.first.owner.lng
+    @trees = @trees.page(@page).per(10)
   end
 
   def edit
     @page = 1
-    @trees = Tree.joins(:owner).by_distance(:origin => [@event.trees.first.owner.lat, @event.trees.first.owner.lng]).where.not({'trees.id' => @event.tree_ids}).page(@page).per(10)
-
+    if @event.trees.any?
+      @trees = Tree.joins(:owner).by_distance(:origin => [@event.trees.first.owner.lat, @event.trees.first.owner.lng]).where.not({'trees.id' => @event.tree_ids})
+    else
+      @trees = Tree.none
+    end
+    @trees = @trees.page(@page).per(10)
   end
 
   def create
