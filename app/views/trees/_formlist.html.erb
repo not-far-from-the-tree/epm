@@ -1,0 +1,34 @@
+<table>
+  <thead>
+    <tr>
+      <th colspan="2">Species</th>
+      <th>Address</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @trees.each do |tree| %>
+      <tr>
+        <td>
+          <%= check_box_tag  "event[tree_ids][]", tree.id %>     
+        </td>
+        <td>
+          <% if tree.species.present? %>
+            <% if Tree.types.include?(tree.species.capitalize.to_s) %>
+              <%= image_tag("fruits/#{tree.species.downcase}32.png") %>
+            <% end %>
+          <% end %>
+        </td>
+        <td>
+          <%= tree.species %>
+        </td>
+        <td><%= tree.owner.address %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+<% paginate @trees %>
+<%= link_to 'New Tree', new_tree_path %>

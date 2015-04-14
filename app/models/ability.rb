@@ -25,7 +25,7 @@ class Ability
       end
 
       if user.has_role? :coordinator
-        can :read, Event
+        can [:read, :create], Event
         can [:claim, :read_notes], Event, coordinator_id: nil
         can [:unclaim, :update, :read_notes, :read_specific_location, :who, :invite, :take_attendance], Event, coordinator_id: user.id
         # actually coordinators can only edit *some* event fields

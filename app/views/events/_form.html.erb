@@ -79,21 +79,132 @@
 
   <%= next_col %>
 
-  <% if @event.can_edit_attribute? :address, current_user %>
-    <%= render layout: 'shared/address_form', locals: { f: f } do %>
-      <% if @event.can_edit_attribute? :hide_specific_location, current_user %>
-        <%= f.check_box :hide_specific_location %>
-      <%= f.label :hide_specific_location, 'Hide specific location for non-attendees', style: 'font-weight:normal' %>
-      <% end %>
-      <% if Ward.any? && @event.can_edit_attribute?(:ward, current_user) %>
-        <div>
-          <%= f.label :ward_id, style: 'font-weight:normal' %>
-          <%= f.collection_select :ward_id, Ward.all, :id, :name, include_blank: true %>
-          <span class="hint"><%= link_to 'ward map', 'http://app.toronto.ca/wards/jsp/wards.jsp' %></span>
-        </div>
+  <% if @tree %>
+    <b><%= @tree.owner.fname %></b> is the primary contact for this tree and is a <b><%= @tree.relationship %></b> in relation to the property. 
+  <% else %>
+    <% if @event.can_edit_attribute? :address, current_user %>
+      <%= render layout: 'shared/address_form', locals: { f: f } do %>
+        <% if @event.can_edit_attribute? :hide_specific_location, current_user %>
+          <%= f.check_box :hide_specific_location %>
+        <%= f.label :hide_specific_location, 'Hide specific location for non-attendees', style: 'font-weight:normal' %>
+        <% end %>
+        <% if Ward.any? && @event.can_edit_attribute?(:ward, current_user) %>
+          <div>
+            <%= f.label :ward_id, style: 'font-weight:normal' %>
+            <%= f.collection_select :ward_id, Ward.all, :id, :name, include_blank: true %>
+            <span class="hint"><%= link_to 'ward map', 'http://app.toronto.ca/wards/jsp/wards.jsp' %></span>
+          </div>
+        <% end %>
       <% end %>
     <% end %>
   <% end %>
+
+  <% if @tree %>
+
+    <% if Tree.types.include?(@tree.species.capitalize.to_s) %>
+    <%= image_tag("fruits/#{@tree.species.downcase}32.png") %>
+  <% end %>
+    <%= @tree.height %> metre <b><%= @tree.species.capitalize %></b> tree at <%= @tree.owner.address %>
+  </p>
+
+
+  <p>Please keep <%= @tree.keep %> fruit for the property owner.</p>
+
+  <h3>Treatment</h3>
+  <p><%= @tree.treatment %></p>
+
+  <h3>Additional Notes</h3>
+  <p><%= @tree.additional %></p>
+
+  <% end %>
+
+<h3>Trees for this Pick</h3>  
+<div id="selectedTrees" style="width: 100%">
+<table>
+  <thead>
+    <tr>
+      <th colspan="2">Species</th>
+      <th>Address</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr class="selectedTree"></tr>
+    <%= hidden_field_tag  "event[tree_ids][]" %>     
+        <% if @event.trees.any? %>
+
+          <% @event.event_trees.each do |et| %>
+            <tr class="selectedTree">
+              <td>
+                <%= check_box_tag  "event[tree_ids][]", et.tree_id, { checked: true} %>              
+              </td> 
+              <td>
+                <% if et.tree.species.present? %>
+                  <% if Tree.types.include?(et.tree.species.capitalize.to_s) %>
+                    <%= image_tag("fruits/#{et.tree.species.downcase}32.png") %>
+                  <% end %>
+                <% end %>
+              </td>
+              <td>
+                <%= et.tree.species %>
+              </td>
+              <td><%= et.tree.owner.address %></td>
+ 
+            
+
+            </tr>
+          <% end %>
+        <% end %>
+    </tr>
+  </tbody>
+</table>
+</div>
+  <!-- Find closest trees, make a list of all trees closest to property  -->
+  <script language="">
+    $(document).ready(function () {
+      var setChange = function () {
+          console.log($('[name="event[tree_ids][]"]'));
+          $('[name="event[tree_ids][]"]').change(function (evt) {
+              console.log(evt)
+              // Add tree to list of trees 
+              // ids.push(parseInt(evt.currentTarget.value))
+              // cant have trees[], because then it will be submitted   
+              if (evt.currentTarget.checked == true) {              
+                $("#selectedTrees").find(".selectedTree:last").after($(evt.currentTarget).parent().parent())
+              } else {
+                $(evt.currentTarget).parent().parent().remove()
+              }
+              ids = []
+              $("#selectedTrees").find('[name="event[tree_ids][]"]').each(function(evt) { 
+                if (evt.currentTarget.checked == true) {
+                   ids.push($(this).val())
+                 }
+              });
+              getTrees()
+          });  
+      }
+      var ids = []
+      var getTrees = function () {
+          var lat = $('name="event[lat]"')[0].value
+          var lng = $('name="event[lng]"')[0].value
+          console.log(lat, lng)
+          $.ajax({
+              url: "/trees/closest",
+              type: "GET",
+              data : {ids : ids, lat: lat, lng: lng }
+          })
+          .success(function (response) {
+            $("#searchTrees").html(response)
+            setChange()
+          })
+      }
+      setChange()
+    })
+  </script>
+  <div id="searchTrees">
+      <%= render 'trees/formlist' %>
+  </div>
 
   <%= end_cols %>
 

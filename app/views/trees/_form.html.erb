@@ -1,22 +1,141 @@
-<%= form_for(@tree) do |f| %>
-  <% if @tree.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@tree.errors.count, "error") %> prohibited this tree from being saved:</h2>
+<%= form_for @tree do |f| %>
 
-      <ul>
-      <% @tree.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
+   <%= render 'shared/errors', thing: @tree %>
+<%= start_cols %>
+    <%= f.hidden_field :owner_id %>
+
+    <fieldset>
+      <legend>Fruit Tree Type</legend>
+        <div style="width: 33%; float: left; clear: none">
+        <% Tree.types.each_with_index do |t,i| %>
+          <% if i % ((Tree.types.count/3)+1) === 0 %>
+              </div>
+              <div style="width: 33%; float: left; clear: none">
+          <% end %>
+          <label style="clear: both; float: left">
+          <%= f.radio_button :species, t.downcase %>
+          <%= image_tag("fruits/#{t.downcase}32.png") %>
+          <%= t %>
+          </label>
+        <% end %>
+        </div>
+        <div style="clear: both; float: left">
+          Other : <%= f.text_field :species_other %>
+        </div>
+    </fieldset>
+
+    <div class="field">
+
+      <%= f.label :height %><br>
+      <%= f.select(:height, options_for_select(Tree.height_labels)) %>
+    </div>  
+
+    <div class="field">
+      <%= f.label :treatment %><br>
+      <%= f.text_area :treatment %>
     </div>
-  <% end %>
 
-  <div class="field">
-    <%= f.label :species %><br>
-    <%= f.text_field :species %>
-  </div>
-  <%= render 'shared/address_form', f: f %>
+    <fieldset>
+      <legend>Do you want to keep 1/3 of the fruit</legend>
+      <label style="margin:0 0.7em"><%= f.radio_button :keep, :yes %>Yes</label>
+      <label style="margin:0 0.7em"><%= f.radio_button :keep, :abit %>Just a bit, Less than 1/3</label>
+      <label style="margin:0 0.7em"><%= f.radio_button :keep, :no %>No</label>
+    </fieldset> 
+
+    <div class="field">
+      <%= f.label :additional, "Are there any additional notes?" %><br>
+      <%= f.text_area :additional %>
+    </div>
+
   <div class="actions">
     <%= f.submit %>
   </div>
+
+
+<%= next_col %>
+
+
+   <fieldset>
+      <legend>Which best describes you?</legend>
+      <label style="margin:0 0.7em"><%= f.radio_button :relationship, :propertyowner %>Property Owner</label>
+      <label style="margin:0 0.7em"><%= f.radio_button :relationship, :tenant %>Tenant</label>
+      <label style="margin:0 0.7em"><%= f.radio_button :relationship, :friend %>Friend</label>
+    </fieldset>
+
+  <% content_for :js_ready do %>
+        var toggle = function (value) {
+          if (value == "propertyowner") {
+            $("#propertyowner").show();
+            $("#notpropertyowner").hide();
+          } else {
+            console.log($("#propertyowner"), $("#notpropertyowner"))
+            $("#propertyowner").hide();
+            $("#notpropertyowner").show();
+          }
+        }
+        $("#propertyowner").hide();
+        $("#notpropertyowner").hide();
+        $('[name="tree[relationship]"]').each(function(i, thing) {
+          if (thing.checked == true) {
+            toggle(thing.value)
+          }
+        })
+        $('[name="tree[relationship]"]').change(function(evt) {
+          toggle(evt.currentTarget.defaultValue)
+        });
+
+   <% end %>
+    <!-- if the user is a property owner, just include a card with their info -->
+
+    <div id="propertyowner">
+      <%= f.fields_for :owner, @tree.owner do |uf| %>
+        <%#= uf.hidden_field :id %>
+        You, <%= @tree.owner.fname %> <%= @tree.owner.lname %>, are adding a tree found at your property, <%= @tree.owner.address %>.
+      <% end %>
+
+    </div>
+    <!-- if the user is not a property owner, just include a card with their info -->
+    <div id="notpropertyowner">
+      <%= f.fields_for :owner, @tree.owner do |uf| %>
+        <%= uf.hidden_field :id %>
+        <fieldset>
+          <legend>Name <%= required %></legend>
+          <%= uf.text_field :fname, placeholder: 'First' %><br>
+          <%= uf.text_field :lname, placeholder: 'Last' %>
+        </fieldset>
+
+        <div class="field">
+          <%= uf.label :email %> <%= required %><br>
+          <%= uf.email_field :email %>
+        </div>
+
+        <div class="field">
+          <%= uf.label :phone %>  <%= required %><br>
+          <%= uf.phone_field :phone %>
+        </div>
+
+        <%= render layout: 'shared/address_form', locals: { f: uf } do %>
+       <% end %>
+
+      <fieldset>
+        <legend>Do have a ladder on the property?</legend>
+          <label style="margin:0 0.7em"><%= uf.radio_button :ladder, :yes %>Yes</label>
+          <label style="margin:0 0.7em"><%= uf.radio_button :ladder, :borrow %>I can borrow one from a neighbour</label>
+          <label style="margin:0 0.7em"><%= uf.radio_button :ladder, :no %>No</label>
+      </fieldset>
+
+      <div class="field">
+        <%= uf.label :contactnotes, "Contact Notes" %>  <%= required %><br>
+        <%= uf.text_area :contactnotes %>
+      </div>
+
+      <div class="field">
+        <%= uf.label :propertynotes, "Property Notes" %>  <%= required %><br>
+        <%= uf.text_area :propertynotes %>
+      </div>
+
+    <% end %>
+  </div>
+<%= end_cols %>
+
 <% end %>
