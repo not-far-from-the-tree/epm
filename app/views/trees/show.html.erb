@@ -1,0 +1,23 @@
+<p id="notice"><%= notice %></p>
+	<p>
+	<% if Tree.types.include?(@tree.species.capitalize.to_s) %>
+		<%= image_tag("fruits/#{@tree.species.downcase}32.png") %>
+	<% end %>
+
+	  <%= @tree.height %> metre <b><%= @tree.species.capitalize %></b> tree at <%= @tree.owner.address %>
+	</p>
+	<b><%= @tree.owner.fname %></b> is the primary contact for this tree and is a <b><%= @tree.relationship %></b> in relation to the property. 
+
+	<p>Please keep <%= @tree.keep %> fruit for the property owner.</p>
+
+	<h3>Treatment</h3>
+	<p><%= @tree.treatment %></p>
+
+	<h3>Additional Notes</h3>
+	<p><%= @tree.additional %></p>
+
+  <% if can? :create, Event %>
+    <%= link_to "Add New #{Configurable.event.titlecase} for this Tree", new_event_path({"tree_id" => @tree.id}) %> |
+  <% end %>
+	<%= link_to 'Edit', edit_tree_path(@tree) %> |
+	<%= link_to 'Back', trees_path %>

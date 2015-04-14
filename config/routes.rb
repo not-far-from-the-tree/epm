@@ -31,6 +31,10 @@ Epm::Application.routes.draw do
   put 'settings', to: 'settings#update', as: 'settings'
   get 'settings', to: 'settings#show'
 
+  resources :trees do
+    get 'closest', on: :collection
+  end   
+
   get 'geocode', to: 'geocode#index'
 
 end

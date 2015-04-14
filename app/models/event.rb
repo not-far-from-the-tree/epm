@@ -1,5 +1,7 @@
 class Event < ActiveRecord::Base
-
+  has_many :event_trees
+  has_many :trees, :through => :event_trees 
+  accepts_nested_attributes_for :event_trees
   strip_attributes
 
   def self.csv(events)
@@ -306,6 +308,7 @@ class Event < ActiveRecord::Base
     true
   end
   after_save do |event|
+    puts event
     # check against max
     if event.max_was_changed && event.can_accept_participants?
       if !event.full? && event.waitlisted.any?

@@ -93,10 +93,25 @@ class EventsController < ApplicationController
   def new
     attrs = {}
     attrs[:start] = "#{params['start_day']} #{Event.default_time}" if params['start_day']
+    @page = 1
+
+
     @event = Event.new(attrs)
+    if (params["tree_id"])
+      @event.trees = [Tree.find(params["tree_id"])]
+      puts @event.trees.to_yaml
+    end
+    @trees = Tree.joins(:owner).by_distance(:origin => [@event.trees.first.owner.lat, @event.trees.first.owner.lng]).where.not({'trees.id' => [params['tree_id']]}).page(@page).per(10)
+
+    @event.address = @event.trees.first.owner.address
+    @event.lat = @event.trees.first.owner.lat
+    @event.lng = @event.trees.first.owner.lng
   end
 
   def edit
+    @page = 1
+    @trees = Tree.joins(:owner).by_distance(:origin => [@event.trees.first.owner.lat, @event.trees.first.owner.lng]).where.not({'trees.id' => @event.tree_ids}).page(@page).per(10)
+
   end
 
   def create
@@ -257,7 +272,7 @@ class EventsController < ApplicationController
 
     def event_params
       # should actually only enable :status to be set by admin. todo
-      params.require(:event).permit(:name, :description, :notes, :start, :start_day, :start_time_12, :start_time_p, :duration, :finish, :coordinator_id, :notify_of_changes, :status, :address, :lat, :lng, :hide_specific_location, :min, :max, :ward_id)
+      params.require(:event).permit(:name, :description, :notes, :start, :start_day, :start_time_12, :start_time_p, :duration, :finish, :coordinator_id, :notify_of_changes, :status, :address, :lat, :lng, :hide_specific_location, :min, :max, :ward_id, tree_ids: [])
     end
 
 end

@@ -7,7 +7,7 @@ class User < ActiveRecord::Base
   attr_accessor :signed_waiver
   validates :signed_waiver, acceptance: true, if: :new_record?
 
-  validates :email, :fname, :lname, :phone, presence: true
+  #validates :email, :fname, :lname, :phone, presence: true
 
   def self.csv(users)
     CSV.generate force_quotes: true do |csv|

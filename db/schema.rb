@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140929213258) do
+ActiveRecord::Schema.define(version: 20150413150207) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,6 +24,16 @@ ActiveRecord::Schema.define(version: 20140929213258) do
   end
 
   add_index "configurables", ["name"], name: "index_configurables_on_name", using: :btree
+
+  create_table "event_trees", force: true do |t|
+    t.integer  "event_id"
+    t.integer  "tree_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "event_trees", ["event_id"], name: "index_event_trees_on_event_id", using: :btree
+  add_index "event_trees", ["tree_id"], name: "index_event_trees_on_tree_id", using: :btree
 
   create_table "event_users", force: true do |t|
     t.integer  "event_id"
@@ -81,6 +91,26 @@ ActiveRecord::Schema.define(version: 20140929213258) do
 
   add_index "roles", ["user_id"], name: "index_roles_on_user_id", using: :btree
 
+  create_table "trees", force: true do |t|
+    t.string   "species"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.decimal  "lat",          precision: 9, scale: 6
+    t.decimal  "lng",          precision: 9, scale: 6
+    t.integer  "owner_id"
+    t.string   "height",                               default: "0"
+    t.text     "treatment"
+    t.integer  "keep"
+    t.text     "additional"
+    t.string   "relationship"
+    t.string   "subspecies"
+    t.date     "ripen"
+    t.boolean  "pickable"
+    t.integer  "submitter_id"
+  end
+
+  add_index "trees", ["owner_id"], name: "index_trees_on_owner_id", using: :btree
+
   create_table "user_wards", force: true do |t|
     t.integer  "user_id"
     t.integer  "ward_id"
@@ -115,6 +145,10 @@ ActiveRecord::Schema.define(version: 20140929213258) do
     t.string   "lname"
     t.boolean  "snail_mail",                                      default: false
     t.integer  "num_participated_events",                         default: 0
+    t.string   "ladder"
+    t.text     "contactnotes"
+    t.text     "propertynotes"
+    t.integer  "ward"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
