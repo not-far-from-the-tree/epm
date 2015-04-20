@@ -58,7 +58,7 @@ class UsersController < ApplicationController
   def update
     if params['commit'] && params['commit'].downcase == 'cancel'
       redirect_to @user, notice: 'Changes not saved.'
-    elsif @user.update params.require(:user).permit(:fname, :lname, :email, :phone, :address, :snail_mail, :lat, :lng, ward_ids: [])
+    elsif @user.update params.require(:user).permit(:fname, :lname, :email, :phone, :address, :snail_mail, :lat, :lng, :home_ward, ward_ids: [])
       # note the params permitted above need to also be listed in the registrations controller
       redirect_to @user, notice: 'Profile was successfully updated.'
     else

@@ -33,6 +33,21 @@
 
 <%= next_col %>
 
+<script language="">
+  $(document).ready(function () {
+      $("[name='user[home_ward]']").change(function (evt) {
+        var ward = evt.currentTarget.value;
+        $("#ward_"+ward)[0].checked = true;
+      });
+  });
+</script>
+  <div>
+    <%= f.label :home_ward, style: 'font-weight:normal' %>
+    <%= f.collection_select :home_ward, Ward.all, :id, :name, include_blank: true %>
+    <span class="hint"><%= link_to 'ward map', 'http://app.toronto.ca/wards/jsp/wards.jsp' %></span>
+  </div>
+
+
 <%= render layout: 'shared/address_form', locals: { f: f } do %>
   <div><%= f.check_box :snail_mail %> <%= f.label :snail_mail, style: 'font-weight:normal' %></div>
 <% end %>

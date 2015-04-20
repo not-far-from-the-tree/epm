@@ -9,7 +9,7 @@ class RegistrationsController < Devise::RegistrationsController
 
     def configure_permitted_parameters
       # note: the params listed below are identical to in users controller update action + password and signed_waiver
-      devise_parameter_sanitizer.for(:sign_up) { |u| u.permit :email, :password, :signed_waiver, :fname, :lname, :phone, :address, :snail_mail, :lat, :lng, ward_ids: [] }
+      devise_parameter_sanitizer.for(:sign_up) { |u| u.permit :email, :password, :signed_waiver, :fname, :lname, :phone, :address, :snail_mail, :lat, :lng, :home_ward, ward_ids: [] }
     end
 
     def add_to_mailing_list
