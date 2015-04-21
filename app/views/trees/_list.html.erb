@@ -13,7 +13,7 @@
         <td>
           <% if tree.species.present? %>
             <% if Tree.types.include?(tree.species.capitalize.to_s) %>
-              <%= image_tag("fruits/#{tree.species.downcase}32.png") %>
+              <%= image_tag("fruits/#{tree.species.downcase}16.png") %>
             <% end %>
           <% end %>
         </td>
