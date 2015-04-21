@@ -35,7 +35,7 @@ class Tree < ActiveRecord::Base
   end
 
   def self.types
-    ["Apple","Apricot","Cherry","Crabapple","Elderberry","Ginkgo","Grape","Mulberry","Nectarine","Pawpaw","Peach","Pear","Persimmon","Plum","Quince","Serviceberry","Sumac"]
+    ["Apple","Apricot","Cherry","Crabapple","Elderberry","Ginkgo","Grape","Mulberry","Pawpaw","Peach","Pear","Persimmon","Plum","Quince","Serviceberry"]
   end
 
   def check_species
