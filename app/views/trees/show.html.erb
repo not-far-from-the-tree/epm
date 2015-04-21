@@ -20,5 +20,5 @@
     <%= link_to "Add New #{Configurable.event.titlecase} for this Tree", new_event_path({"tree_id" => @tree.id}) %> |
   <% end %>
 	<%= link_to 'Edit', edit_tree_path(@tree) %> |
-    <%= link_to 'Destroy', @tree, method: :delete, data: { confirm: 'Are you sure?' } %> |
+    <%= link_to 'Delete', @tree, method: :delete, data: { confirm: 'Are you sure?' } %> |
 	<%= link_to 'Back', trees_path %>
