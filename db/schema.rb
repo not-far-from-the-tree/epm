@@ -151,6 +151,7 @@ ActiveRecord::Schema.define(version: 20150420201910) do
     t.integer  "ward"
     t.boolean  "waiver",                                          default: false
     t.integer  "home_ward"
+
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

@@ -6,7 +6,7 @@
 
   <%= render 'users/form_inner', f: f, user: resource %>
 
-  <fieldset>
+  <fieldset id="liability">
     <legend>Volunteer release of liability</legend>
     <% waiver_label = 'I have read and agree to the above release of liability' %>
     <div style="height:10em;overflow:auto;margin:0.4em 0 0.4em 1em;border:solid grey;border-width:1px;padding:0.3em">
@@ -27,10 +27,25 @@
       <p>In entering into this Release Agreement I am not relying on any oral or written representations or statements made by the Releasees with respect to the safety of harvesting fruit, other than what is set forth in this Release Agreement;</p>
       <p>I CONFIRM THAT I HAVE READ AND UNDERSTOOD THIS RELEASE AGREEMENT PRIOR TO SIGNING IT, AND I AM AWARE THAT BY CLICKING “<%= waiver_label %>” BELOW I AM WAIVING CERTAIN LEGAL RIGHTS WHICH I OR MY HEIRS, NEXT OF KIN, EXECUTORS, ADMINISTRATORS, ASSIGNS AND REPRESENTATIVES MAY HAVE AGAINST THE RELEASEES.</p>
     </div>
-    <%= f.check_box :signed_waiver %>
-    <%= f.label :signed_waiver, waiver_label %>
+    <%= f.check_box :waiver %>
+    <%= f.label :waiver, waiver_label %>
   </fieldset>
 
+  <script language="">
+    $(document).ready(function () {
+        if ($("#user_participate_in_picks").prop("checked") == false) {
+          $("#liability").hide()
+        }
+        $("#user_participate_in_picks").change(function (evt) {
+            if ($(this).prop("checked") == true) {
+              $("#liability").show()           
+            } else {
+              $("#liability").hide()      
+            }
+
+        })
+    })
+  </script>
   <%= submit 'Sign up' %>
 
 <% end %>

@@ -1,6 +1,12 @@
 <%= start_cols %>
 
 <fieldset>
+  <legend>How do you want to participate in Not Far From the Tree?</legend>
+  <label style="margin:0 0.7em"><%= f.check_box  :participate_in_picks %> I want to participate in NFFTT picks</label>
+  <label style="margin:0 0.7em"><%= f.check_box  :add_trees %> I want to add trees to NFFTT's tree database</label>
+</fieldset>
+
+<fieldset>
   <legend>Name <%= required %></legend>
   <%= f.text_field :fname, placeholder: 'First' %><br>
   <%= f.text_field :lname, placeholder: 'Last' %>
@@ -74,7 +80,7 @@
     <% end %>
     <%= end_cols %>
 
-    <%= next_col %>
+    <%= next_col %> 
 
     <a href="http://app.toronto.ca/wards/jsp/wards.jsp" style="display:block;text-align:right">
       <img src="http://www.toronto.ca/wards2000/images/wards_keymap.gif" width="602" height="334" alt="map of Toronto wards">
