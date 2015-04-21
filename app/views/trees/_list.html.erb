@@ -20,7 +20,7 @@
         <td>
           <%= tree.species %>
         </td>
-        <td><%= tree.owner.address %></td>
+        <td><%= tree.owner.address.split(/[\n,]+/)[0] %>...</td>
         <% if @add %>
           <td><button type="button" class="addTree" value="<%=tree.id %>">+</button></td>
         <% else %>
