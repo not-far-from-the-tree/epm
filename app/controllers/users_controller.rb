@@ -47,6 +47,14 @@ class UsersController < ApplicationController
     end
   end
 
+  def destroy
+    if @user.destroy
+      redirect_to action: "index", notice: 'User deleted.'
+    else 
+      redirect_to @user, notice: 'User not deleted.'
+    end
+  end
+
   def show
     @past_coordinating = @user.coordinating_events.past
     @past_participating = @user.participated_events
