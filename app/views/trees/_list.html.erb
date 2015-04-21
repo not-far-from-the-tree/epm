@@ -20,7 +20,7 @@
             <%= link_to (tree.owner.address.split(/[\n,]+/)[0]).to_s + "...", tree %></td>
         </div>
         <div style="clear: none; float: left">
-          <%= link_to "Add #{Configurable.event.titlecase}", new_event_path(tree_id: tree.id), {class: "button"} %>
+          <%= link_to "Schedule #{Configurable.event.titlecase}", new_event_path(tree_id: tree.id), {class: "button"} %>
         </div>
       </li>
     <% end %>
