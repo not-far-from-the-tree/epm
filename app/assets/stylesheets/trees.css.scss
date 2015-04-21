@@ -2,6 +2,24 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-th {
-	text-align : left;
+
+ul#tree_list {
+	
 }
+
+ul#tree_list li {
+	height: 30px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	list-style-type: none;
+	clear: both;
+}
+
+ul#tree_list li:hover {
+	background: rgba(0,0,0,0.1)
+}
+
+a {
+	text-decoration: none
+}
+

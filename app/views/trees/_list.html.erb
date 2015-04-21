@@ -1,38 +1,30 @@
-<table>
-  <thead>
-    <tr>
-      <th colspan="2">Species</th>
-      <th>Address</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
+<ul id="tree_list">
     <% @trees.each do |tree| %>
-      <tr>
-        <td>
+      <li>
+        <div style="width: 25px; clear: none; float: left; padding-left: 10px">
           <% if tree.species.present? %>
             <% if Tree.types.include?(tree.species.capitalize.to_s) %>
               <%= image_tag("fruits/#{tree.species.downcase}16.png") %>
+            <% else %>
+              &nbsp;
             <% end %>
+            <% else %>
+              &nbsp;
           <% end %>
-        </td>
-        <td>
-          <%= tree.species %>
-        </td>
-        <td><%= tree.owner.address.split(/[\n,]+/)[0] %>...</td>
-        <% if @add %>
-          <td><button type="button" class="addTree" value="<%=tree.id %>">+</button></td>
-        <% else %>
-          <td><%= link_to 'Show', tree %></td>
-          <td><%= link_to 'Edit', edit_tree_path(tree) %></td>
-          <td><%= link_to 'Destroy', tree, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-        <% end %>
-
-      </tr>
+          
+        </div>
+        <div style="width: 30%; clear: none; float: left">
+          <%= link_to tree.species, tree %>
+        </div>
+        <div style="width: 30%; clear: none; float: left">
+            <%= link_to (tree.owner.address.split(/[\n,]+/)[0]).to_s + "...", tree %></td>
+        </div>
+        <div style="clear: none; float: left">
+          <%= link_to "Add #{Configurable.event.titlecase}", new_event_path(tree_id: tree.id), {class: "button"} %>
+        </div>
+      </li>
     <% end %>
-  </tbody>
-</table>
+</ul>
 
 <br>
 <% paginate @trees %>
