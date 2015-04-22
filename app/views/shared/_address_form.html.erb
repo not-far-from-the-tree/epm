@@ -1,6 +1,9 @@
 <div class="field" id="address">
-
-  <%= f.label :address, 'Full Address' %>
+  <% if controller.controller_name == "trees" %>
+    <%= f.label :address, 'Fruit Tree Address' %>
+  <% else %>
+    <%= f.label :address, 'Full Address' %>
+  <% end %>
   <% if local_assigns.has_key? :hint %>
     <span class="hint"><%= hint %></span>
   <% end %>
