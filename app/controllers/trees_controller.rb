@@ -42,7 +42,7 @@ class TreesController < ApplicationController
     # puts '====in create method'
     @tree = Tree.new tree_params
       
-    owner_params = params.require(:tree).permit(owner_attributes: [:id, :fname, :lname, :email, :phone, :ladder, :contactnotes, :propertynotes, :address, :lat, :lng])
+    owner_params = params.require(:tree).permit(owner_attributes: [:id, :fname, :lname, :email, :phone, :ladder, :contactnotes, :propertynotes, :home_ward, :address, :lat, :lng])
     puts owner_params["owner_attributes"] 
 
     @tree.owner = User.find(owner_params["owner_attributes"]["id"].to_i)

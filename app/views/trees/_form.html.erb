@@ -116,6 +116,11 @@
 
         <%= render layout: 'shared/address_form', locals: { f: uf } do %>
        <% end %>
+        <div>
+          <%= uf.label :home_ward, style: 'font-weight:normal' %>
+          <%= uf.collection_select :home_ward, Ward.all, :id, :name, include_blank: true %>
+          <span class="hint"><%= link_to 'ward map', 'http://app.toronto.ca/wards/jsp/wards.jsp' %></span>
+        </div>
 
       <fieldset>
         <legend>Do have a ladder on the property?</legend>

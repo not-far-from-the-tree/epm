@@ -104,6 +104,7 @@ class EventsController < ApplicationController
     @trees = Tree.joins(:owner).by_distance(:origin => [@event.trees.first.owner.lat, @event.trees.first.owner.lng]).where.not({'trees.id' => [params['tree_id']]}).page(@page).per(10)
 
     @event.address = @event.trees.first.owner.address
+    @event.ward_id = @event.trees.first.owner.home_ward
     @event.lat = @event.trees.first.owner.lat
     @event.lng = @event.trees.first.owner.lng
   end
