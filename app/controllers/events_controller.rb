@@ -93,12 +93,10 @@ class EventsController < ApplicationController
   def new
     attrs = {}
     attrs[:start] = "#{params['start_day']} #{Event.default_time}" if params['start_day']
-    @page = 1
-
     @event = Event.new(attrs)
     if (params["tree_id"])
       @event.trees = [Tree.find(params["tree_id"])]
-      @trees = Tree.joins(:owner).by_distance(:origin => [@event.trees.first.owner.lat, @event.trees.first.owner.lng]).where.not({'trees.id' => [params['tree_id']]}).page(@page).per(10)
+      @trees = Tree.closest [@event.trees.first.owner.lat, @event.trees.first.owner.lng], [params['tree_id']], nil
       @event.address = @event.trees.first.owner.address
       @event.ward_id = @event.trees.first.owner.home_ward
       @event.lat = @event.trees.first.owner.lat
@@ -110,9 +108,7 @@ class EventsController < ApplicationController
   end
 
   def edit
-    @page = 1
-    @trees = Tree.joins(:owner).by_distance(:origin => [@event.trees.first.owner.lat, @event.trees.first.owner.lng]).where.not({'trees.id' => @event.tree_ids}).page(@page).per(10)
-
+    @trees = Tree.closest [@event.trees.first.owner.lat, @event.trees.first.owner.lng], @event.tree_ids, nil
   end
 
   def create

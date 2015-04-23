@@ -44,26 +44,12 @@ class Tree < ActiveRecord::Base
     end
   end 
 
-#  def calculate_height
-#    h = self.fauxheight.to_f
-#    if self.uom == "feet" 
-#      self.height = h * 0.3048
-#    elsif self.uom == "stories"
-#      # according to wikipedia, there are about 3 metres per story
-#      self.height = h * 3
-#    else
-#      self.height = h  
-#    end
-#  end 
-
-  def closest 
-    @add = true
+  def self.getclosest(origin, ids, page)
     @page = 1
-    if params['page'].present? && params['page'].to_i > 1
-      @page = params['page'].to_i
+    if page.present? && page.to_i > 1
+      @page = page.to_i
     end
-    @trees = Tree.joins(:user).by_distance(:origin => '146 Donlands, Toronto, ON').where.not({'trees.id' => params['ids']})
-    render :_list, layout: false
+    @trees = Tree.joins(:owner).by_distance(:origin => origin).where.not({'trees.id' => ids}).page(@page).per(10)
   end
 
   private
