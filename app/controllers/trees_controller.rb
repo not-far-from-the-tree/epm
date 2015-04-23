@@ -36,7 +36,7 @@ class TreesController < ApplicationController
     if params['ids'].blank?
       params['ids'] = []
     end
-    @trees = Tree.getclosest([params['lat'],params['lng']], params['ids'], @page)
+    @trees = Tree.closest([params['lat'],params['lng']], params['ids'], @page)
     render :_formlist, layout: false
   end
 

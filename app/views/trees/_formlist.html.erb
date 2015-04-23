@@ -1,9 +1,10 @@
 <table>
   <thead>
     <tr>
-      <th colspan="2">Species</th>
-      <th>Address</th>
-      <th colspan="3"></th>
+    <th style="width: 20px"></th>
+      <th style="width: 20px"></th>
+      <th style="width: 30%">Species</th>
+      <th style="width: 70%">Address</th>
     </tr>
   </thead>
 
@@ -16,7 +17,7 @@
         <td>
           <% if tree.species.present? %>
             <% if Tree.types.include?(tree.species.capitalize.to_s) %>
-              <%= image_tag("fruits/#{tree.species.downcase}32.png") %>
+              <%= image_tag("fruits/#{tree.species.downcase}16.png") %>
             <% end %>
           <% end %>
         </td>

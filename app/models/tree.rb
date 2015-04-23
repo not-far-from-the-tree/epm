@@ -44,7 +44,7 @@ class Tree < ActiveRecord::Base
     end
   end 
 
-  def self.getclosest(origin, ids, page)
+  def self.closest(origin, ids, page)
     @page = 1
     if page.present? && page.to_i > 1
       @page = page.to_i
