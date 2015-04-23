@@ -27,6 +27,7 @@ task :importTrees => :environment do
 	    u.fname = row[7]
 	    u.lname = row[8]
 	    u.email = row[9]
+	    u.email = (User.last.id + 1).to_s + "@example.com" if u.email.blank?
 	    u.created_at = row[84]
 	    u.updated_at = row[86]
 	    u.snail_mail = row[5].to_s.strip != "Do not mail"
@@ -49,6 +50,7 @@ task :importTrees => :environment do
 		    u2.fname = row[15]
 		    u2.lname = row[16]
 		    u2.email = row[19]
+		    u2.email = (User.last.id + 1).to_s + "@example.com" if u2.email.blank?
 		    u2.phone = row[17].to_s
 		    u2.snail_mail = row[5].to_s.strip != "Do not mail"
 		    u2.contactnotes = row[20].to_s.strip if row[20].present?
@@ -61,7 +63,7 @@ task :importTrees => :environment do
 		    u2.propertynotes = ""
 		    u2.propertynotes = row[75] if row[75].present?
 		    u2.propertynotes += "\n" + row[76] if row[76].present?
-		    u2.ward = row[27]
+		    u2.home_ward = row[27]
 		    u2.skip_confirmation!
 		    u2.save
 		     puts "owner"
@@ -81,7 +83,7 @@ task :importTrees => :environment do
 		    u.propertynotes = row[75] if row[75].present?
 		    u.propertynotes += "\n" + row[76] if row[76].present?
 		    u.ladder = ladder
-		    u.ward = row[27]
+		    u.home_ward = row[27]
 		    u.skip_confirmation!
 			u.save
 			 puts "just new owner"

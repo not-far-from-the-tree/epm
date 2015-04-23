@@ -70,3 +70,15 @@ button.ui-datepicker-current {
   display: none;
   /* this button is a link to 'today' but we don't need it and there's no option to turn it off */
 }
+ 
+ul#selectedTrees li {
+  height: 30px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  list-style-type: none;
+  clear: both;
+}
+
+ul#selectedTrees li:hover {
+  background: rgba(0,0,0,0.1)
+}

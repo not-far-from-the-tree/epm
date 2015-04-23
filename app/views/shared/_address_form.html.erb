@@ -44,6 +44,7 @@
           if (data[0]) {
             $('#coords input:first').val(data[0]);
             $('#coords input:last').val(data[1]);
+            $( "#event_lat" ).trigger( "change" );
             var ll = L.latLng(data[0], data[1]);
             if (editable_marker != undefined) {
               editable_marker.setLatLng(ll);

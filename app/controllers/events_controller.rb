@@ -95,18 +95,18 @@ class EventsController < ApplicationController
     attrs[:start] = "#{params['start_day']} #{Event.default_time}" if params['start_day']
     @page = 1
 
-
     @event = Event.new(attrs)
     if (params["tree_id"])
       @event.trees = [Tree.find(params["tree_id"])]
-      puts @event.trees.to_yaml
+      @trees = Tree.joins(:owner).by_distance(:origin => [@event.trees.first.owner.lat, @event.trees.first.owner.lng]).where.not({'trees.id' => [params['tree_id']]}).page(@page).per(10)
+      @event.address = @event.trees.first.owner.address
+      @event.ward_id = @event.trees.first.owner.home_ward
+      @event.lat = @event.trees.first.owner.lat
+      @event.lng = @event.trees.first.owner.lng
+    else 
+      @trees = Tree.joins(:owner).all.page(@page).per(10)
     end
-    @trees = Tree.joins(:owner).by_distance(:origin => [@event.trees.first.owner.lat, @event.trees.first.owner.lng]).where.not({'trees.id' => [params['tree_id']]}).page(@page).per(10)
-
-    @event.address = @event.trees.first.owner.address
-    @event.ward_id = @event.trees.first.owner.home_ward
-    @event.lat = @event.trees.first.owner.lat
-    @event.lng = @event.trees.first.owner.lng
+    puts @trees.to_yaml
   end
 
   def edit

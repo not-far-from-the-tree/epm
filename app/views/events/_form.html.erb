@@ -123,6 +123,7 @@
 <table>
   <thead>
     <tr>
+      <th style="width: 20px"></th>
       <th colspan="2">Species</th>
       <th>Address</th>
       <th colspan="3"></th>
@@ -134,10 +135,12 @@
     <%= hidden_field_tag  "event[tree_ids][]" %>     
         <% if @event.trees.any? %>
 
-          <% @event.event_trees.each do |et| %>
+          <% @event.event_trees.each_with_index do |et, i| %>
             <tr class="selectedTree">
               <td>
-                <%= check_box_tag  "event[tree_ids][]", et.tree_id, { checked: true} %>              
+                  <% if i != 0 %>
+                      <%= check_box_tag  "event[tree_ids][]", et.tree_id, { checked: true} %> 
+                  <% end %>          
               </td> 
               <td>
                 <% if et.tree.species.present? %>
@@ -162,37 +165,59 @@
 </div>
   <!-- Find closest trees, make a list of all trees closest to property  -->
   <script language="">
+
+
+  var getQueryVariable = function (url, variable) {
+    var query = url.split('?')[1];
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) {
+            return decodeURIComponent(pair[1]);
+        }
+    }
+    console.log('Query variable %s not found', variable);
+  }
+
+
+    var page = null;
     $(document).ready(function () {
       var setChange = function () {
-          console.log($('[name="event[tree_ids][]"]'));
           $('[name="event[tree_ids][]"]').change(function (evt) {
-              console.log(evt)
-              // Add tree to list of trees 
-              // ids.push(parseInt(evt.currentTarget.value))
-              // cant have trees[], because then it will be submitted   
-              if (evt.currentTarget.checked == true) {              
+              if (this.checked == true) {              
                 $("#selectedTrees").find(".selectedTree:last").after($(evt.currentTarget).parent().parent())
               } else {
                 $(evt.currentTarget).parent().parent().remove()
               }
               ids = []
-              $("#selectedTrees").find('[name="event[tree_ids][]"]').each(function(evt) { 
-                if (evt.currentTarget.checked == true) {
+              $("#selectedTrees").find('[name="event[tree_ids][]"]').each(function() { 
+                if (this.checked == true) {
                    ids.push($(this).val())
                  }
               });
               getTrees()
-          });  
+          }); 
+
+          $('span.page a, span.next a, span.prev a, span.first a, span.last a').click(function (evt) {
+            evt.preventDefault();
+            page = getQueryVariable(this.href, "page");
+            getTrees();
+          });
       }
       var ids = []
       var getTrees = function () {
-          var lat = $('name="event[lat]"')[0].value
-          var lng = $('name="event[lng]"')[0].value
-          console.log(lat, lng)
+          var data = {
+            ids : ids, 
+            lat: $('#event_lat')[0].value, 
+            lng: $('#event_lng')[0].value 
+          }
+          if (page != null) {
+            data["page"] = page
+          }
           $.ajax({
               url: "/trees/closest",
               type: "GET",
-              data : {ids : ids, lat: lat, lng: lng }
+              data : data
           })
           .success(function (response) {
             $("#searchTrees").html(response)
@@ -200,6 +225,22 @@
           })
       }
       setChange()
+      console.log($("#event_lat"))
+      $("#event_lat").change(function (evt) {
+          page = null;
+          getTrees()
+      });
+      $("#event_lng").change(function (evt) {
+          page = null;
+          getTrees()
+      }); 
+
+      $('span.page a, span.next a, span.prev a, span.first a, span.last a').click(function (evt) {
+        evt.preventDefault();
+        page = getQueryVariable(this.href, "page");
+        getTrees();
+      });
+
     })
   </script>
   <h1>Add nearby trees to this pick</h1>

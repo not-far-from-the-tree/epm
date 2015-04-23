@@ -23,11 +23,11 @@
         <td>
           <%= tree.species %>
         </td>
-        <td><%= tree.owner.address %></td>
+        <td><%= (tree.owner.address.split(/[\n,]+/)[0]).to_s + "..." %></td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
 <br>
-<% paginate @trees %>
+<%= paginate @trees %>

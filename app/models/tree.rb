@@ -1,5 +1,5 @@
 class Tree < ActiveRecord::Base
-  acts_as_mappable
+
 
   before_validation :check_species
   before_validation :check_user
@@ -12,9 +12,9 @@ class Tree < ActiveRecord::Base
   has_many :event_trees
   has_many :events, :through => :event_trees
   accepts_nested_attributes_for :owner
-  #accepts_nested_attributes_for :submitter
-  #attr_accessor :fauxheight
-  #attr_accessor :uom 
+
+  acts_as_mappable through: :owner
+
   attr_accessor :species_other
 
   # enum keep: [ "a 1/3 of the", "less than 1/3 of the", "no" ]

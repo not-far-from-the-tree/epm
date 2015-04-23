@@ -32,8 +32,9 @@ class TreesController < ApplicationController
     if params['page'].present? && params['page'].to_i > 1
       @page = params['page'].to_i
     end
-    @trees = Tree.joins(:owner).by_distance(:origin => [params['lat'],params['lng']]).where.not({'trees.id' => params['ids']})
-    render :_list, layout: false
+
+    @trees = Tree.joins(:owner).by_distance(:origin => [params['lat'],params['lng']]).where.not({'trees.id' => params['ids']}).page(@page).per(10)
+    render :_formlist, layout: false
   end
 
   # POST /trees
