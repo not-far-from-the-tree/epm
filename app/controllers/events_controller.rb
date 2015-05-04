@@ -108,7 +108,13 @@ class EventsController < ApplicationController
   end
 
   def edit
-    @trees = Tree.closest [@event.trees.first.owner.lat, @event.trees.first.owner.lng], @event.tree_ids, nil
+    if @event.trees.present?
+      @trees = Tree.closest [@event.trees.first.owner.lat, @event.trees.first.owner.lng], @event.tree_ids, nil
+    elsif @event.address.present?
+      @trees = Tree.closest [@event.lat, @event.lng], [], nil
+    else 
+      @trees = Tree.joins(:owner).all.page(@page).per(10)
+    end
   end
 
   def create
