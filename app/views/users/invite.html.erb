@@ -1,0 +1,13 @@
+<ol class="open_events">
+  <% @events.each do |event| %>
+  	
+    <% coords = event.coords(current_user) %>
+    <li<%= " data-lat=\"#{coords[0]}\" data-lng=\"#{coords[1]}\"".html_safe if coords %>>
+      <%= link_to event.display_name(current_user), event %>
+      <% if event.start.present? %>
+        <small><%= relative_time event %></small>
+      <% end %>
+     <%= link_to "Invite to #{Configurable.event.titlecase}", user_invite_path(event_id: event.id), {class: "button"} %>
+    </li>
+  <% end %>
+</ol>

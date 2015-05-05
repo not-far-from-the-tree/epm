@@ -53,3 +53,21 @@ img.avatar {
     background-color: $hover_background_colour;
   }
 }
+
+.open_events .button {
+  vertical-align: middle;
+  text-decoration: none;
+  border-radius: 5px;
+  background-color: #428bca;
+  padding: 0.2em 0.8em;
+  border: 1px solid #aaa;
+  cursor: pointer;
+  color: black;
+  &:hover, &:active, &:focus {
+    color: #333;
+    background-color: #ebebeb;
+    border-color: #adadad;
+  }
+}
+
+

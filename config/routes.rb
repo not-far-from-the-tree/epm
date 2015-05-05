@@ -7,6 +7,7 @@ Epm::Application.routes.draw do
     resources :roles, only: [:create, :destroy], shallow: true
     get 'map', on: :collection
     patch 'deactivate', on: :member
+    get 'invite'
   end
   get 'me', to: 'users#me'
   get 'my_wards', to: 'users#my_wards'
