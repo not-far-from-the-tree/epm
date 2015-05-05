@@ -1,5 +1,21 @@
 module EventsHelper
 
+  def event_user_status s
+    event_user_statuses = {
+      invited: "Invited",    
+      requested: "Requested",     
+      attending: "Attending",   
+      not_attending: "Not Attending", 
+      waitlisted: "Waitlisted",    
+      denied: "Denied",        
+      withdrawn: "Withdrawn",     
+      cancelled: "Cancelled",     
+      attended: "Attended",      
+      no_show: "No Show"        
+    }
+    event_user_statuses[s.to_sym]
+  end
+
   def date(datetime)
     # this method needs to be kept in synch with js-formatted date in events/_form.html.erb
     datetime.strftime '%A %B %e, %Y'

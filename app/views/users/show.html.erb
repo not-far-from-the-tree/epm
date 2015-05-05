@@ -81,11 +81,15 @@
     </div>
   <% end %>
 
-  <% if @past_participating.any? %>
-    <div id="past_participating">
-      <h2>Past <%= Configurable.event.pluralize.titlecase %> Attended</h2>
-      <%= render 'events/events', events: @past_participating %>
-    </div>
+  <% if @user.event_users.any? %>
+    <ol>
+      <% @user.event_users.joins(:event).order('"events"."start" asc').each do |eu| %>
+        <li><%= link_to eu.event.display_name(current_user).to_s + "  " + date(eu.event.start).to_s, eu.event %> (<%=eu.event.status.capitalize %>) <span class="label <%=eu.status %>"> <%=event_user_status(eu.status) %></span></li>
+      <% end %>
+    </ol>
   <% end %>
 
 <% end %>
+
+
+

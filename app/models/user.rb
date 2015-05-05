@@ -69,12 +69,14 @@ class User < ActiveRecord::Base
   has_many :participated_events, -> { # events where a user was marked as having attended (and thus in the past and not cancelled)
       where('event_users.status' => EventUser.statuses[:attended]).where('events.status = ?', Event.statuses[:approved])
     }, through: :event_users, source: :event
+
   def events # where the user is a participant or the coordinator
     Event.not_cancelled
       .joins("LEFT JOIN event_users ON events.id = event_users.event_id AND event_users.status IN (#{EventUser.statuses_array(:attending, :attended).join(', ')})")
       .where("events.coordinator_id = ? OR event_users.user_id = ?", id, id)
       .distinct
   end
+
   def open_invites # upcoming events the user has been invited to
     Event.not_past.not_cancelled.joins(:event_users)
       .where(
