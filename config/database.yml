@@ -1,7 +1,8 @@
 development:
-  adapter: <%= ENV['db_adapter'] %>
-  database: <%= ENV['db_name'] %>
-  host: <%= ENV['db_host'] %>
+  adapter: postgresql
+  database: epm
+  pool: 5
+  password:
 
 test:
   adapter: <%= ENV['db_adapter'] %>
