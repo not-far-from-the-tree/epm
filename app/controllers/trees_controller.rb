@@ -7,7 +7,11 @@ class TreesController < ApplicationController
 
   # GET /trees
   def index
-    @trees = Tree.all().page(1).per(20)
+    @page = 1
+    if params["page"].present?
+      @page = params["page"]
+    end
+    @trees = Tree.all().page(@page).per(20)
   end
 
   # GET /trees/1
