@@ -14,6 +14,15 @@ class TreesController < ApplicationController
     @trees = Tree.all().page(@page).per(20)
   end
 
+  def mine
+    @page = 1
+    if params["page"].present?
+      @page = params["page"]
+    end
+    @isowner = Tree.where({owner_id: current_user.id })
+    @issubmitter = Tree.where({submitter_id: current_user.id })
+  end
+
   # GET /trees/1
   def show
   end
