@@ -36,6 +36,7 @@ class Ability
 
       if user.has_role? :participant
         can [:attend, :unattend], Event
+        cannot :index, Tree
         can :read_specific_location, Event do |event|
           !event.hide_specific_location || event.participants.include?(user)
         end

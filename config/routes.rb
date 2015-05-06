@@ -32,6 +32,7 @@ Epm::Application.routes.draw do
   get 'settings', to: 'settings#show'
 
   resources :trees do
+    get 'mine', on: :collection
     get 'closest', on: :collection
   end   
 
