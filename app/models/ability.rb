@@ -20,7 +20,7 @@ class Ability
 
       if user.has_role? :admin
         can :manage, [Event, Role, :setting]
-        cannot [:claim, :attend, :unattend], Event
+        cannot [:claim, :attend], Event
         can [:index, :map, :show, :read_contact, :read_attendance, :update, :destroy, :invite], User
       end
 

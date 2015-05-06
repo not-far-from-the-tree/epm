@@ -1,4 +1,4 @@
-<ol class="events">
+<ol class="unordered">
   <% events.each do |event| %>
     <% coords = event.coords(current_user) %>
     <li<%= " data-lat=\"#{coords[0]}\" data-lng=\"#{coords[1]}\"".html_safe if coords %>>

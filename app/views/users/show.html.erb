@@ -82,9 +82,14 @@
   <% end %>
 
   <% if @user.event_users.any? %>
-    <ol>
+    <ol class="unordered">
       <% @user.event_users.joins(:event).order('"events"."start" asc').each do |eu| %>
-        <li><%= link_to eu.event.display_name(current_user).to_s + "  " + date(eu.event.start).to_s, eu.event %> (<%=eu.event.status.capitalize %>) <span class="label <%=eu.status %>"> <%=event_user_status(eu.status) %></span></li>
+        <li>
+          <%= link_to eu.event.display_name(current_user).to_s + "  " + date(eu.event.start).to_s, eu.event %> (<%=eu.event.status.capitalize %>) <span class="label <%=eu.status %>"> <%=event_user_status(eu.status) %></span>
+            <% if can?(:unattend, eu.event) && eu.status == "attending" && !eu.event.past? %>
+              <%= link_to "Cancel their Attendance", unattend_event_path(eu.event,user_id: @user.id), method: :patch %>
+            <% end %>
+        </li>
       <% end %>
     </ol>
   <% end %>
