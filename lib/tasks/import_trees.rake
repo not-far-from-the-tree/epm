@@ -27,16 +27,22 @@ task :importTrees => :environment do
 	    u.fname = row[7]
 	    u.lname = row[8]
 	    u.email = row[9]
-	    u.email = (User.last.id + 1).to_s + "@example.com" if u.email.blank?
+	    if u.email.blank?
+	    	u.email = (User.last.id + 1).to_s + "@example.com" if u.email.blank?	    	
+	    	#u.email = "placeholder_" + Time.now.strftime("%Y%m%d%H%M%S").to_s + "@example.com"
+	    end
 	    u.created_at = row[84]
 	    u.updated_at = row[86]
 	    u.snail_mail = row[5].to_s.strip != "Do not mail"
 	    u.password = Devise.friendly_token.first(8)
-	    u.phone = row[10].to_s
+	    u.phone = row[10].to_s    
 	    if row[11].present? && row[11].to_i != 0
 	    	u.phone = "Day: " + u.phone + " - Evening: " + row[11].to_s
 	    end
-		   
+	    if u.phone.blank?
+	    	u.phone = "0000000000"
+	    end	
+	    		   
 	    # the last user was a submitter, must create owner, add address to this
 	    if row[15].present? && existing_user.blank?
 	    	u.skip_confirmation!
@@ -50,7 +56,10 @@ task :importTrees => :environment do
 		    u2.fname = row[15]
 		    u2.lname = row[16]
 		    u2.email = row[19]
-		    u2.email = (User.last.id + 1).to_s + "@example.com" if u2.email.blank?
+		   	if u2.email.blank?
+		    	u2.email = (User.last.id + 1).to_s + "@example.com" if u2.email.blank?		   		
+	    		#u2.email = "placeholder_" + Time.now.strftime("%Y%m%d%H%M%S").to_s + "@example.com"
+	    	end
 		    u2.phone = row[17].to_s
 		    u2.snail_mail = row[5].to_s.strip != "Do not mail"
 		    u2.contactnotes = row[20].to_s.strip if row[20].present?
@@ -58,6 +67,9 @@ task :importTrees => :environment do
 		    if row[18].present? && row[18].to_i != 0
 		    	u2.phone += " - " + row[18].to_s
 		    end
+		    if u2.phone.blank?
+	    		u2.phone = "0000000000"
+	    	end	
 		    u2.address = address
 		    u2.ladder = ladder
 		    u2.propertynotes = ""

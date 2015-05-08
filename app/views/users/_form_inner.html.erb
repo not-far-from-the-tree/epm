@@ -1,6 +1,12 @@
 <%= start_cols %>
 
 <fieldset>
+  <legend>How do you want to participate in Not Far From the Tree?</legend>
+  <label style="margin:0 0.7em"><%= f.check_box  :participate_in_picks %> I want to participate in NFFTT picks</label>
+  <label style="margin:0 0.7em"><%= f.check_box  :add_trees %> I want to add trees to NFFTT's tree database</label>
+</fieldset>
+
+<fieldset>
   <legend>Name <%= required %></legend>
   <%= f.text_field :fname, placeholder: 'First' %><br>
   <%= f.text_field :lname, placeholder: 'Last' %>
@@ -33,6 +39,21 @@
 
 <%= next_col %>
 
+<script language="">
+  $(document).ready(function () {
+      $("[name='user[home_ward]']").change(function (evt) {
+        var ward = evt.currentTarget.value;
+        $("#ward_"+ward)[0].checked = true;
+      });
+  });
+</script>
+  <div>
+    <%= f.label :home_ward, style: 'font-weight:normal' %>
+    <%= f.collection_select :home_ward, Ward.all, :id, :name, include_blank: true %>
+    <span class="hint"><%= link_to 'ward map', 'http://app.toronto.ca/wards/jsp/wards.jsp' %></span>
+  </div>
+
+
 <%= render layout: 'shared/address_form', locals: { f: f } do %>
   <div><%= f.check_box :snail_mail %> <%= f.label :snail_mail, style: 'font-weight:normal' %></div>
 <% end %>
@@ -59,7 +80,7 @@
     <% end %>
     <%= end_cols %>
 
-    <%= next_col %>
+    <%= next_col %> 
 
     <a href="http://app.toronto.ca/wards/jsp/wards.jsp" style="display:block;text-align:right">
       <img src="http://www.toronto.ca/wards2000/images/wards_keymap.gif" width="602" height="334" alt="map of Toronto wards">

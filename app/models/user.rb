@@ -4,10 +4,16 @@ class User < ActiveRecord::Base
 
   strip_attributes
 
-  attr_accessor :signed_waiver
-  validates :signed_waiver, acceptance: true, if: :new_record?
+#  attr_accessor :signed_waiver
+  attr_accessor :participate_in_picks
+  attr_accessor :add_trees  
+  
+  validates :waiver, :acceptance => { :accept => true }, if: (:new_record? && :picks?)
+  validates :email, :fname, :lname, :phone, presence: true
 
-  #validates :email, :fname, :lname, :phone, presence: true
+  def picks?
+    participate_in_picks == "1"
+  end
 
   def self.csv(users)
     CSV.generate force_quotes: true do |csv|
