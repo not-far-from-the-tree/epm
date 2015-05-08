@@ -47,9 +47,16 @@ class UsersController < ApplicationController
     end
   end
 
+  def destroy
+    if @user.destroy
+      redirect_to action: "index", notice: 'User deleted.'
+    else 
+      redirect_to @user, notice: 'User not deleted.'
+    end
+  end
+
   def show
     @past_coordinating = @user.coordinating_events.past
-    @past_participating = @user.participated_events
   end
 
   def edit
@@ -77,6 +84,23 @@ class UsersController < ApplicationController
       flash[:notice] = 'Your account was unable to be deactivated.'
     end
     redirect_to @user
+  end
+
+  def invite 
+    @user = User.find(params['user_id'])
+    if params['event_id']
+      @event = Event.find(params['event_id'])
+      eu = @event.event_users.create user: @user, status: :invited
+      if eu.valid?
+        Invitation.create event: @event, user: @user, send_by: Time.zone.now
+      end
+      redirect_to @user, notice: 'User invited.'
+    else
+      @events = Event.accepting_participants
+          .joins("LEFT JOIN event_users ON event_users.event_id = events.id")
+          #.where.not("event_users.user_id = " + @user.id.to_s)
+          #.group("events.id")
+    end
   end
 
 end

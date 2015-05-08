@@ -53,3 +53,38 @@ img.avatar {
     background-color: $hover_background_colour;
   }
 }
+
+.open_events .button {
+  vertical-align: middle;
+  text-decoration: none;
+  border-radius: 5px;
+  background-color: #428bca;
+  padding: 0.2em 0.8em;
+  border: 1px solid #aaa;
+  cursor: pointer;
+  color: black;
+  &:hover, &:active, &:focus {
+    color: #333;
+    background-color: #ebebeb;
+    border-color: #adadad;
+  }
+}
+
+span.label {
+  display: inline;
+  padding: .2em .6em .3em;
+  font-size: 60%;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em;
+  background-color: #337ab7;
+}
+
+span.label.no_show {
+  background-color: #d9534f;
+}
+

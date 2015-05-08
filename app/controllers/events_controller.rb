@@ -249,9 +249,17 @@ class EventsController < ApplicationController
   end
 
   def unattend
-    @event.unattend current_user
+    if params["user_id"].present?
+      user = User.find(params["user_id"])
+    end
+    if params["user_id"].present? && can?(:unattend, @event)
+      @event.unattend user
+      redirect_to user, notice: user.fname + ' has been marked as not attending.'
+    else 
+      @event.unattend current_user
+      redirect_to @event, notice: current_user.fname + ' has been marked as not attending.'
+    end
     # note: no need for flash messages as that is redundant with the rsvp text in events#show
-    redirect_to @event
   end
 
   def invite

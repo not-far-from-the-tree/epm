@@ -3,10 +3,11 @@ Epm::Application.routes.draw do
   root 'events#index'
 
   devise_for :users, controllers: { registrations: 'registrations' }
-  resources :users, only: [:index, :show, :edit, :update] do
+  resources :users, only: [:index, :show, :edit, :update, :destroy] do
     resources :roles, only: [:create, :destroy], shallow: true
     get 'map', on: :collection
     patch 'deactivate', on: :member
+    get 'invite'
   end
   get 'me', to: 'users#me'
   get 'my_wards', to: 'users#my_wards'

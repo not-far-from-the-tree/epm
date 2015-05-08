@@ -8,6 +8,12 @@
   <% if can? :update, @user %>
     <%= link_to 'Edit', edit_user_path(@user) %>
   <% end %>
+  <% if can? :destroy, @user %>
+    <%= link_to 'Delete', user_path(@user), method: :delete, data: {confirm: 'Are you sure you want to delete this account?'}  %>
+  <% end %>
+  <% if can? :invite, @user %>
+    <%= link_to 'Invite to Event', user_invite_path(@user) %>
+  <% end %>
   <% if @user.id == current_user.id %>
     <%= link_to 'Change my password', edit_user_registration_path %>
     <% if @user.roles.any? && can?(:deactivate, @user) %>
@@ -75,11 +81,20 @@
     </div>
   <% end %>
 
-  <% if @past_participating.any? %>
-    <div id="past_participating">
-      <h2>Past <%= Configurable.event.pluralize.titlecase %> Attended</h2>
-      <%= render 'events/events', events: @past_participating %>
-    </div>
+  <% if @user.event_users.any? %>
+    <ol class="unordered">
+      <% @user.event_users.joins(:event).order('"events"."start" asc').each do |eu| %>
+        <li>
+          <%= link_to eu.event.display_name(current_user).to_s + "  " + date(eu.event.start).to_s, eu.event %> (<%=eu.event.status.capitalize %>) <span class="label <%=eu.status %>"> <%=event_user_status(eu.status) %></span>
+            <% if can?(:unattend, eu.event) && eu.status == "attending" && !eu.event.past? %>
+              <%= link_to "Cancel their Attendance", unattend_event_path(eu.event,user_id: @user.id), method: :patch %>
+            <% end %>
+        </li>
+      <% end %>
+    </ol>
   <% end %>
 
 <% end %>
+
+
+

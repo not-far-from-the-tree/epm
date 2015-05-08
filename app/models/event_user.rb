@@ -19,6 +19,7 @@ class EventUser < ActiveRecord::Base
     :attended,      # 8 participant had intended to attend, and did so
     :no_show        # 9 participant had intended to attend, but never showed up
   ]
+
   validates :status, presence: true
   def self.statuses_array(*syms) # shortcut for an array of multiple status values
     syms.map{|s| statuses[s]}
