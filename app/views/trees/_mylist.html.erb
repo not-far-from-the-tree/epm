@@ -1,0 +1,27 @@
+<ul id="tree_list">
+    <% trees.each do |tree| %>
+      <li>
+        <div style="width: 25px; clear: none; float: left; padding-left: 10px">
+          <% if tree.species.present? %>
+            <% if Tree.types.include?(tree.species.capitalize.to_s) %>
+              <%= image_tag("fruits/#{tree.species.downcase}16.png") %>
+            <% else %>
+              &nbsp;
+            <% end %>
+            <% else %>
+              &nbsp;
+          <% end %>
+          
+        </div>
+        <div style="width: 30%; clear: none; float: left">
+          <%= link_to tree.species, tree %>
+        </div>
+        <div style="width: 30%; clear: none; float: left">
+            <%= link_to (tree.owner.address.split(/[\n,]+/)[0]).to_s + "...", tree %></td>
+        </div>
+        <div style="clear: none; float: left">
+          <%= link_to "Schedule #{Configurable.event.titlecase}", new_event_path(tree_id: tree.id), {class: "button"} %>
+        </div>
+      </li>
+    <% end %>
+</ul>

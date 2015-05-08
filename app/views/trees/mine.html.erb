@@ -1,0 +1,14 @@
+<% if @isowner.any? %>
+	<h1>Trees I Own</h1>
+	<%= render 'mylist', trees: @isowner %>
+<% end %>
+
+<% if @issubmitter.any? %>
+	<h1>Trees I Submitted</h1>
+	<%= render 'mylist', trees: @issubmitter %> 
+<% end %>
+
+<% if !@issubmitter.any? && !@isowner.any? %>
+ You have not yet added a tree to the tree directory. Why not add one now?
+  <%= link_to "Add a Tree", new_tree_path(), {class: "button"} %>
+<% end %>
