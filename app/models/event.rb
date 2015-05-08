@@ -141,6 +141,7 @@ class Event < ActiveRecord::Base
   }
   scope :coordinatorless, -> { where coordinator: nil }
   scope :dateless, -> { where start: nil }
+  #scope :byStatus -> (listofstatuses) { where(status: listofstatuses) }
   scope :participatable, -> { where.not(start: nil).where.not(coordinator_id: nil).where('events.status = ?', statuses[:approved]) }
   scope :not_cancelled, -> { where 'events.status != ?', statuses[:cancelled] }
   scope :awaiting_approval, -> { not_past.where 'events.status = ? AND coordinator_id IS NOT NULL AND start IS NOT NULL', statuses[:proposed] }

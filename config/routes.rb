@@ -1,6 +1,6 @@
 Epm::Application.routes.draw do
 
-  root 'events#index'
+  root 'events#dashboard'
 
   devise_for :users, controllers: { registrations: 'registrations' }
   resources :users, only: [:index, :show, :edit, :update, :destroy] do
@@ -14,6 +14,7 @@ Epm::Application.routes.draw do
 
   resources :events do
     get 'calendar', on: :collection
+    get 'dashboard', on: :collection
     member do
       get 'who'
       get 'cancel', to: 'events#ask_to_cancel'
