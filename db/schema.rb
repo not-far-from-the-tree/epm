@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150423155055) do
+ActiveRecord::Schema.define(version: 20150510022441) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -95,8 +95,10 @@ ActiveRecord::Schema.define(version: 20150423155055) do
     t.string   "species"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.decimal  "lat",          precision: 9, scale: 6
+    t.decimal  "lng",          precision: 9, scale: 6
     t.integer  "owner_id"
-    t.string   "height",       default: "0"
+    t.string   "height",                               default: "0"
     t.text     "treatment"
     t.integer  "keep"
     t.text     "additional"
