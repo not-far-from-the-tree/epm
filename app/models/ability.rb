@@ -19,13 +19,14 @@ class Ability
       end
 
       if user.has_role? :admin
-        can :manage, [Event, Role, EquipmentSet, :setting]
+        can :manage, [Event, Role, EquipmentSet, Agency, :setting]
         cannot [:claim, :attend], Event
         can [:index, :map, :show, :read_contact, :read_attendance, :update, :destroy, :invite], User
       end
 
       if user.has_role? :coordinator
-        can :manage, EquipmentSet
+        can :manage, [EquipmentSet]
+        can :read, Agency
         can [:read, :create], Event
         can [:claim, :read_notes], Event, coordinator_id: nil
         can [:unclaim, :update, :read_notes, :read_specific_location, :who, :invite, :take_attendance], Event, coordinator_id: user.id

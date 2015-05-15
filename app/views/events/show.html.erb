@@ -70,6 +70,10 @@
   Equipment Set : <%= link_to @event.equipment_set.title, @event.equipment_set %>
 <% end %>
 
+<% if @event.agency.present? %>
+  <div>Agency : <%= link_to @event.agency.title, @event.agency %></div>
+<% end %>
+
 <%= paragraphs @event.description if @event.description.present? %>
 
 

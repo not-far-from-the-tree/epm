@@ -11,10 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150515013030) do
+ActiveRecord::Schema.define(version: 20150515024145) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "agencies", force: true do |t|
+    t.string   "title"
+    t.text     "description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "configurables", force: true do |t|
     t.string   "name"
@@ -73,6 +80,7 @@ ActiveRecord::Schema.define(version: 20150515013030) do
     t.boolean  "reached_max",                                    default: false
     t.integer  "ward_id"
     t.integer  "equipment_set_id"
+    t.integer  "agency_id"
   end
 
   add_index "events", ["coordinator_id"], name: "index_events_on_coordinator_id", using: :btree

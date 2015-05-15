@@ -1,5 +1,7 @@
 Epm::Application.routes.draw do
 
+  resources :agencies
+
   resources :equipment_sets
 
   root 'events#dashboard'
