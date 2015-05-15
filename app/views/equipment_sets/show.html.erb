@@ -11,8 +11,9 @@
 <h2><%= Configurable.event.pluralize.titlecase %></h2>
 
 
-<%= render "events/events", events: @events %>
-
+<% if @equipment_set.events.any? %>
+	<%= render "events/events", events: @events %>
+<% end %>
 
 
 <%= link_to 'Edit', edit_equipment_set_path(@equipment_set) %> |

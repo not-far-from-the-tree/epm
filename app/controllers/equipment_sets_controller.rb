@@ -11,7 +11,6 @@ class EquipmentSetsController < ApplicationController
 
   def new
     @equipment_set = EquipmentSet.new
-    respond_with(@equipment_set)
   end
 
   def edit
@@ -19,8 +18,11 @@ class EquipmentSetsController < ApplicationController
 
   def create
     @equipment_set = EquipmentSet.new(equipment_set_params)
-    @equipment_set.save
-    respond_with(@equipment_set)
+    if @equipment_set.save
+      render :show
+    else
+      render :index
+    end
   end
 
   def update
