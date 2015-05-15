@@ -294,16 +294,19 @@
       });
       checkTimeForSet();
     <% end %>
-    <fieldset id="equipment_set">
-      <%= f.label :equipment_set_id, style: 'font-weight:normal' %>
-      <%= f.collection_select :equipment_set_id, EquipmentSet.all, :id, :title, include_blank: true %>
-    </fieldset>
-
-    <fieldset id="agency">
-      <%= f.label :agency_id, style: 'font-weight:normal' %>
-      <%= f.collection_select :agency_id, Agency.all, :id, :title, include_blank: true %>
-    </fieldset>
-
+    <% if EquipmentSet.any? %>
+      <fieldset id="equipment_set">
+        <%= f.label :equipment_set_id, style: 'font-weight:normal' %>
+        <%= f.collection_select :equipment_set_id, EquipmentSet.all, :id, :title, include_blank: true %>
+      </fieldset>
+    <% end %>
+    <% if Agency.any? %>
+      <fieldset id="agency">
+        <%= f.label :agency_id, style: 'font-weight:normal' %>
+        <%= f.collection_select :agency_id, Agency.all, :id, :title, include_blank: true %>
+      </fieldset>
+    <% end %>
+    
     <fieldset id="coordinator" class="users">
       <legend><%= Configurable.coordinator.titlecase %></legend>
       <label style="padding:0.2em 0">
