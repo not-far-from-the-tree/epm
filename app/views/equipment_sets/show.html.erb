@@ -1,0 +1,18 @@
+<p>
+  <strong>Title:</strong>
+  <%= @equipment_set.title %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @equipment_set.description %>
+</p>
+
+<h2><%= Configurable.event.pluralize.titlecase %></h2>
+
+<%= render "events/events", events: @events %>
+
+
+
+<%= link_to 'Edit', edit_equipment_set_path(@equipment_set) %> |
+<%= link_to 'Back', equipment_sets_path %>

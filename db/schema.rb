@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150510022441) do
+ActiveRecord::Schema.define(version: 20150515013030) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,6 +24,13 @@ ActiveRecord::Schema.define(version: 20150510022441) do
   end
 
   add_index "configurables", ["name"], name: "index_configurables_on_name", using: :btree
+
+  create_table "equipment_sets", force: true do |t|
+    t.string   "title"
+    t.text     "description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "event_trees", force: true do |t|
     t.integer  "event_id"
@@ -65,6 +72,7 @@ ActiveRecord::Schema.define(version: 20150510022441) do
     t.boolean  "below_min",                                      default: false
     t.boolean  "reached_max",                                    default: false
     t.integer  "ward_id"
+    t.integer  "equipment_set_id"
   end
 
   add_index "events", ["coordinator_id"], name: "index_events_on_coordinator_id", using: :btree

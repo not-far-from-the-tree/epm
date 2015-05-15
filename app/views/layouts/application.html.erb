@@ -56,7 +56,11 @@
               <%= link_to 'Trees', trees_path %>
             </li>
           <% end %>
-
+          <% if can? :index, EquipmentSet %>
+            <li<%= ' class="active"'.html_safe if controller_name == 'equipment_sets'%>>
+              <%= link_to 'Equipment Sets', equipment_sets_path %>
+            </li>
+          <% end %>
         </ul>
         <%= link_to 'Log out', destroy_user_session_path, id: 'account' %>
       </nav>

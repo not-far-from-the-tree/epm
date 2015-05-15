@@ -1,5 +1,6 @@
 class Event < ActiveRecord::Base
   has_many :event_trees
+  belongs_to :equipment_set
   has_many :trees, :through => :event_trees 
   accepts_nested_attributes_for :event_trees
   strip_attributes

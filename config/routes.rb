@@ -1,5 +1,7 @@
 Epm::Application.routes.draw do
 
+  resources :equipment_sets
+
   root 'events#dashboard'
 
   devise_for :users, controllers: { registrations: 'registrations' }

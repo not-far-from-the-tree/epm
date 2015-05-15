@@ -1,0 +1,27 @@
+<% title 'Equipment Sets' %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @equipment_sets.each do |equipment_set| %>
+      <tr>
+        <td style="font-weight: bold; width: 30%"><%= equipment_set.title %></td>
+        <td style="font-weight: none; width: 50%"><%= equipment_set.description %></td>
+        <td><%= link_to 'Show', equipment_set %></td>
+        <td><%= link_to 'Edit', edit_equipment_set_path(equipment_set) %></td>
+        <td><%= link_to 'Delete', equipment_set, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Equipment Set', new_equipment_set_path %>

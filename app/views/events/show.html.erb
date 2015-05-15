@@ -11,7 +11,7 @@
       who_link = 'Who'
       unless @event.cancelled?
         who_link += "#{@event.past? ? ' Went' : '’s Coming'} (#{@event.users.length})"
-      end
+      end 
     %>
     <%= link_to who_link, who_event_path(@event) %>
   <% end %>
@@ -64,6 +64,10 @@
     <strong>Notes for <%= Configurable.admin.titlecase.pluralize %> and <%= Configurable.coordinator.titlecase %></strong>
     <%= paragraphs @event.notes %>
   </div>
+<% end %>
+
+<% if @event.equipment_set.present? %>
+  Equipment Set : <%= link_to @event.equipment_set.title, @event.equipment_set %>
 <% end %>
 
 <%= paragraphs @event.description if @event.description.present? %>

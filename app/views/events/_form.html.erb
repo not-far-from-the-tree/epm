@@ -39,6 +39,7 @@
             $('.ui-datepicker-trigger').text($.datepicker.formatDate('DD MM d, yy', $(this).datepicker('getDate')));
             <%# js-formatted date above to be kept in same format as date() in helpers/events %>
             $('#time_fields').css('visibility', 'visible');
+            $('#time_fields').trigger("change");
           }
         });
       <% end %>
@@ -280,6 +281,24 @@
         coordinators = User.where id: current_user.id
       end
     %>
+    <% content_for :js_ready do %>
+      var checkTimeForSet = function () {
+        if ($('#time_fields').css('visibility') != 'hidden') {
+          $("#equipment_set").show();
+        } else {
+          $("#equipment_set").hide();
+        }
+      }
+      $('#time_fields').change(function () {
+        checkTimeForSet();
+      });
+      checkTimeForSet();
+    <% end %>
+    <fieldset id="equipment_set">
+      <%= f.label :equipment_set_id, style: 'font-weight:normal' %>
+      <%= f.collection_select :equipment_set_id, EquipmentSet.all, :id, :title, include_blank: true %>
+    </fieldset>
+
     <fieldset id="coordinator" class="users">
       <legend><%= Configurable.coordinator.titlecase %></legend>
       <label style="padding:0.2em 0">
