@@ -102,6 +102,6 @@ class TreesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def tree_params
-      params.require(:tree).permit(:height, :species, :species_other, :relationship, :treatment, :keep, :additional)
+      params.require(:tree).permit(:height, :species, :species_other, :subspecies, :relationship, :treatment, :keep, :additional)
     end
 end
