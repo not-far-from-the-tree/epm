@@ -3,26 +3,17 @@
 <fieldset>
   <legend>How do you want to participate in Not Far From the Tree?</legend>
   <label style="margin:0 0.7em"><%= f.check_box  :participate_in_picks %> I want to participate in NFFTT picks</label>
+  <br />
   <label style="margin:0 0.7em"><%= f.check_box  :add_trees %> I want to add trees to NFFTT's tree database</label>
 </fieldset>
 
+
+<h1>Your NFFTT Login Info</h1>
 <fieldset>
   <legend>Name <%= required %></legend>
-  <%= f.text_field :fname, placeholder: 'First' %><br>
+  <%= f.text_field :fname, placeholder: 'First' %> &nbsp; &nbsp; &nbsp;
   <%= f.text_field :lname, placeholder: 'Last' %>
 </fieldset>
-
-<div class="field">
-  <%= f.label :email %> <%= required %><br>
-  <%= f.email_field :email %>
-  <% if user.new_record? %>
-    <br>
-    <label style="font-weight:normal">
-      <%= check_box_tag :add_to_mailing_list, true, false %>
-      Subscribe me to the Not Far From The Tree mailing list
-    </label>
-  <% end %>
-</div>
 
 <% if user.new_record? %>
   <fieldset>
@@ -32,25 +23,79 @@
   </fieldset>
 <% end %>
 
-<div class="field">
-  <%= f.label :phone %>  <%= required %><br>
-  <%= f.phone_field :phone %>
-</div>
+<%= end_cols %>
+
+
+<div id="contact_information" class="block">
+<%= start_cols %>
+
+
+  <h1>Contact Information</h1>
+  <div class="field">
+    <%= f.label :email %> <%= required %><br>
+    <%= f.email_field :email %>
+  </div>
+
+  <div class="field">
+    <%= f.label :phone %>  <%= required %><br>
+    <%= f.phone_field :phone %>
+  </div>
+
+    <% if user.new_record? %>
+      <div>
+      <label style="font-weight:normal">
+        <%= check_box_tag :add_to_mailing_list, true, false %>
+        Subscribe me to the Not Far From The Tree mailing list
+      </label>
+      </div>
+      <br />
+      You can tell me about picks by:
+      <div style="margin-left: 20px">
+        <label style="font-weight:normal">
+          <%= check_box_tag :can_email, true, user.new_record? %>
+          <b>Email</b>
+        </label>
+      </div>
+      <div style="margin-left: 20px">
+        <label style="font-weight:normal">
+          <%= check_box_tag :can_mail, true, user.new_record? %>
+          <b>Mail</b>
+        </label>
+      </div>
+      <div style="margin-left: 20px">
+        <label style="font-weight:normal">
+          <%= check_box_tag :can_phone, true, user.new_record? %>
+          <b>Phone</b>
+        </label>
+      </div>
+    <% end %>  
 
 <%= next_col %>
 
+<p style="font-style:italic"> We need your address to match you to close-by picks and to help you quickly add trees from your own property. </p>
 <script language="">
+  var active_wards = <%=Configurable.active_wards.split(",").to_json.html_safe %>
   $(document).ready(function () {
       $("[name='user[home_ward]']").change(function (evt) {
         var ward = evt.currentTarget.value;
         $("#ward_"+ward)[0].checked = true;
+        if ($.inArray(ward.toString(), active_wards) != -1) {
+          $("#inactive_ward_message").hide()
+        }
+        else {
+         $("#inactive_ward_message").show() 
+        }
       });
+      $("#inactive_ward_message").hide()
   });
 </script>
   <div>
     <%= f.label :home_ward, style: 'font-weight:normal' %>
     <%= f.collection_select :home_ward, Ward.all, :id, :name, include_blank: true %>
     <span class="hint"><%= link_to 'ward map', 'http://app.toronto.ca/wards/jsp/wards.jsp' %></span>
+    <div id="inactive_ward_message" class="note">
+        Aw! We don't serve your ward yet, but please go ahead and sign up! We're expanding every season, and we'll be sure to email you when we land in your ward!
+    </div>
   </div>
 
 
@@ -59,6 +104,8 @@
 <% end %>
 
 <%= end_cols %>
+
+</div>
 
 <% if Ward.any? %>
   <fieldset id="wards">
