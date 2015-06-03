@@ -52,6 +52,12 @@ class Tree < ActiveRecord::Base
     @trees = Tree.joins(:owner).by_distance(:origin => origin).where.not({'trees.id' => ids}).page(@page).per(10)
   end
 
+  scope :search, ->(q) {
+    db = Rails.configuration.database_configuration[Rails.env]["adapter"]
+    like = db == 'postgresql' ? 'ILIKE' : 'LIKE'
+    joins(:owner).where("trees.subspecies #{like} ? OR trees.species #{like} ? OR users.address #{like} ?", "%#{q}%", "%#{q}%", "%#{q}%")
+  }
+
   private
 
   def check_user

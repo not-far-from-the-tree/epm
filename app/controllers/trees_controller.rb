@@ -11,7 +11,12 @@ class TreesController < ApplicationController
     if params["page"].present?
       @page = params["page"]
     end
-    @trees = Tree.all().page(@page).per(20)
+    @q = params['q'] ? params['q'].strip : nil   
+    if @q.present?
+      @trees = Tree.search(@q).page(@page).per(20)
+    else 
+      @trees = Tree.all().page(@page).per(20)
+    end
   end
 
   def mine
@@ -25,6 +30,7 @@ class TreesController < ApplicationController
 
   # GET /trees/1
   def show
+    @events = EventTree.where({tree_id: @tree.id}) #.order(:start)
   end
 
   # GET /trees/new
