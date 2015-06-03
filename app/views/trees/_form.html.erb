@@ -1,7 +1,13 @@
 <%= form_for @tree do |f| %>
 
    <%= render 'shared/errors', thing: @tree %>
+  <div class="clear:both; width: 100%">
+    <p class="block" style="float: right">
+      If you want help filling out this form<br /> give us a call at 647 774 7425
+    </p>
+  </div>
 <%= start_cols %>
+
     <%= f.hidden_field :owner_id %>
 
     <fieldset>
@@ -53,7 +59,6 @@
 
 
 <%= next_col %>
-
 
    <fieldset>
       <legend>Which best describes you?</legend>
