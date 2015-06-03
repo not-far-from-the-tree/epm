@@ -5,11 +5,13 @@ class Ability
 
     user ||= User.new
 
+    can :index, :geocode
+    
     if user.persisted?
       can :manage, Tree
       can :read, Event, can_have_participants?: true
       can [:dashboard, :calendar], Event
-      can :index, :geocode
+      
 
       can [:me, :my_wards], User
       can [:show, :read_contact, :read_attendance, :update], User, id: user.id
