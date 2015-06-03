@@ -140,7 +140,9 @@
             <tr class="selectedTree">
               <td>
                   <% if i != 0 %>
-                      <%= check_box_tag  "event[tree_ids][]", et.tree_id, { checked: true} %> 
+                      <%= check_box_tag  "event[tree_ids][]", et.tree_id, { checked: true} %>
+                  <% else %>
+                      <%= hidden_field_tag  "event[tree_ids][]", et.tree_id %>
                   <% end %>          
               </td> 
               <td>
