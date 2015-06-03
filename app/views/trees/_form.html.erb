@@ -34,7 +34,7 @@
     <div class="field">
 
       <%= f.label :subspecies %><br>
-      <%= f.text_area :subspecies %>
+      <%= f.text_field :subspecies %>
     </div>  
 
     <div class="field">
@@ -126,13 +126,28 @@
           <%= uf.phone_field :phone %>
         </div>
 
-        <%= render layout: 'shared/address_form', locals: { f: uf } do %>
-       <% end %>
         <div>
           <%= uf.label :home_ward, style: 'font-weight:normal' %>
           <%= uf.collection_select :home_ward, Ward.all, :id, :name, include_blank: true %>
           <span class="hint"><%= link_to 'ward map', 'http://app.toronto.ca/wards/jsp/wards.jsp' %></span>
         </div>
+
+        <%= render layout: 'shared/address_form', locals: { f: uf } do %>
+       <% end %>
+
+       <% content_for :js_ready do %>
+          $("#bad_geocode").hide();
+       <% end %>
+       <div id="bad_geocode" class="note">
+          We couldnt find that address on a map. Could you put directions below in Property Notes and a street address (e.g. 123 Yonge St. Toronto, ON) above? 
+       </div>
+
+      <div class="field">
+        <%= uf.label :propertynotes, "Property Notes" %>  <%= required %><br>
+        <%= uf.text_area :propertynotes %>
+      </div>
+
+
 
       <fieldset>
         <legend>Do have a ladder on the property?</legend>
@@ -146,10 +161,7 @@
         <%= uf.text_area :contactnotes %>
       </div>
 
-      <div class="field">
-        <%= uf.label :propertynotes, "Property Notes" %>  <%= required %><br>
-        <%= uf.text_area :propertynotes %>
-      </div>
+
 
     <% end %>
   </div>

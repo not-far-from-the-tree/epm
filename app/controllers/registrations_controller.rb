@@ -4,12 +4,12 @@ class RegistrationsController < Devise::RegistrationsController
   before_action :configure_permitted_parameters
 
   after_action :add_to_mailing_list, only: :create, if: "user_signed_in? && params[:add_to_mailing_list]"
-
+    
   protected
 
     def configure_permitted_parameters
       # note: the params listed below are identical to in users controller update action + password and signed_waiver
-      devise_parameter_sanitizer.for(:sign_up) { |u| u.permit :email, :password, :fname, :lname, :phone, :address, :snail_mail, :lat, :lng, :home_ward, :participate_in_picks, :add_trees, :password_confirmation, :waiver, ward_ids: [] }
+      devise_parameter_sanitizer.for(:sign_up) { |u| u.permit :email, :password, :fname, :lname, :phone, :address, :snail_mail, :lat, :lng, :home_ward, :participate_in_picks, :add_trees, :password_confirmation, :property_notes, :waiver, ward_ids: [] }
     end
 
     def add_to_mailing_list
