@@ -148,4 +148,13 @@
 
     <%= end_cols %>
   </fieldset>
+
+<% if current_user.present? %>
+  <% if current_user.has_role?(:admin) %>
+    <div class="field">
+      <%= f.label :admin_notes %> <br>
+      <%= f.text_area :admin_notes %>
+    </div>
+  <% end %>
+<% end %>
 <% end %>

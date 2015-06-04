@@ -93,7 +93,15 @@
       <% end %>
     </ol>
   <% end %>
+<% end %>
 
+<% if current_user.has_role?(:admin) %>
+  <p>
+    <b>Admin Notes: </b>
+  </p>
+  <p>
+    <%=@user.admin_notes || "None" %> <br>
+  </p>
 <% end %>
 
 
