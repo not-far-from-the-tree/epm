@@ -1,20 +1,181 @@
 <p id="notice"><%= notice %></p>
-	<p>
+	<h1 class="title">	
 	<% if Tree.types.include?(@tree.species.capitalize.to_s) %>
 		<%= image_tag("fruits/#{@tree.species.downcase}32.png") %>
 	<% end %>
+	A beautiful <b><%= @tree.species.capitalize %></b></h1>
+	<h2 class="title">at <%= @tree.owner.address %></h2>
 
-	  <%= @tree.height %> metre <b><%= @tree.species.capitalize %></b> tree at <%= @tree.owner.address %>
-	</p>
-	<b><%= @tree.owner.fname %></b> is the primary contact for this tree and is a <b><%= @tree.relationship %></b> in relation to the property. 
+<div id="tree_details" class="block">
+	<h1>Tree Details</h1>
 
+	<% if @tree.subspecies.present? %>
+		<p>
+  			<b>Subspecies: </b> <%=@tree.subspecies %>
+  		</p>
+	<% end %>	
+	<p>
+  		<b>Height: </b> 
+  			<% if @tree.height.present? %>
+  				<%=@tree.height %>
+  			<% else %>
+  				Unknown
+  			<% end %>
+  	</p>
+	<% if @tree.treatment.present? %>
+		<p>
+  			<b>Treatment: </b> <%=@tree.treatment %>
+  		</p>
+	<% end %>
+	<% if @tree.additional.present? %>
+		<p>
+  			<b>Additional Notes: </b> <%=@tree.additional %>
+  		</p>
+	<% end %>
+	<% if @tree.pickable.present? %>
+		
+		<p>
+		<% if @tree.pickable == true %>
+  			This tree is pickable.
+  		<% else %>
+  			<b style="color: #ff0000">This tree is not pickable.</b>  		
+  		<% end %>
+  		</p>
+	<% end %>  	
+	<% if @tree.ripen.present? %>
+		<p>
+  			<b>This tree ripens close to: </b> <%=date(@tree.ripen) %>
+  		</p>
+	<% end %>
+
+
+
+</div>
+
+
+
+<div id="contact_information" class="block">
+	<h1>Contact Information</h1>
+	<%
+		if @tree.submitter_id.present?
+			contact = @tree.submitter
+		else 
+			contact = @tree.owner
+		end
+	 %>
+
+
+	<%= start_cols %>
+		<p>
+			<b>Name: </b> <%= contact.fname %> <%= contact.lname %>is the primary contact for this tree.
+		</p>
+		<p>
+			<b>Contact Type: </b> They are the <%=@tree.relationship %>
+		</p>
+		<p>
+			<b>Email: </b> <%= contact.email || "None" %> 
+		</p>
+		<p>
+			<b>Phone: </b> <%= contact.phone %>
+		</p>
+		<p>
+			<b>Mailing Address: </b> <%= contact.address %>
+		</p>
+		<p>
+			<b>Contact Info: </b> <%= contact.contactnotes || "None" %>
+		</p>
+
+	<%= next_col %>
+		You can contact this person by:
+		<ul>
+		<% if contact.can_email.present? %>
+			<% if contact.can_email == true %> 
+				<li>Email</li>
+			<% end %>
+		<% else %>
+			<li>Email</li>
+		<% end %>
+		<% if contact.can_phone.present? %>
+			<% if contact.can_phone == true %> 
+				<li>Phone</li>
+			<% end %>
+		<% else %>
+			<li>Phone</li>
+		<% end %>
+		<% if contact.can_mail.present? %>
+			<% if contact.can_mail == true %> 
+				<li>Mail</li>
+			<% end %>
+		<% else %>
+			<li>Mail</li>
+		<% end %>
+
+	<%= end_cols %>
+	<!-- Add contact instructions -->
+
+
+
+</div>
+
+
+
+<div id="tree_event" class="block">
+
+
+<h1>
+	Event Details   
+
+	<div style="float: right">
+	<% if can? :create, Event %>
+    	<%= link_to "Add New #{Configurable.event.titlecase} for this Tree", new_event_path({"tree_id" => @tree.id}), {class: "button"} %>
+  	<% end %>
+  	</div>
+
+  </h1>
+  <p>
+  	<b>Tree Address: </b><%=@tree.owner.address %>
+  </p>
+  <p>
+  	<b>Ward: </b><%=@tree.owner.ward %>
+  </p>
+
+ <h1>Event Instructions</h1>
 	<p>Please keep <%= @tree.keep %> fruit for the property owner.</p>
+
+	<b>Tree Access Notes: </b>
+	<p></p>
 
 	<h3>Treatment</h3>
 	<p><%= @tree.treatment %></p>
 
 	<h3>Additional Notes</h3>
 	<p><%= @tree.additional %></p>
+
+</div>
+
+<% if @events.any? %>
+
+<div id="previous_tree_events" class="block">
+	<h1>Events with this Tree</h1>
+	<ul>
+	<% @events.each do |et| %>
+      <li>
+        <%=et.event.name %> 
+        - 
+        <% if et.event.start.present? %> 
+        	<%=date(et.event.start).to_s %> 
+        	at <%=time(et.event.start).to_s %> 
+        <% else %>
+        	<i>(Date not yet set)</i>
+        <% end %>
+
+        <% if et.event.event_trees.count > 1 %> - with <%=(et.event.event_trees.count -1).to_s %> other trees <% end %>
+      </li>
+    <% end %>
+    </ul>
+</div>
+<% end %>
+
 
   <% if can? :create, Event %>
     <%= link_to "Add New #{Configurable.event.titlecase} for this Tree", new_event_path({"tree_id" => @tree.id}) %> |
