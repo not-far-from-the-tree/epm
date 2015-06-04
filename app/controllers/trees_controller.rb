@@ -45,6 +45,29 @@ class TreesController < ApplicationController
   def edit
   end
 
+  # GET /trees/1/copy
+  def copy
+    @new_tree = @tree.dup
+    @new_tree.save
+    @tree = nil
+    @tree = @new_tree
+    redirect_to action: 'edit', id: @tree.id
+  end
+
+  # GET /trees/1/copy_location
+  def copy_location
+    @new_tree = Tree.new
+    @new_tree.owner = @tree.owner
+    if @tree.owner_id != current_user.id
+      @new_tree.submitter = current_user
+    else 
+      @new_tree.relationship = "propertyowner"
+    end
+
+    @new_tree.save
+    redirect_to action: 'edit', id: @new_tree.id
+  end
+
   def closest 
     @add = true
     @page = 1

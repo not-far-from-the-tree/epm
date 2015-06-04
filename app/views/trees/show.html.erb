@@ -180,6 +180,8 @@
   <% if can? :create, Event %>
     <%= link_to "Add New #{Configurable.event.titlecase} for this Tree", new_event_path({"tree_id" => @tree.id}) %> |
   <% end %>
+  	<%= link_to 'Add a new tree with this location', copy_location_tree_path(@tree) %> |
+  	<%= link_to 'Add a new tree exactly like this', copy_tree_path(@tree) %> |
 	<%= link_to 'Edit', edit_tree_path(@tree) %> |
     <%= link_to 'Delete', @tree, method: :delete, data: { confirm: 'Are you sure?' } %> |
 	<%= link_to 'Back', trees_path %>

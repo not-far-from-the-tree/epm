@@ -38,6 +38,8 @@ Epm::Application.routes.draw do
   get 'settings', to: 'settings#show'
 
   resources :trees do
+    get 'copy', on: :member
+    get 'copy_location', on: :member
     get 'mine', on: :collection
     get 'closest', on: :collection
   end   
