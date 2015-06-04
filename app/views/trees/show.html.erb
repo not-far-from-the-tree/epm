@@ -71,7 +71,7 @@
 
 	<%= start_cols %>
 		<p>
-			<b>Name: </b> <%= contact.fname %> <%= contact.lname %>is the primary contact for this tree.
+			<b>Name: </b> <%= contact.fname %> <%= contact.lname %> is the primary contact for this tree.
 		</p>
 		<p>
 			<b>Contact Type: </b> They are the <%=@tree.relationship %>
@@ -113,7 +113,14 @@
 		<% else %>
 			<li>Mail</li>
 		<% end %>
-
+		<% if contact.do_not_contact_reason.present? %>
+			<p style="color: #ff0000"> Do not contact this person!</p>
+				<% if current_user.has_role?(:admin) %>
+					Because: <%=contact.do_not_contact_reason %>
+				<% else %>
+					If you need to know why, ask admin.
+				<% end %>
+		<% end %>
 	<%= end_cols %>
 	<!-- Add contact instructions -->
 
