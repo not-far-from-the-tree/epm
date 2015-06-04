@@ -1,7 +1,10 @@
 <h1>Listing trees</h1>
 
-<div>
-	
+<div style="float: right">
+	<%= link_to 'Add New Tree', new_tree_path, {class: 'button blue'} %>
+</div>
+
+<div style="float: left">	
 	<%= form_tag trees_path, method: :get do %>
 	  <b>Search </b> <%= text_field_tag :q, @q, placeholder: 'species or address' %>
 	  <%= submit 'Search' %>
