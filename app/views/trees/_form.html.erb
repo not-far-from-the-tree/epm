@@ -72,6 +72,8 @@
       <label style="margin:0 0.7em"><%= f.radio_button :relationship, :propertyowner %>Property Owner</label>
       <label style="margin:0 0.7em"><%= f.radio_button :relationship, :tenant %>Tenant</label>
       <label style="margin:0 0.7em"><%= f.radio_button :relationship, :friend %>Friend</label>
+      <br />
+      <label style="margin:0 0.7em"><%= f.radio_button :relationship,'nopermission' %>I don't have permission to add this tree</label>
     </fieldset>
 
   <% content_for :js_ready do %>
@@ -79,10 +81,18 @@
           if (value == "propertyowner") {
             $("#propertyowner").show();
             $("#notpropertyowner").hide();
+            $("#permission_message").hide();
+            $('input[name!="tree[relationship]"]').prop('disabled', false);
+          } else if (value == "nopermission") {
+            $("#permission_message").show();
+            $("#notpropertyowner").hide();
+            $("#propertyowner").hide();
+            $('input[name!="tree[relationship]"]').prop('disabled', true);
           } else {
-            console.log($("#propertyowner"), $("#notpropertyowner"))
             $("#propertyowner").hide();
             $("#notpropertyowner").show();
+            $("#permission_message").hide();
+            $('input[name!="tree[relationship]"]').prop('disabled', false);
           }
         }
         $("#propertyowner").hide();
@@ -99,6 +109,9 @@
    <% end %>
     <!-- if the user is a property owner, just include a card with their info -->
 
+    <div id="permission_message">
+      If you don't already have permission from the property owner, please go get it first before adding their tree to our directory.
+    </div>
     <div id="propertyowner">
       <%= f.fields_for :owner, @tree.owner do |uf| %>
         <%#= uf.hidden_field :id %>
