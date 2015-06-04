@@ -105,4 +105,11 @@
 <% end %>
 
 
+<% if (current_user.has_role?(:admin) || current_user.id == @user.id) && @user.do_not_contact_reason.present? %>
+    <div class="field">
+      <b>Do Not Contact Reason</b>:<br>
+      <%=@user.do_not_contact_reason %>
+    </div>
+<% end %>
+
 
