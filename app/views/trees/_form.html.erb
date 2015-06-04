@@ -40,7 +40,7 @@
     <div class="field">
 
       <%= f.label :height %><br>
-      <%= f.select(:height, options_for_select(Tree.height_labels)) %>
+      <%= f.select(:height, options_for_select(Tree.height_labels, @tree.height)) %>
     </div>  
 
     <div class="field">

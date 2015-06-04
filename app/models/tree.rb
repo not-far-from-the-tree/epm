@@ -19,18 +19,26 @@ class Tree < ActiveRecord::Base
 
   # enum keep: [ "a 1/3 of the", "less than 1/3 of the", "no" ]
   enum keep: [ "yes", "abit", "no" ]
-  enum height: [
-    ">3",
-    "2-3",
-    "1-2",
-    "<1"
-  ]
+#  enum height: [
+#    ">3",
+#    "2-3",
+#    "1-2",
+#    "<1"
+#  ]
+
+  enum height: {
+    :lt1 => 1,
+    :bt1n2 => 2,
+    :bt2n3 => 3,
+    :gt3 => 4
+  }
+
   def self.height_labels
   {
-    "> 3 storeys (> 9 metres, 30 feet)" => ">3",
-    "2-3 storeys (20-30 feet, 6-9 metres)" => "2-3",
-    "1 - 2 storeys (10-20 feet, 3-6 metres)" => "1-2",
-    "< 1 storey (< 10 feet, 3 metres)" => "<1"
+    "> 3 storeys (> 9 metres, 30 feet)" => :gt3,
+    "2-3 storeys (20-30 feet, 6-9 metres)" => :bt2n3,
+    "1 - 2 storeys (10-20 feet, 3-6 metres)" => :bt1n2,
+    "< 1 storey (< 10 feet, 3 metres)" => :lt1
   }
   end
 

@@ -17,7 +17,7 @@
 	<p>
   		<b>Height: </b> 
   			<% if @tree.height.present? %>
-  				<%=@tree.height %>
+  				<%=Tree.height_labels.key(@tree.height.to_sym) %>
   			<% else %>
   				Unknown
   			<% end %>
