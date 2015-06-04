@@ -48,6 +48,21 @@
       <%= f.text_area :treatment %>
     </div>
 
+    <% if action_name == "edit" %>
+      If this tree is not pickable anymore, let us know and tell us why:
+
+      <div class="field">
+        
+        <%= f.check_box :pickable, {}, "false", "true" %><%= f.label :pickable, "No, this tree is not pickable" %>
+      </div>
+
+      <div class="field">
+        <%= f.label :not_pickable_reason, "Reason why this tree is not pickable anymore:" %> <br>
+        <%= f.text_area :not_pickable_reason %>
+      </div>
+
+    <% end %>
+
     <fieldset>
       <legend>Do you want to keep 1/3 of the fruit</legend>
       <label style="margin:0 0.7em"><%= f.radio_button :keep, :yes %>Yes</label>
@@ -55,10 +70,12 @@
       <label style="margin:0 0.7em"><%= f.radio_button :keep, :no %>No</label>
     </fieldset> 
 
+
     <div class="field">
       <%= f.label :additional, "Are there any additional notes?" %><br>
       <%= f.text_area :additional %>
     </div>
+
 
   <div class="actions">
     <%= f.submit %>

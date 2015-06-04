@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150604194247) do
+ActiveRecord::Schema.define(version: 20150604212416) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -111,10 +111,10 @@ ActiveRecord::Schema.define(version: 20150604194247) do
     t.string   "species"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.decimal  "lat",          precision: 9, scale: 6
-    t.decimal  "lng",          precision: 9, scale: 6
+    t.decimal  "lat",                 precision: 9, scale: 6
+    t.decimal  "lng",                 precision: 9, scale: 6
     t.integer  "owner_id"
-    t.string   "height",                               default: "0"
+    t.string   "height",                                      default: "0"
     t.text     "treatment"
     t.integer  "keep"
     t.text     "additional"
@@ -123,6 +123,7 @@ ActiveRecord::Schema.define(version: 20150604194247) do
     t.date     "ripen"
     t.boolean  "pickable"
     t.integer  "submitter_id"
+    t.string   "not_pickable_reason"
   end
 
   add_index "trees", ["owner_id"], name: "index_trees_on_owner_id", using: :btree

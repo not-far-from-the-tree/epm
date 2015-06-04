@@ -32,13 +32,17 @@
   			<b>Additional Notes: </b> <%=@tree.additional %>
   		</p>
 	<% end %>
-	<% if @tree.pickable.present? %>
+	<% if !@tree.pickable.nil? %>
 		
 		<p>
 		<% if @tree.pickable == true %>
   			This tree is pickable.
   		<% else %>
-  			<b style="color: #ff0000">This tree is not pickable.</b>  		
+  			<b style="color: #ff0000">This tree is not pickable.</b><br />
+  			<b>Reason:</b><br />
+  			<% if @tree.not_pickable_reason.present? %>
+  				<%=@tree.not_pickable_reason %>
+  			<% end %>		
   		<% end %>
   		</p>
 	<% end %>  	
