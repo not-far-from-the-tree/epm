@@ -239,6 +239,20 @@ describe "Users" do
         expect(page).to have_content 'Sorry'
       end
 
+      it "allows admin to delete profile" do
+        login_as create :admin
+        visit user_path @u
+        expect(page).to have_content 'Delete'
+        click_link "Delete"
+        expect(current_path).to eq users_path
+      end
+
+      it "does not allow participant to delete profile" do
+        login_as @u
+        visit user_path @u
+        expect(page).not_to have_content 'Delete'
+      end
+      
     end
 
     context "filling out" do
