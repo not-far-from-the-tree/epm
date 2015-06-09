@@ -111,8 +111,6 @@ ActiveRecord::Schema.define(version: 20150604224617) do
     t.string   "species"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.decimal  "lat",                 precision: 9, scale: 6
-    t.decimal  "lng",                 precision: 9, scale: 6
     t.integer  "owner_id"
     t.text     "treatment"
     t.integer  "keep"

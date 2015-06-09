@@ -4,7 +4,7 @@ class AgenciesController < ApplicationController
 
   def index
   end
-
+ 
   def show
    @events = @agency.events.not_past
   end
@@ -18,9 +18,9 @@ class AgenciesController < ApplicationController
   def create
     @agency = Agency.new(agency_params)
     if @agency.save
-      render :show
+      redirect_to @agency
     else 
-      render :index
+      render :new 
     end
   end
 

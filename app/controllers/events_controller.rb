@@ -144,6 +144,16 @@
       end
       redirect_to @event, notice: "#{Configurable.event.capitalize} saved."
     else
+      if (params["tree_id"])
+        @event.trees = [Tree.find(params["tree_id"])]
+        @trees = Tree.closest [@event.trees.first.owner.lat, @event.trees.first.owner.lng], [params['tree_id']], nil
+        @event.address = @event.trees.first.owner.address
+        @event.ward_id = @event.trees.first.owner.home_ward
+        @event.lat = @event.trees.first.owner.lat
+        @event.lng = @event.trees.first.owner.lng
+      else 
+        @trees = Tree.joins(:owner).all.page(@page).per(10)
+      end
       render :new
     end
   end

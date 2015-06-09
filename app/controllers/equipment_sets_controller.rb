@@ -19,9 +19,9 @@ class EquipmentSetsController < ApplicationController
   def create
     @equipment_set = EquipmentSet.new(equipment_set_params)
     if @equipment_set.save
-      render :show
-    else
-      render :index
+      redirect_to @equipment_set
+    else 
+      render :new
     end
   end
 
@@ -35,7 +35,7 @@ class EquipmentSetsController < ApplicationController
     respond_with(@equipment_set)
   end
 
-  private
+  private 
     def set_equipment_set
       @equipment_set = EquipmentSet.find(params[:id])
     end
