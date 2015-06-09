@@ -3,7 +3,14 @@
     <%
       output = []
       output << content_tag(:small, "#{thing.distance_to(current_user).round(1)} kms away") if thing.coords && current_user.coords
-      output << with_br(thing.address) if thing.address
+
+
+ 
+      if (thing.address && thing.respond_to?(:hide_specific_location) && !thing.hide_specific_location) || (thing.address && !thing.respond_to?(:hide_specific_location))|| (thing.address && thing.respond_to?(:hide_specific_location) && (current_user.events.include?(thing) || current_user.has_role?(:admin)))
+     	output << with_br(thing.address)
+      else 
+      	output << "Address shown only to attendees"
+      end
     %>
     <%= output.join('<br>').html_safe if output.any? %>
   </section>

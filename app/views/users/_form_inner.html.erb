@@ -74,7 +74,7 @@
 
 <p style="font-style:italic"> We need your address to match you to close-by picks and to help you quickly add trees from your own property. </p>
 <script language="">
-  var active_wards = <%=Configurable.active_wards.split(",").to_json.html_safe %>
+  var active_wards = <% if Configurable.active_wards.present? %> <%=Configurable.active_wards.split(",").to_json.html_safe %> <% else %> [] <% end %>
   $(document).ready(function () {
       $("[name='user[home_ward]']").change(function (evt) {
         var ward = evt.currentTarget.value;

@@ -23,6 +23,7 @@ class Ability
       if user.has_role? :admin
         can :manage, [Event, Role, EquipmentSet, Agency, :setting]
         cannot [:claim, :attend], Event
+        can :approve, Event
         can [:index, :map, :show, :read_contact, :read_attendance, :update, :destroy, :invite], User
       end
 
@@ -30,6 +31,10 @@ class Ability
         can :manage, [EquipmentSet]
         can :read, Agency
         can [:read, :create], Event
+        can :edit, Event do |event|
+          ((event.coordinator.present? && event.coordinator == user) || event.coordinator.blank?)
+        end
+        cannot :approve, Event
         can [:claim, :read_notes], Event, coordinator_id: nil
         can [:unclaim, :update, :read_notes, :read_specific_location, :who, :invite, :take_attendance], Event, coordinator_id: user.id
         # actually coordinators can only edit *some* event fields

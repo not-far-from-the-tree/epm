@@ -72,12 +72,18 @@ describe "Events" do
         expect(page).to have_content 'Sorry'
       end
 
-      it "prevents coordinators from creating events" do
+      it "allows coordinators to create events" do
         login_as create :coordinator
         visit root_path
-        expect(page).not_to have_content 'Add New Event'
+        expect(page).to have_content 'Add New Event'
         visit new_event_path
-        expect(page).to have_content 'Sorry'
+        expect(page).to have_content 'Name' 
+      end
+
+      it "prevents coordinators from creating events" do
+        login_as create :coordinator
+        visit new_event_path
+        expect(page).not_to have_content 'Status' 
       end
 
       it "selects a ward" do
@@ -467,15 +473,16 @@ describe "Events" do
         expect(page).to have_field 'Max'
         expect(page).to have_field 'Hide specific location'
         logout
+        # changed because now coordinators can create events. if they are the coordinator for that event they should be able to edit
         login_as @coordinator
         visit edit_event_path e
         expect(page).to have_field 'Time'
-        expect(page).not_to have_field 'Name'
-        expect(page).not_to have_field 'Description'
-        expect(page).not_to have_field 'Notes'
-        expect(page).not_to have_field 'Min'
-        expect(page).not_to have_field 'Max'
-        expect(page).not_to have_field 'Hide specific location'
+        expect(page).to have_field 'Name'
+        expect(page).to have_field 'Description'
+        expect(page).to have_field 'Notes'
+        expect(page).to have_field 'Min'
+        expect(page).to have_field 'Max'
+        expect(page).to have_field 'Hide specific location'
       end
 
     end
@@ -784,16 +791,27 @@ describe "Events" do
     end
 
     context "deleting" do
-
       it "allows admin to delete an event" do
         e = create :event
         login_as @admin
         visit event_path e
-        click_link 'Delete'
+        click_link 'Cancel or Delete'
         expect(current_path).to eq cancel_event_path e
-        click_button 'Delete Event'
-        expect(current_path).to eq events_path
-        expect(page).to have_content "#{e.display_name} deleted"
+        click_button 'Permanently Delete Event'
+        expect(current_path).to eq dashboard_events_path
+        expect(page).to have_content "#{Configurable.event.capitalize} deleted"
+        expect(page).not_to have_link e.display_name
+      end
+
+      it "allows admin to cancel an event" do
+        e = create :event
+        login_as @admin
+        visit event_path e
+        click_link 'Cancel or Delete'
+        expect(current_path).to eq cancel_event_path e
+        click_button 'Cancel Event'
+        expect(current_path).to eq event_path(e.id)
+        expect(page).to have_content "Event cancelled. Cancelled: #{e.display_name}"
         expect(page).not_to have_link e.display_name
       end
 

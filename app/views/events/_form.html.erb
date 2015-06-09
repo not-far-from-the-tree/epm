@@ -4,7 +4,7 @@
 
   <%= start_cols %>
 
-  <% if @event.new_record? && can?(:approve, @event) %>
+  <% if can?(:approve, @event) %>
     <fieldset>
       <legend style="float:left">Status</legend>
       <label style="margin:0 0.7em"><%= f.radio_button :status, :proposed %>Proposed</label>
@@ -119,6 +119,7 @@
 
   <% end %>
 
+<% if @event.can_edit_attribute? :trees, current_user %>
 <h1>Trees already added to this pick</h1>  
 <div id="selectedTrees" style="width: 100%">
 <table>
@@ -250,7 +251,7 @@
   <div id="searchTrees">
       <%= render 'trees/formlist' %>
   </div>
-
+<% end %>
   <%= end_cols %>
 
   <%= start_cols %>

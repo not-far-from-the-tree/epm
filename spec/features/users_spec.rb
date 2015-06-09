@@ -179,6 +179,7 @@ describe "Users" do
         create :ward, name: 'ward one'
         create :ward, name: 'ward two'
         visit edit_user_path @participant
+        puts source.to_yaml
         check 'ward one'
         click_button 'Save'
         expect(page).to have_content 'ward one'

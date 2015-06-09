@@ -6,7 +6,7 @@ describe "Authentication" do
     visit new_user_registration_path
     pass = Faker::Internet.password
     u = build :user, password: pass
-    fill_in 'E-mail', with: u.email
+    fill_in 'E-mail Address', with: u.email
     fill_in 'user_password', with: pass
     fill_in 'user_password_confirmation', with: pass
     fill_in 'user_fname', with: u.fname
@@ -28,12 +28,13 @@ describe "Authentication" do
     expect(page).to have_content 'Problem'
   end
 
-  it "fails to sign up a user without accepting the liability waiver" do
-    visit new_user_registration_path
-    visit new_user_registration_path
+  it "fails to sign up a user that wants to participate in picks without accepting the liability waiver" do
+    visit root_path
+    click_link "Sign up"
     pass = Faker::Internet.password
-    u = build :user, password: pass
-    fill_in 'E-mail', with: u.email
+    u = build :full_user, password: pass
+    check "user_participate_in_picks"
+    fill_in 'user_email', with: u.email
     fill_in 'user_password', with: pass
     fill_in 'user_password_confirmation', with: pass
     fill_in 'user_fname', with: u.fname

@@ -117,7 +117,6 @@
     else 
       @trees = Tree.joins(:owner).all.page(@page).per(10)
     end
-    puts @trees.to_yaml
   end
 
   def edit
@@ -193,6 +192,13 @@
       end
       redirect_to @event, notice: "#{Configurable.event.capitalize} saved."
     else
+      if @event.trees.present?
+        @trees = Tree.closest [@event.trees.first.owner.lat, @event.trees.first.owner.lng], @event.tree_ids, nil
+      elsif @event.address.present?
+        @trees = Tree.closest [@event.lat, @event.lng], [], nil
+      else 
+        @trees = Tree.joins(:owner).all.page(@page).per(10)
+      end
       render :edit
     end
   end
@@ -261,7 +267,7 @@
     else
       flash[:notice] = "#{Configurable.event.capitalize} not deleted."
     end
-    redirect_to events_path
+    redirect_to dashboard_events_path
   end
 
   def attend
