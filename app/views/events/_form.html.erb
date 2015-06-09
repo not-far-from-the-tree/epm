@@ -347,6 +347,7 @@
 
   <%= end_cols %>
 
+
   <%= cancel %>
   <% if @event.persisted? && @event.users.reject{|u|u==current_user}.any? %>
     <%= submit 'Save & Notify of Changes', title: 'Note: Notifications will still only be sent if changes are made to the name, description, notes, or location.' %>
@@ -354,5 +355,6 @@
   <% else %>
     <%= submit %>
   <% end %>
+  
 
 <% end %>

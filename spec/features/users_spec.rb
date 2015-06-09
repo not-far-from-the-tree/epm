@@ -131,6 +131,28 @@ describe "Users" do
         expect(page).to have_content @participant.display_name
       end
 
+      it "has a list of events attended" do
+        @e = create :participatable_event
+        eu = @e.attend @participant
+        @e.update(start: 1.month.ago, finish: 1.month.ago + 1.hour)
+        eu.update status: :attended
+        visit root_path
+        click_link 'My Profile'
+        expect(current_path).to eq user_path @participant
+        expect(page).to have_content @e.display_name(@participant).to_s + "  " + (@e.start.strftime '%A %B %e, %Y') + " (Approved) Attended"
+      end
+
+      it "has a list of events attending" do
+        @e = create :participatable_event
+        eu = @e.attend @participant
+        @e.update(start: 1.month.from_now, finish: 1.month.from_now + 1.hour)
+        eu.update status: :attending
+        visit root_path
+        click_link 'My Profile'
+        expect(current_path).to eq user_path @participant
+        expect(page).to have_content @e.display_name(@participant).to_s + "  " + (@e.start.strftime '%A %B %e, %Y') + " (Approved) Attending"
+      end
+
       it "can access profile page from /me" do
         visit me_path
         expect(current_path).to eq user_path @participant

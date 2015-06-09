@@ -250,6 +250,17 @@ describe "Events" do
         expect(page).to have_content 'Sorry'
       end
 
+      it "does allow admin to manually invite participant to event" do
+        login_as @admin
+        @e = create :participatable_event
+        visit user_path @participant
+        click_link "Invite to Event"
+        find("a[href='/users/#{@participant.id.to_s}/invite?event_id=#{@e.id.to_s}']").click
+        visit user_path @participant
+        expect(page).to have_content @e.display_name(@participant).to_s + "  " + (@e.start.strftime '%A %B %e, %Y') + " (Approved) Invited"
+      end
+      
+
       context "email notifications" do
 
         before :each do
@@ -432,6 +443,19 @@ describe "Events" do
         expect(page).not_to have_link 'Who' # you have to be the coordinator to see who is coming
       end
 
+      it "does allow coordinators to view no-shows" do
+        @e = create :participatable_event
+        eu = @e.attend @participant
+        @e.update(start: 1.month.ago, finish: 1.month.ago + 1.hour)
+        eu.update status: :no_show
+        login_as @admin
+        visit event_path @e
+        find("a[href='/events/#{@e.id.to_s}/who']").click
+        within '#no_show_participants' do
+          expect(page).to have_content @participant.fname + " " + @participant.lname
+        end
+      end
+
       it "allows a coordinator to edit an event they are coordinating" do
         e = create :event, status: :proposed, coordinator: @coordinator
         login_as @coordinator
@@ -485,6 +509,22 @@ describe "Events" do
         expect(page).to have_field 'Hide specific location'
       end
 
+    end
+
+    context "admin" do 
+      it "does allow admin to cancel attendance on behalf of a participant" do
+        @e = create :participatable_event
+        eu = @e.attend @participant
+        @e.update(start: 1.month.from_now, finish: 1.month.from_now + 1.hour)
+        eu.update status: :attending
+        login_as @admin
+        visit user_path @participant
+        expect(page).to have_content @e.display_name(@participant).to_s + "  " + (@e.start.strftime '%A %B %e, %Y') + " (Approved) Attending Cancel their Attendance"
+        click_link "Cancel their Attendance"
+        visit event_path @e
+        find("a[href='/events/#{@e.id.to_s}/who']").click
+        expect(page).not_to have_content @participant.fname + " " + @participant.lname
+      end
     end
 
     context "geocoding" do

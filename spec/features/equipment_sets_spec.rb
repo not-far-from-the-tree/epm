@@ -108,5 +108,18 @@ describe "Equipment Sets" do
       end
   end
 
+  context "viewing" do
+      context "events" do
+        it "lists events for an equipment set" do
+          @es = create :full_equipment_set
+          @e = create :participatable_event
+          @e.equipment_set = @es
+          @e.save
+          login_as @admin
+          visit equipment_set_path @es
+          expect(page).to have_content @e.name
+        end
+      end
+  end
 
 end
