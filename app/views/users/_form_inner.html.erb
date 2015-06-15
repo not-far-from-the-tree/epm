@@ -1,12 +1,12 @@
 <%= start_cols %>
-
-<fieldset>
-  <legend>How do you want to participate in Not Far From the Tree?</legend>
-  <label style="margin:0 0.7em"><%= f.check_box  :participate_in_picks %> I want to participate in NFFTT picks</label>
-  <br />
-  <label style="margin:0 0.7em"><%= f.check_box  :add_trees %> I want to add trees to NFFTT's tree database</label>
-</fieldset>
-
+<% if action_name == "new" %>
+  <fieldset>
+    <legend>How do you want to participate in Not Far From the Tree?</legend>
+    <label style="margin:0 0.7em"><%= f.check_box  :participate_in_picks %> I want to participate in NFFTT picks</label>
+    <br />
+    <label style="margin:0 0.7em"><%= f.check_box  :add_trees %> I want to add trees to NFFTT's tree database</label>
+  </fieldset>
+<% end %>
 
 <h1>Your NFFTT Login Info</h1>
 <fieldset>
@@ -76,6 +76,18 @@
 <script language="">
   var active_wards = <% if Configurable.active_wards.present? %> <%=Configurable.active_wards.split(",").to_json.html_safe %> <% else %> [] <% end %>
   $(document).ready(function () {
+    <% if action_name == "new" %>
+      $("#ladderSection").hide();
+    <% end %>
+      $("#user_add_trees").change(function (evt) {
+          var isChecked = $(evt.currentTarget).prop("checked");
+          if (!!isChecked) {
+            $("#ladderSection").show();
+          } else {
+            $("#ladderSection").hide();
+          }
+      })
+
       $("[name='user[home_ward]']").change(function (evt) {
         var ward = evt.currentTarget.value;
         $("#ward_"+ward)[0].checked = true;
@@ -109,10 +121,17 @@
   We couldnt find that address on a map. Could you put directions below and a street address (e.g. 123 Yonge St. Toronto, ON) above? 
 </div>
 
-      <div class="field">
-        <%= f.label :propertynotes, "Property Notes" %>  <%= required %><br>
-        <%= f.text_area :propertynotes %>
-      </div>
+<div class="field">
+  <%= f.label :propertynotes, "Property Notes" %>  <%= required %><br>
+  <%= f.text_area :propertynotes %>
+</div>
+
+<fieldset id="ladderSection">
+  <legend>Do have a ladder on the property?</legend>
+    <label style="margin:0 0.7em"><%= f.radio_button :ladder, :yes %>Yes</label>
+    <label style="margin:0 0.7em"><%= f.radio_button :ladder, :borrow %>I can borrow one from a neighbour</label>
+    <label style="margin:0 0.7em"><%= f.radio_button :ladder, :no %>No</label>
+</fieldset>
 
 <%= end_cols %>
 

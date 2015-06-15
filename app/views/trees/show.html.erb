@@ -74,7 +74,7 @@
 			<b>Name: </b> <%= contact.fname %> <%= contact.lname %> is the primary contact for this tree.
 		</p>
 		<p>
-			<b>Contact Type: </b> They are the <%=@tree.relationship %>
+			<b>Contact Type: </b> They are the <%=Tree.relationship_labels[@tree.relationship.to_sym] %>
 		</p>
 		<p>
 			<b>Email: </b> <%= contact.email || "None" %> 
@@ -151,10 +151,20 @@
   </p>
 
  <h1>Event Instructions</h1>
-	<p>Please keep <%= @tree.keep %> fruit for the property owner.</p>
+	<% if @tree.keep.present? %>
+		<p>Keep <b><%= Tree.keep_result_labels.key(@tree.keep.to_sym) %></b> of the fruit for the property owner.</p>
+	<% end %>
 
 	<b>Tree Access Notes: </b>
-	<p></p>
+	<p><%= @tree.owner.propertynotes %></p>
+
+	<% @tree.owner.ladder = User.ladders[:yes] %>
+
+	<% if @tree.owner.ladder.present? %>
+	<p>Ladder: <b>The property owner <%=User.ladder_show_labels.key(@tree.owner.ladder.to_sym) %></b></p>
+	<% end %>
+
+
 
 	<h3>Treatment</h3>
 	<p><%= @tree.treatment %></p>

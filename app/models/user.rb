@@ -11,6 +11,28 @@ class User < ActiveRecord::Base
   validates :waiver, :acceptance => { :accept => true }, if: (:new_record? && :picks?)
   validates :email, :fname, :lname, :phone, presence: true
 
+  enum ladder: {
+    :yes => 1,
+    :borrow => 2,
+    :no => 3
+  }
+
+  def self.ladder_show_labels 
+  {
+    "has a ladder" => :yes,
+    "can borrow a ladder from a neighbour" => :borrow,
+    "does not have a ladder" => :no
+  }
+  end
+
+  def self.ladder_labels 
+  {
+    "Yes" => :yes,
+    "I can borrow one from a neighbour" => :borrow,
+    "No" => :no
+  }
+  end
+
   def picks?
     participate_in_picks == "1"
   end

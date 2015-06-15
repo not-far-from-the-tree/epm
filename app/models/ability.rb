@@ -8,7 +8,7 @@ class Ability
     can :index, :geocode
     
     if user.persisted?
-      can :manage, Tree
+      cannot :manage, Tree
       can :read, Event, can_have_participants?: true
       can [:dashboard, :calendar], Event
       
@@ -41,14 +41,23 @@ class Ability
         #   however that authorization is handled *not* through cancan
         #   but rather through an event's can_edit_attribute? method
         can [:show, :read_attendance], User
+
+        can :manage, Tree do |tree|
+          tree.submitter == user || tree.owner == user
+        end
       end
 
       if user.has_role? :participant
         can [:attend, :unattend], Event
-        cannot :index, Tree
         can :read_specific_location, Event do |event|
           !event.hide_specific_location || event.participants.include?(user)
         end
+
+        can :manage, Tree do |tree|
+          tree.submitter == user || tree.owner == user
+        end
+        cannot :index, Tree
+        can :create, Tree
       end
 
     end

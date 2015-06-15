@@ -37,11 +37,11 @@
       <%= f.text_field :subspecies %>
     </div>  
 
-    <div class="field">
+    <fieldset>
 
-      <%= f.label :height %><br>
+      <legend><%= f.label :height %></legend><br>
       <%= f.select(:height, options_for_select(Tree.height_labels, @tree.height)) %>
-    </div>  
+    </fieldset>  
 
     <div class="field">
       <%= f.label :treatment %><br>

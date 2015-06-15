@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150604224617) do
+ActiveRecord::Schema.define(version: 20150612031541) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -111,6 +111,8 @@ ActiveRecord::Schema.define(version: 20150604224617) do
     t.string   "species"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.decimal  "lat",                 precision: 9, scale: 6
+    t.decimal  "lng",                 precision: 9, scale: 6
     t.integer  "owner_id"
     t.text     "treatment"
     t.integer  "keep"
@@ -160,7 +162,6 @@ ActiveRecord::Schema.define(version: 20150604224617) do
     t.string   "lname"
     t.boolean  "snail_mail",                                      default: false
     t.integer  "num_participated_events",                         default: 0
-    t.string   "ladder"
     t.text     "contactnotes"
     t.text     "propertynotes"
     t.integer  "ward"
@@ -171,6 +172,7 @@ ActiveRecord::Schema.define(version: 20150604224617) do
     t.boolean  "can_mail"
     t.boolean  "can_phone"
     t.string   "admin_notes"
+    t.integer  "ladder"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

@@ -93,7 +93,39 @@
       <% end %>
     </ol>
   <% end %>
+
 <% end %>
+
+<% if current_user.has_role?(:admin) %>
+
+    <% @otrees = Tree.where({owner: @user}) %>
+    <% puts @otrees.to_yaml %>
+    <% if @otrees.any? %>
+      <h2> Trees on their Property </h2>
+      <ol class="unordered">
+        <% @otrees.each do |t| %>
+          <li>
+            <%= link_to t.species, t %>
+          </li>
+        <% end %>
+      </ol>
+    <% end %>
+
+
+    <% @strees = Tree.where({submitter: @user}) %>
+    <% if @strees.any? %>
+      <h2> Trees they Manage </h2>
+      <ol class="unordered">
+        <% @strees.each do |t| %>
+          <li>
+            <%= link_to t.species + " - " + t.owner.address, t %>
+          </li>
+        <% end %>
+      </ol>
+    <% end %>
+
+<% end %>
+
 
 <% if current_user.has_role?(:admin) %>
   <p>

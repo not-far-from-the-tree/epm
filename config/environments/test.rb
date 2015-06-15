@@ -17,7 +17,7 @@ Epm::Application.configure do
   config.static_cache_control = "public, max-age=3600"
 
   # Don't show full error reports, disable caching.
-  config.consider_all_requests_local       = false
+  config.consider_all_requests_local       = true
   config.action_controller.perform_caching = false
 
   # Don't raise exceptions instead of rendering exception templates.

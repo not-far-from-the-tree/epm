@@ -19,12 +19,11 @@
         <div style="width: 30%; clear: none; float: left">
           <%= link_to tree.species, tree %>
         </div>
-        <div style="width: 30%; clear: none; float: left">
-            <%= link_to (tree.owner.address.split(/[\n,]+/)[0]).to_s + "...", tree %></td>
-        </div>
-        <div style="clear: none; float: left">
-          <%= link_to "Schedule #{Configurable.event.titlecase}", new_event_path(tree_id: tree.id), {class: "button"} %>
-        </div>
+        <% if tree.owner.address.present? %>
+          <div style="width: 30%; clear: none; float: left">
+              <%= link_to (tree.owner.address.split(/[\n,]+/)[0]).to_s + "...", tree %></td>
+          </div>
+        <% end %>
       </li>
     <% end %>
 </ul>

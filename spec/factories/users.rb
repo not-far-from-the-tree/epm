@@ -25,7 +25,7 @@ FactoryGirl.define do
     factory :coordinator do
       roles_attributes [name: :coordinator]
     end
-
+ 
     factory :participant do
       roles_attributes [name: :participant]
     end
@@ -34,8 +34,11 @@ FactoryGirl.define do
       address { "#{Faker::Address.street_address}\n#{Faker::Address.city}, #{Faker::Address.country}" }
       lat { Faker::Address.latitude }
       lng { Faker::Address.longitude }
+
+      factory :full_tree_owner do
+        propertynotes { Faker::Lorem.sentences(rand 1..5).join(' ') }
+        ladder { User.ladders[:no] }
+      end   
     end
-
   end
-
 end

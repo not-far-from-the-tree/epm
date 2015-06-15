@@ -2,8 +2,6 @@ class Tree < ActiveRecord::Base
 
 
   before_validation :check_species
-  before_validation :check_user
-  #before_validation :calculate_height
 
   strip_attributes
 
@@ -17,14 +15,42 @@ class Tree < ActiveRecord::Base
 
   attr_accessor :species_other
 
-  # enum keep: [ "a 1/3 of the", "less than 1/3 of the", "no" ]
-  enum keep: [ "yes", "abit", "no" ]
-#  enum height: [
-#    ">3",
-#    "2-3",
-#    "1-2",
-#    "<1"
-#  ]
+  enum keep: {
+    :yes => 0,
+    :abit => 1,
+    :no => 2
+  }
+
+
+  enum relationship: {
+    :propertyowner => "propertyowner",
+    :friend => "friend",
+    :tenant => "tenant"
+  }
+
+  def self.relationship_labels 
+  {
+    :propertyowner => "property owner",
+    :friend => "friend",
+    :tenant => "tenant"
+  }
+  end
+
+  def self.keep_labels 
+  {
+    "Yes" => :yes,
+    "Yes, but less than 1/3" => :abit,
+    "No" => :no
+  }
+  end
+
+  def self.keep_result_labels 
+  {
+    "1/3" => :yes,
+    "less than 1/3" => :abit,
+    "none" => :no
+  }
+  end
 
   enum height: {
     :lt1 => 1,
@@ -65,21 +91,5 @@ class Tree < ActiveRecord::Base
     like = db == 'postgresql' ? 'ILIKE' : 'LIKE'
     joins(:owner).where("trees.subspecies #{like} ? OR trees.species #{like} ? OR users.address #{like} ?", "%#{q}%", "%#{q}%", "%#{q}%")
   }
-
-  private
-
-  def check_user
-    # first, check if anything has changed
-    if self.owner.changed?
-      # check if the name has changed, if so, create a new user
-      if (self.owner.fname_changed? || self.owner.lname_changed?) && self.owner.email_changed?
-        new_user_hash = self.owner.attributes
-        new_user_hash.delete('id')
-        new_user_hash['password'] = Devise.friendly_token.first(8)
-        new_user = User.create(new_user_hash)
-        self.submitter_id = self.owner.id
-        self.owner_id = new_user.id
-      end
-    end
-  end
+  
 end

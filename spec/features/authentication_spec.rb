@@ -45,6 +45,35 @@ describe "Authentication" do
     expect(page).to have_content 'Problem'
   end
 
+  it "signs up a user that wants to add trees only without accepting the liability waiver" do
+    visit root_path
+    click_link "Sign up"
+    pass = Faker::Internet.password
+    u = build :full_user, password: pass
+    check "user_add_trees"
+    fill_in 'user_email', with: u.email
+    fill_in 'user_password', with: pass
+    fill_in 'user_password_confirmation', with: pass
+    fill_in 'user_fname', with: u.fname
+    fill_in 'user_lname', with: u.lname
+    fill_in 'Phone', with: u.phone
+    click_button 'Sign up'
+    expect(current_path).to eq new_user_session_path
+    expect(page).not_to have_content 'Problem'
+  end
+
+  it "tells user that ward is not serviced", js: true do
+    active_ward = create :ward
+    inactive_ward = create :ward
+    Configurable.active_wards = [active_ward.id]
+    visit root_path
+    click_link "Sign up"
+    select inactive_ward.id, from: 'Ward'
+    expect(page).to have_content "We don't serve your ward yet"
+    select active_ward.id, from: 'Ward'
+    expect(page).not_to have_content "We don't serve your ward yet"
+  end
+
   it "logs in a user" do
     pass = Faker::Internet.password
     u = create :user, password: pass
@@ -53,6 +82,15 @@ describe "Authentication" do
     fill_in 'Password', with: pass
     click_button 'Sign in'
     expect(page).to have_content 'Log out'
+  end
+
+  it "tells a user if their address isn't geocodable", js: true do
+    visit root_path
+    click_link "Sign up"
+    fill_in 'Full Address', with: Faker::Lorem.sentences(rand 1..5).join(' ')
+    expect(page).to have_content 'We couldnt find that address on a map.'
+    fill_in 'Full Address', with: "#{Faker::Address.street_address}\n#{Faker::Address.city}, #{Faker::Address.country}"
+    expect(page).not_to have_content 'We couldnt find that address on a map.'
   end
 
   it "fails to log in a user with bad credentials" do
