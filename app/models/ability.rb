@@ -34,7 +34,6 @@ class Ability
         can :edit, Event do |event|
           ((event.coordinator.present? && event.coordinator == user) || event.coordinator.blank?)
         end
-        cannot :approve, Event
         can [:claim, :read_notes], Event, coordinator_id: nil
         can [:unclaim, :update, :read_notes, :read_specific_location, :who, :invite, :take_attendance], Event, coordinator_id: user.id
         # actually coordinators can only edit *some* event fields
