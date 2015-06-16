@@ -106,7 +106,10 @@ class TreesController < ApplicationController
           new_user_hash.delete('current_sign_in_ip')
           new_user_hash['created_at'] = DateTime.now
           new_user_hash['password'] = Devise.friendly_token.first(8)
-          new_user = User.create(new_user_hash)
+          
+          new_user = User.new(new_user_hash)
+          new_user.skip_confirmation!
+          new_user.save
           @tree.owner_id = new_user.id
           @tree.submitter_id = current_user.id
         end

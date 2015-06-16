@@ -1,4 +1,3 @@
-<p id="notice"><%= notice %></p>
 	<h1 class="title">	
 	<% if Tree.types.include?(@tree.species.capitalize.to_s) %>
 		<%= image_tag("fruits/#{@tree.species.downcase}32.png") %>

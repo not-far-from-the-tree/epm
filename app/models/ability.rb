@@ -21,7 +21,7 @@ class Ability
       end
 
       if user.has_role? :admin
-        can :manage, [Event, Role, EquipmentSet, Agency, :setting]
+        can :manage, [Event, Role, EquipmentSet, Agency, Tree, :setting]
         cannot [:claim, :attend], Event
         can :approve, Event
         can [:index, :map, :show, :read_contact, :read_attendance, :update, :destroy, :invite], User

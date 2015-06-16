@@ -138,6 +138,9 @@
     </div>
     <!-- if the user is not a property owner, just include a card with their info -->
     <div id="notpropertyowner">
+      <p style="font-weight: bold">
+      Please fill out as much information as possible below about the property owner and their property. 
+      </p>
       <%= f.fields_for :owner, @tree.owner do |uf| %>
         <%= uf.hidden_field :id %>
         <fieldset>
