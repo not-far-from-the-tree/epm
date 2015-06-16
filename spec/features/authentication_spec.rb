@@ -68,9 +68,9 @@ describe "Authentication" do
     Configurable.active_wards = [active_ward.id]
     visit root_path
     click_link "Sign up"
-    select inactive_ward.id, from: 'Ward'
+    select inactive_ward.id, from: 'Home ward'
     expect(page).to have_content "We don't serve your ward yet"
-    select active_ward.id, from: 'Ward'
+    select active_ward.id, from: 'Home ward'
     expect(page).not_to have_content "We don't serve your ward yet"
   end
 

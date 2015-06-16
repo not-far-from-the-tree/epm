@@ -50,9 +50,10 @@
           <% end %>
           <li<%= ' class="active"'.html_safe if on_profile %>><%= link_to 'My Profile', current_user %></li>
           
+          <% if false %>
           <li<%= ' class="active"'.html_safe if controller_name == 'trees' && action_name == 'mine' %>><%= link_to 'My Trees', mine_trees_path %></li>
-          
-          <% if can? :index, Tree %>
+          <% end %>
+          <% if false #can? :index, Tree %>
             <li<%= ' class="active"'.html_safe if controller_name == 'trees' && action_name != 'mine'%>>
               <%= link_to 'Trees', trees_path %>
             </li>

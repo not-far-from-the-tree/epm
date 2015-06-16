@@ -80,7 +80,7 @@
 
   <%= next_col %>
 
-  <% if @tree %>
+  <% if false %>
     <b><%= @tree.owner.fname %></b> is the primary contact for this tree and is a <b><%= @tree.relationship %></b> in relation to the property. 
   <% else %>
     <% if @event.can_edit_attribute? :address, current_user %>
@@ -100,7 +100,7 @@
     <% end %>
   <% end %>
 
-  <% if @tree %>
+  <% if false # @tree %>
 
     <% if Tree.types.include?(@tree.species.capitalize.to_s) %>
     <%= image_tag("fruits/#{@tree.species.downcase}32.png") %>
@@ -119,7 +119,7 @@
 
   <% end %>
 
-<% if @event.can_edit_attribute? :trees, current_user %>
+<% if false #@event.can_edit_attribute? :trees, current_user %>
 <h1>Trees already added to this pick</h1>  
 <div id="selectedTrees" style="width: 100%">
 <table>
