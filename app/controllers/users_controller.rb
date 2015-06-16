@@ -97,7 +97,7 @@ class UsersController < ApplicationController
       redirect_to @user, notice: 'User invited.'
     else
       @events = Event.accepting_participants
-          .joins("LEFT JOIN event_users ON event_users.event_id = events.id")
+          #.joins("LEFT JOIN event_users ON event_users.event_id = events.id")
           #.where.not("event_users.user_id = " + @user.id.to_s)
           #.group("events.id")
     end
